@@ -1,0 +1,1261 @@
+// _base.scss imports _custom.scss (variables and mixins) and other partials.
+@import "base";
+
+
+html {
+  background: $page;
+}
+
+body {
+  font-family: $sans-serif-small; // Set from _custom.scss font variables
+  font-size: 87.5%;
+  height: 100%;
+}
+
+pre,
+code,
+tt,
+samp,
+kbd,
+var {
+  font-family: $mono;
+}
+
+#page-wrapper {
+  min-height: 100%;
+  position: relative;
+}
+
+#header-wrapper {
+  position: relative;		
+  .region-header {
+    #block-block-6 {
+      text-align: center;
+      background: #333;
+      color: #f1f1f1;
+      font-size: 180%;
+      line-height: 1.2em;
+      a, a:link, a:visited {
+        color: #fff;
+      }      
+    }
+    #sidr-wrapper-0 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      a, a:link, a:visited {
+        color: #fff;
+	display: block;
+	padding: .2em 0 0 1em;
+	font-size: 120%;
+      }
+    }
+    #block-menu-menu-umpire {
+      position: absolute;
+      top: 0;
+      right: 0;
+      a {
+        display: block;
+        padding-top: .2em;
+        color: #fff;
+	font-size: 120%;
+      }
+    }
+  }
+}
+
+#content-wrapper {
+  .container {
+    margin-bottom: 2em;
+  }
+}
+
+#page-title {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 130%;
+  margin-top: .5em;
+}		   
+
+ul.links {
+  margin: 0;
+  padding: 0;
+
+  &.inline {
+    display: block;
+  }
+
+  li {
+    display: inline;
+    list-style: none;
+    padding: 0 10px 0 0;
+  }
+}
+
+a {
+  text-decoration: none;
+
+  &:link,
+  &:visited {
+    color: $link;
+  }
+
+  &:active,
+  &.active {}
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+
+
+/* If li.content exists it's a problem, so reset the padding */
+.block .menu li.content {
+  padding: 0;
+}
+
+#block-menu-menu-umpire {
+  text-transform: uppercase;
+  ul {
+    padding: 0;
+    margin: 0;
+    li {
+      display: inline-block;
+      padding: 0 5px;
+      margin: 0;
+      a {
+        color: $menu_black;
+        border: 0 none;
+      }
+    }
+    li:hover {
+      background: #eee;
+    }
+  }  		  
+}
+
+ul.primary {
+  border-bottom: none;
+  margin: 1em 0;
+  text-align: center;
+
+  li {
+    display: inline-block;
+    background-color: $light;
+    a {
+      margin: 0;
+      padding: 2px 20px;
+      display: block;
+      border: none;
+      background-color: transparent;
+      &:hover,
+      &:focus {
+      }
+    }
+  }
+  li.active a {
+    border: none;
+    background-color: $dark;
+  }
+}
+
+
+ul.secondary {
+  border-bottom: 1px solid $border;
+  margin: 1em 0 0;
+  padding: 0 .3em 1em;
+
+  li {
+    border-right: 0;
+    list-style: none;
+    padding: 0 10px 0 0;
+
+    a {
+      &:hover,
+      &.active {
+        border-bottom: none;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+ul.action-links {
+  margin: 0;
+  list-style: none;
+  text-align: left;
+  position: relative;
+  top: -10px;
+  a {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  a:before {
+    content: " + ";
+  }
+}
+
+ul.menu li {
+  margin: 0;
+}
+
+.form-radios .form-item {
+  margin: 0;
+}
+
+.form-item {
+
+  margin: 1em 0;
+
+  input.error,
+  textarea.error,
+  select.error {
+    border: 1px solid $highlight;
+  }
+
+  label {
+    font-weight: 700;
+  }
+
+  label.option {
+    display: inline-block;
+  }
+
+  .description {
+    font-size: 0.85em;
+  }
+
+  &.form-checkboxes ,
+  &.form-radios {
+  }
+}
+
+
+/*
+ * Highlight marks and form required mark
+ */
+.marker,
+.form-required {
+  color: $highlight;
+}
+
+
+.container-inline {
+  div,
+  label {
+    display: inline;
+  }
+}
+
+/*
+ * Buttons used by contrib modules like Media
+ */
+a.button {
+  @include appearance(button);
+}
+
+
+/*
+ * Password confirmation
+ */
+.password-parent,
+.confirm-parent {
+  margin: 0;
+}
+
+
+/* =============================================================================
+ *   Tables
+ * ========================================================================== */
+
+table {
+  margin: 0;
+  padding: 0;
+  &.sticky-header {
+    z-index: 10;
+  }
+  tr.totals-row {
+    background: #e5e5e5;
+    td {
+      font-weight: bold;
+    }
+  }
+}
+
+.wide-table {
+  table {
+    width: 100%;
+    td.first {
+      width: 10%;
+    }
+  }
+}
+
+.table-14 {
+  th, td {
+    width: 6%;	  
+  }
+}
+
+.table-10 {
+  td {
+    width: 10%;
+  }
+}
+
+table,
+thead,
+tbody,
+tr,
+th,
+td {
+  border-color: $border;
+}
+
+
+table,
+td,
+th {
+  vertical-align: middle;
+}
+
+
+caption {
+  text-align: center;
+  font-weight: bold;
+}
+
+
+thead tr {
+  font-weight: 700;
+  background-color: $medium_dark;
+}
+
+
+td,
+th {
+  border-bottom: 0;
+  margin: 0;
+  padding: 5px 7px;
+}
+
+
+tbody {}
+
+
+tbody tr {
+  border-top: 1px solid $border;
+}
+
+
+tr {
+
+  &.odd {
+    background: $page;
+  }
+
+  /* Table row striping */
+  &.info,
+  &.even,
+  &:nth-child(2n+2)  {
+    border-bottom: 0;
+    background-color: $ultralight;
+  }
+
+  &.drag {}
+
+  &.drag-previous {}
+
+  &.odd td.active {
+    background-color: $light;
+  }
+
+  &.even td.active {
+    background-color: $medium_light;
+  }
+}
+
+
+.lt-ie8 tr {
+
+  &.even,
+  &.odd {
+
+    th,
+    td {
+    }
+  }
+}
+
+
+/*
+ * Forum tables
+ * Core sets white-space to nowrap, which makes no sense
+ */
+#forum td {
+  &.created,
+  &.posts,
+  &.topics,
+  &.last-reply,
+  &.replies,
+  &.pager {
+    white-space: normal;
+  }
+}
+
+/* =============================================================================
+ *   Misc overrides for contrib modules
+ * ========================================================================== */
+
+/*
+ * Admin menu overrides
+ */
+#admin-menu {
+  margin: 0;
+  padding: 0;
+}
+
+
+/*
+ * Devel Module
+ */
+.dev-query {
+  background: $light;
+  padding: 30px;
+}
+
+
+/*
+ * Styleguide module tweaks
+ */
+#styleguide-header {
+  padding: 0 10px;
+
+  .item-list {
+    font-family: inherit;
+    margin: 0 20px 20px 0;
+    min-height: 260px;
+    width: auto;
+  }
+}
+
+/* =============================================================================
+ *   Decathlon
+ * ========================================================================== */
+
+.front.not-logged-in, .hide-title {
+  #page-title {
+    display: none;
+  }
+}
+
+.front.not-logged-in {
+  .logo-image {
+    text-align: center;
+  }
+}
+
+.page-user-login {
+  text-align: center;
+}
+
+.game-rules {
+  background: $medium_dark;
+}
+
+#decathlon-scoring-form-special-form {
+  #edit-players {
+    .form-type-checkbox {
+      display: inline-block;
+      width: 10%;
+    }
+  }
+  .buttonset {
+    float: left;
+    width: 24%;
+    border: 1px solid $border;
+    .form-type-radios > label {
+      font-size: 120%;
+      text-align: center;
+    }
+    .form-type-radio {
+      display: inline-block;
+      width: 32%;
+      .ui-button {
+        width: 100%;
+	font-size: 90%;
+      }
+    }
+  }
+  .form-submit {
+    clear: both;
+    display: block;
+    margin: 1em auto;
+    padding: .5em 3em;
+  }
+}
+
+.page-game-scoring {  
+  #content {
+    width: 50%;
+    margin: 1em auto;
+  }		   
+  #decathlon-scoring-form {		   
+    position: relative;
+  }
+  .player-names {
+    width: 30%;
+    float: left;
+    height: 700px;
+    overflow: scroll;
+    background: $medium_dark;
+    .block-inner {
+      margin: 0;
+    }
+    .views-row {
+      text-align: center;
+      font-size: 110%;
+      margin: 2px 0;
+      padding: 5px 0;
+      background: $light;
+    }
+  }
+  .scoring-form {
+    width: 69%;
+    float: right;
+  }
+  .game-rules {
+    background: none;
+    float: right;
+    width: 69%;
+    margin-top: 1em;
+    .views-field-name {
+      display: none;
+    }  
+    ul {
+      margin: 0;
+      padding: 1em;
+      text-align: center;
+      list-style-type: none;
+      font-size: 90%;
+    }
+  }
+  fieldset {
+    text-align: center;
+    border: none;
+  }
+  fieldset.players {
+    padding: 0;
+    .form-item {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+  }
+  fieldset#edit-actions {
+    .custom-submit {
+      display: inline-block;
+      margin: 0;
+      input {
+        width: 100px;
+        line-height: inherit;
+      }	
+    }
+  }
+  .views-field-tid,
+  .views-field-field-picture {
+    display: none;		  
+  }
+  .buttonset {
+    .form-type-radio {
+      display: inline;
+    }
+  }
+  .ui-button-text-only .ui-button-text {
+    padding: 0.1em 0.8em;
+  }
+  .ui-widget {
+    font-size: .9em;
+  }
+  .layout {
+    text-align: center;
+  }
+  .player-image {
+    margin: 0 auto;
+    border: 3px solid $border;
+    padding: 3px;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    &.active {
+      background: #fff;
+      border: 3px solid #fff;
+    }
+    span.invalid {
+      color: $red_highlight;
+    }
+  }
+  .scoring-group {
+    background: $ultralight;
+    text-align: center;
+    margin: 5px 0;
+  }
+  .scoring-column {
+    margin: 0;
+    .form-item {
+      margin: 0;
+    }
+  }
+  .scoring-note .form-item {
+    margin-top: 0;
+    font-size: 90%;
+  }
+}
+
+.page-game-selecting {
+  tr td {
+    text-align: center;
+  }
+  tr td:hover {
+    background: #ddd;
+  }
+}
+
+.grid {
+  text-align: center;
+  .view-content {
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .views-row {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 1px 1px 0;
+    padding: 2px; 
+    position: relative; 
+    width: 30%;
+    .views-field {
+      max-width: 100%;
+    }
+  }
+  .views-row:hover {
+    background: $border;
+  }
+}
+
+.grid-8 .views-row {width: 11%;}
+.grid-6 .views-row {width: 15%;}
+.grid-games .views-row {width: 13%;}
+
+.table-page {
+  #content {
+    width: 80%;
+    margin: 0 auto;
+  }
+  table {
+    table-layout: fixed;
+    width: 100%;
+    margin-bottom: 1em;
+    caption {
+      font-size: 100%;
+    }
+  }
+}
+.game-list {
+  &.left-group {
+    text-align: right;
+  }	   
+  .views-row {
+    display: inline-block;
+    text-align: center;
+  }
+}
+
+#block-block-4 {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  z-index: 9999;	       
+  height: 50px;
+  width: 400px;
+  margin: 0 auto;
+  font-size: 250%;
+  text-align: center;
+  font-weight: bold;
+  background: #fff;
+  a {
+    color: #D63030;
+  }
+}
+
+.overflow-list {
+  height: 400px;
+  overflow: scroll;
+  background: $ultralight;
+}
+
+.item-list-player-total {
+  position: relative;
+  margin: 0;
+
+  h3 {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 20%;
+    margin: 0;
+    text-align: center;
+    font-weight: normal;
+    font-size: 85%;
+    line-height: 1.3;
+    div.card-label {
+      display: table;
+      height: 100%;
+      width: 100%;
+    }
+    div.label-text {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+      &.label-1 {
+        border-bottom: 1px solid $border;
+      }
+    }
+  }
+  ul.player-total {
+    margin: 0 0 0 20%;
+    border-bottom: 1px solid $border;
+    border-right: 1px solid $border;
+  }   
+  ul.player-total.card-1 {
+    border-bottom: 1px solid #000;
+  }   
+  ul, ul li {
+    margin: 0;
+    list-style-type: none;
+  }
+  ul.header li,
+  ul.scores li,
+  ul.subtotal li {
+    display: inline-block;
+  }
+  ul.header,
+  ul.scores {
+    margin: 0;
+    li {
+      width: 10%;
+      text-align: center;;
+      font-size: 80%;
+    }
+    li.single {
+      width: 10%;
+    }
+    li.chart, li.data {
+      width: 60%;
+    }
+    li.last {
+      width: 15%;
+    }
+  }
+  li.odd {
+    background: $light;
+  }
+  li.leader li.chart div {
+    background: $yellow;
+    width: 65%;
+    margin: 0 auto;
+  }
+  ul.subtotal li {
+    margin: 0 10px;
+  }
+  li.total, li.subtotal {
+    background: $medium_dark;
+    text-align: center;
+  }
+  li.total {  
+    font-size: 110%;
+    padding: 5px 0;
+  }
+}
+
+.footnote {
+  text-align: center;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    width: 40%;
+    margin: 1em auto;
+  }
+}
+.table-footnote {
+  font-size: 80%;
+  font-style: italic;		
+  position: relative;
+  top: 5px;
+}
+.eligible {
+  background: $green_highlight;
+}
+.not-eligible {
+  background: $red_highlight;
+  span {color: #fff; font-size: 80%;}
+}
+.exhibition {
+  background: $medium_light;
+}
+.eligible,
+.not-eligible {
+}
+
+.page-decathlon {
+  #decathlon-dpi-form {
+    table {
+      margin: 1em auto;
+      th {
+        text-align: center;
+      }
+    }
+  }
+  .form-submit {
+    display: block;
+    margin: 0 auto;
+    width: 100px;
+    clear: both;
+    line-height: inherit;
+  }
+}
+
+.choose-value {
+  text-align: center;
+  font-size: 120%;
+  font-weight: bold;
+  margin-top: 2em;
+}
+
+.page-players-player {
+  h2 {
+    font-size: 1.1em;
+    text-align: center;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .ui-tabs {
+    margin: 2em;
+    .ui-tabs-nav li {
+      float: none;
+      display: inline-block;
+      width: 32%;
+      a {
+        float: none;
+	display: block;
+	text-align: center;
+	text-transform: uppercase;
+      }
+      a:focus {
+        outline: none;
+      }
+    }
+  }
+  .pane-decathlon-player-scorecards {
+    margin: 1em 1em 2em;
+    padding: .5em .5em 2em;
+    background: #e5e5e5;
+    div.player-scorecard {
+      position: relative;
+      margin: 1em 0;
+      .player-image {
+        position: absolute;
+        left: 15%;
+        list-style-type: none;
+        text-align: center;
+      }
+      .dpi-table {
+        margin-left: 35%;
+        width: 50%;
+        &, th {text-align: center;}
+      }
+    }
+    .athlon-table {
+      width: 100%;
+    }
+  }
+  .pane-decathlon-player-standings {
+    margin: 1em 1em 2em;
+    padding: .5em .5em 2em;
+    background: #e5e5e5;
+    table {
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+  .player-results {
+    background: #fafafa;
+    border: 1px solid $border;
+    margin: 0 .5em 0;
+    padding: .5em;
+    h2 {
+      font-size: 130%;
+      margin: .5em 0;
+    }
+    table {
+      margin: 1em 0;
+      font-size: 80%;
+      &, th { text-align: center; }
+    }
+  }
+  .item-list-player-total {
+    margin: 0;
+    ul.player-total {
+      border: 1px solid $border;
+    }   
+  }
+  .view-empty {
+    border: 1px solid $border;
+    text-align: center;
+    background: whitesmoke;
+  }			
+}
+
+.player-select {
+  text-align: center;
+  margin: 0 0 1em;
+  select {
+    font-size: 140%;
+    padding: 10px 40%;
+    option {
+
+    }
+  }
+}
+
+ul.score-list {
+  margin: 0;
+  padding: 0;
+  li {
+    display: inline-block;
+    width: 24%;
+    span {
+      padding: 3px 0;
+      display: inline-block;
+      text-align: center;
+    }
+    .player {
+      background: #ddd;
+      width: 80%;
+    }
+    .score {
+      background: #000;
+      color: #fff;
+      width: 20%;
+    }
+  }
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.page-scores-games {
+  table {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .game-rules {
+    text-align :center;
+    margin: 0 10%;
+  }
+}
+
+.page-scores-game {
+  #content {
+    width: 80%;
+    margin: 0 auto;
+    table {
+      table-layout: fixed;
+      width: 100%;
+    }
+  }
+}
+
+.page-decathlon-set-year {
+  #content {
+    text-align: center;
+  }			 
+  .form-radios {
+    margin: 1em 0;
+  }
+}
+
+.tickercontainer {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  margin-top: .1em;
+  background: $menu_black;
+  .mask {
+    background: $menu_black;
+    color: $menu_white;
+  }
+}
+
+#decathlon-ticker-form {
+  fieldset#edit-new {
+    text-align: center;
+    background: $medium_dark;
+    margin: 1em;
+  }		       
+  fieldset {
+    border: none;
+    margin: 0;
+    padding: 0; 
+   .form-item {
+     margin: 0;
+    }
+  }
+  .checkbox_wrapper{
+    position: relative;
+    float: left;
+    margin: 0 1em 0 0;
+  } 
+  input[type="checkbox"] {
+    opacity:0;
+  }
+  input[type="checkbox"] + label {
+    background:url('images/delete-icon.png') no-repeat;
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    top: 3px;
+    left: 0;
+    text-indent: -9999px;
+  }
+}
+
+.bump {
+  width: 12%;      
+  display: inline-block;
+}
+
+.bump-yes {
+  background-color: $bump_yes;
+}
+
+.bump-bonus {
+  background-color: $bump_bonus;
+}
+
+.bump-max {
+  background-color: transparent;
+}
+
+.bump-no {
+  background-color: $bump_no;
+}
+
+.ajax-progress,
+.ajax-progress-throbber {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500;
+  vertical-align: middle;
+  text-align: center;
+}
+.ajax-progress .message,
+.ajax-progress-throbber .message{
+  color: white;
+  font-size: 20px;
+  padding: 30px;
+}
+.ajax-progress .throbber,
+.ajax-progress-throbber .throbber {
+  float: none;
+  margin: 250px auto 0 auto;
+  width: 128px;
+  height: 128px;
+  background: url("images/throbber.gif") no-repeat center center;
+}
+
+#block-block-3 {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.leaderboard {
+  .pane-decathlon-leaderboard {
+    background: $dark;
+    margin: 0 1em;
+    padding-bottom: 1em;
+    text-align: center;
+    h2 {
+      margin: 0;
+      text-align: center;
+    }
+    .item-list {
+      height: 610px;
+      overflow: scroll;
+    }
+    li {
+      list-style-type: none;
+    }
+    ul.leaderboard-header {
+      margin: 0 0 5px;
+      padding: 0;
+      font-weight: bold;
+      border-bottom: 1px solid #000;      
+      li {
+        display: inline-block;
+      }
+    }
+    ul.leaderboard-list {
+      left: 0;
+      right: 0;
+      img {vertical-align: middle;}
+      li {
+	margin: 0;
+	div {
+	  display: inline-block;
+	}
+        a {color: #000;}	    
+      }
+    }
+    .rank {width: 20%;}
+    .name {width: 45%;}
+    .eligibility {width: 10%;}
+    .offense, .defense {width: 10%;}
+    .timestamp {
+      text-align: center;
+      margin: 0;
+      font-style: italic;
+      font-size: 80%;
+    }
+  }  
+  .game-standings-grid {
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+  }      
+  .leaderboard-game-standings {
+    .item-list {
+      height: 290px;
+      overflow: scroll;
+    }
+  }
+  .leaderboard-mostp-standings {
+    text-align: center;
+    .item-list {
+      height: 600px;
+      overflow: scroll;
+    }
+  }
+  .leaderboard-game-standings, .leaderboard-mostp-standings {
+    h2, h3 { 
+      text-align: center;
+      margin: 0; 
+      padding: 3px 0;
+      background: $dark;
+      font-size: 100%;
+    }
+    margin: 0 .1% 1em;
+    background: $border;
+    width: 13%;
+    display: inline-block;
+    ul {
+      list-style-type: none;
+      max-width: 100%;
+      margin: 0;
+      li {
+        margin: 0;
+	font-size: 80%;
+	div {
+	  display: inline-block;
+	}
+	div.rank {
+	  text-align: right;
+	  width: 15%;
+	  margin-right: 5%;
+        }
+	div.name {
+	  text-align: left;
+	  width: 75%;
+	  white-space: nowrap;
+        }
+	a {
+	  color: #000; 
+        }
+      }
+    }
+  }
+}
+
+.leaderboard {
+  .podium {
+    background: $green_highlight;
+    span {padding: 0 5px;}
+  }
+  .other {
+    background: #aaa;
+    span {font-size: 80%; color: #555;}
+  }
+}
+
+.dpi-table {
+  .other {
+    background: $green_highlight;
+  }
+}
+
+.view-id-manage_players {
+  .views-row {
+    margin-top: 5px; 
+  }			
+  .views-row.active {
+    background: $green_highlight;
+  }
+  .views-row.inactive {
+    background: $red_highlight;
+  }
+}
+
+#decathlon-players-form {
+  text-align: center;			
+  .player-details {
+    display: inline-block;
+    width: 15%;
+    margin: 6px 3px 0 3px;
+    padding: 0;
+    .form-managed-file input {
+      display: block;
+      margin: 0 auto;
+    }
+  }
+  .active {
+    background: $green_highlight;
+  }
+  .inactive {
+    background: $red_highlight;
+  }
+  #edit-submit {
+    margin-top: 2em;
+  }
+}
+
+.quick-form {
+  background: #eee;
+  margin: 1em;
+  padding: 1em 0;
+  h2 {font-size: 120%;}
+  text-align: center;
+  .form-submit {
+     margin-top: 1em;
+  }
+}

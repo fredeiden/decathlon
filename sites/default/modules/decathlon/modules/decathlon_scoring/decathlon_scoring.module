@@ -1,0 +1,103 @@
+<?php
+/**
+ * @file
+ * Scoring form
+ */
+
+function decathlon_scoring_menu() {
+  $items = array();
+
+  $items['reset-scores'] = array(
+    'title' => 'Build point tables',
+    'access callback' => TRUE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('decathlon_scoring_reset_scores_form'),
+    'file' => 'decathlon_scoring.inc',
+    'file path' => drupal_get_path('module', 'decathlon') . '/modules/decathlon_scoring',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * For defining external libraries.
+ */
+
+function decathlon_scoring_libraries_info() {
+  
+  $libraries['scrollbar'] = array(
+    'name' => 'Scrollbar',
+    'version callback' => 'decathlon_scoring_version_callback',
+    'files' => array(
+      'js' => array('jquery.mCustomScrollbar.concat.min.js'),
+      'css' => array('jquery.mCustomScrollbar.min.css'),
+    ),
+  );
+  
+  return $libraries;
+}
+
+function decathlon_scoring_version_callback() {
+  return TRUE;
+}
+
+function decathlon_scoring_views_pre_render(&$view) {
+  if ($view->name == 'players') {
+    libraries_load('scrollbar');
+  }
+}
+
+/**
+ * Register a content_types for ctools
+ */
+function decathlon_scoring_ctools_plugin_directory($owner, $plugin_type) {
+  // we'll be nice and limit scandir() calls
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ *
+ */
+function decathlon_scoring_reset_scores_form($form, &$form_state) {
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Reset Points',
+  );
+  
+  return $form;
+}
+
+/**
+ *
+ */
+function decathlon_scoring_reset_scores_form_submit($form, &$form_state) {
+
+    $batch = array(
+      'operations' => decathlon_scoring_reset_scores(),
+      'finished' => 'decathlon_scoring_batch_finished',
+      'title' => t('Resetting scores'),
+      'init_message' => t('Process is starting.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('Process has encountered an error.'),
+    );
+
+    batch_set($batch);
+
+    $form_state['redirect'] = url('');
+}
+
+/**
+ *
+ */
+function decathlon_scoring_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $message = t("@records records processed.", array('@records' => count($results)));
+  }
+  else {
+    $message = t('Error');
+  }
+}

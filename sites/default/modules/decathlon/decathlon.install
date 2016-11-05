@@ -1,0 +1,265 @@
+<?php
+
+/**
+ * Implements hook_schema()
+ */
+function decathlon_schema() {
+
+  // copy the standard cache table
+  $schema['cache_decathlon'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  // create the games table
+  $schema['decathlon_contests'] = array(
+    'description' => 'A completed game',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'event' => array(
+        'type' => 'int',  //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'gid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'umpire' => array(
+        'type' => 'int', //uid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'created'   => array(
+        'type' => 'int', 
+        'not null' => TRUE, 
+        'default' => 0
+      ),      
+      'log' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('contest'),
+    'indexes' => array(
+      'event' => array('event'),
+      'game' => array('gid'),
+    ),
+  );
+
+  // create the scores table
+  $schema['decathlon_scores'] = array(
+    'description' => 'Players and scores for a completed game',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'score' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('contest', 'pid'),
+    'indexes' => array(
+      'contest' => array('contest'),
+    ),
+  );
+
+  // create the honors table
+  $schema['decathlon_honors'] = array(
+    'description' => 'Player honors for a completed game',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'honor' => array(
+        'type' => 'int', // tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'count' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('contest', 'pid', 'honor'),
+    'indexes' => array(
+      'contest' => array('contest'),
+      'honor' => array('honor'),
+    ),
+  );
+
+  // create the skunks table
+  $schema['decathlon_skunks'] = array(
+    'description' => 'Player skunk for a completed game',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('contest', 'pid'),
+  );
+
+  // create the besting table
+  $schema['decathlon_besting'] = array(
+    'description' => 'Bester and bestee for a completed game',
+    'fields' => array(
+      'event' => array(
+        'type' => 'int', //tid 
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'contest' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'game' => array(
+        'type' => 'int', 
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'bester' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'bestee' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('event', 'game', 'bester', 'bestee'),
+    'indexes' => array(
+      'bester' => array('bester'),
+      'bestee' => array('bestee'),
+    ),
+  );
+
+  // create the points table
+  $schema['decathlon_points'] = array(
+    'description' => 'Players and points for a completed game',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'point_type' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'points' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('contest', 'pid', 'point_type'),
+    'indexes' => array(
+      'contest' => array('contest'),
+      'player' => array('pid'),
+      'point' => array('point_type'),
+    ),
+  );
+
+  // migration record for 2016 database update
+  $schema['decathlon_migration'] = array(
+    'description' => 'Contest mapped to nid',
+    'fields' => array(
+      'contest' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+  );
+    
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * This removes the table when the module is uninstalled.
+ */
+function decathlon_uninstall() {
+  db_drop_table('cache_decathlon');
+  db_drop_table('decathlon_games');
+  db_drop_table('decathlon_scores');
+  db_drop_table('decathlon_honors');
+  db_drop_table('decathlon_skunks');
+  db_drop_table('decathlon_besting');
+  db_drop_table('decathlon_points');
+}
+
+/**
+ * New table for reporting
+ *
+ */
+function decathlon_update_7100() {
+  $schema['decathlon_reporting'] = array(
+    'description' => 'Weighted totals for player and game',
+    'fields' => array(
+      'gid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'type' => 'int', //tid
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'total' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('gid', 'pid'),
+  );
+
+  db_create_table('decathlon_reporting', $schema['decathlon_reporting']);
+}

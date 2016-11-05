@@ -1,0 +1,4 @@
+name = Decathlon
+description = Custom functions for decathlon scoring
+core = 7.x
+package = Decathlon

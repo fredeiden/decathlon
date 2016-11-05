@@ -1,0 +1,12 @@
+name = Webmaster menu
+description = Displays a custom toolbar in top of the window
+core = 7.x
+package = Administration
+configure = admin/config/webmaster_menu
+
+; Information added by Drupal.org packaging script on 2014-04-01
+version = "7.x-1.1+8-dev"
+core = "7.x"
+project = "webmaster_menu"
+datestamp = "1396357448"
+

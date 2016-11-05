@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Implements hook_schema()
+ */
+function decathlon_ticker_schema() {
+
+ $schema['decathlon_ticker'] = array(
+   'description' => 'Ticker items',
+   'fields' => array(
+     'id' => array(
+       'type' => 'serial',
+       'unsigned' => TRUE,
+       'not null' => TRUE,
+     ),
+     'item' => array(
+       'description' => 'Ticker item',
+       'type' => 'varchar',
+       'length' => 255,
+       'not null' => TRUE,
+       'default' => '',
+     ),
+     'type' => array(
+       'description' => 'Store indefinitely',
+       'type' => 'int',
+       'size' => 'tiny',
+       'unsigned' => TRUE,
+       'not null' => TRUE,
+       'default' => 0
+     ),
+     'created' => array(
+       'type' => 'int',
+       'not null' => TRUE,
+       'default' => 0,
+     ),
+   ),
+   'primary key' => array('id'),
+ );
+
+ return $schema;
+}

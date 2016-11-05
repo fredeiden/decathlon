@@ -1,0 +1,138 @@
+
+// _base.scss imports _custom.scss and other partials.
+@import "base";
+
+/*
+ *   Important Information about this CSS File
+ *
+ * - Do not delete or rename this file, if you do not use it leave it blank (delete
+ *   everything) and the file will be skipped when you enable Production Mode in
+ *   the Global theme settings.
+ *
+ * - Read the _README file in this directory, it contains useful help and other information.
+ */
+
+/* Increase the default font size on small touch devices */
+body {
+  font-size: 80%;
+}
+
+#page-title {
+  font-size: 80%;
+}
+
+#header-wrapper {
+  font-size: 80%;		
+  #branding {
+    display: none;
+  }
+  .region-header {
+    position: static;
+  }
+}
+
+.nav {font-size: 80%;}
+
+.grid-games .views-row {width: 30%}
+
+.sf-menu.sf-style-space-orange li {width: auto;}
+
+.table-page {
+  #content {
+    width: 100%;
+  }
+  table {
+    font-size: 80%;
+  }
+}
+
+.page-game-scoring { 
+  #content {
+    width: 100%;
+  }		   
+  .block-inner {
+    margin: 0;
+  }
+  .player-image {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+.scoreboard {
+  .scorecards { 
+    width: 100%; 
+    float: none; 
+    margin: 1em 0;
+    ul.scorecard-header {
+      li {
+	font-size: 90%;
+      }
+    }
+  }
+}
+
+.item-list-player-total {
+  margin: 0;
+  h3 {
+    position: static;
+    width: inherit;
+    font-size: 80%;
+    div.label-text div {
+      display: inline-block;
+      padding: 0 2em;
+    }
+  }  
+  ul.player-total {
+    border: 1px solid $border;
+    margin: 0;
+  }
+  ul.header,
+  ul.scores {
+    margin: 0;
+    li {
+      font-size: 65%;
+    }
+  }
+  ul.player-total.card-1 {
+    border-bottom: none;
+  }   
+  li.total {  
+    font-size: 90%;
+    padding: 5px 0;
+  }
+}
+
+.page-scores-players {
+  table {
+    font-size: 80%;
+  }
+}
+.page-scores-games {
+  #main-content-header {
+    width: 100%;
+    #page-title {
+      width: 100%;
+      float: none;
+    }
+  }	    
+}
+
+.page-scores-game {
+  #content {
+    width: 100%;
+  }
+  table, ul {
+    font-size: 80%;
+  }
+}
+
+.game-standings-grid .leaderboard-game-standings {width: 48%;}
+.grid-8 .views-row {width: 30%;}
+
+.game-list {
+  text-align: center;
+  .views-row {
+    width: 8%;
+  }
+}

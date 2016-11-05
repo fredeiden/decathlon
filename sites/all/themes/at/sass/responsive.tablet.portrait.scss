@@ -1,0 +1,47 @@
+
+// _base.scss imports _custom.scss and other partials.
+@import "base";
+
+/*
+ *   Important Information about this CSS File
+ *
+ * - Do not delete or rename this file, if you do not use it leave it blank (delete
+ *   everything) and the file will be skipped when you enable Production Mode in
+ *   the Global theme settings.
+ *
+ * - Read the _README file in this directory, it contains useful help and other information.
+ */
+
+/* Increase the body font size on small devices */
+html {
+  font-size: 81.3%; 
+}
+
+.scoreboard {
+  .scorecards { 
+    ul.scorecard-header {
+      li {
+	font-size: 90%;
+      }
+    }
+  }
+}
+
+.item-list-player-total {
+  ul.header,
+  ul.scores {
+    font-size: 80%;
+    li.chart {
+      width: 50%;
+    }
+  }
+  li.leader li.chart div {
+    width: 70%;
+  }
+  h3 {
+    font-size: 80%;
+  }
+}
+
+.grid-8 .views-row {width: 18%;}
+.game-standings-grid .leaderboard-game-standings {width: 32%;}

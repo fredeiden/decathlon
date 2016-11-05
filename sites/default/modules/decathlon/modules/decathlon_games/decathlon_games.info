@@ -1,0 +1,4 @@
+name = Decathlon Games
+description = Custom form for editing games
+core = 7.x
+package = Decathlon

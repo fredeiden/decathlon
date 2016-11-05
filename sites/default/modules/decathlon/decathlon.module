@@ -1,0 +1,123 @@
+<?php
+/**
+ * @file
+ * Special functionality for the Laurelstein Decathlon
+ */
+
+/**
+ * Implements hook_form_alter
+ *
+ * Prevent deletion of taxonomy term with existing records (namely, a player)
+ *
+ * Autofill event on add bonus form
+ */
+function decathlon_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'taxonomy_form_term') {
+    $count = views_get_view_result('term_delete_check', 'default', $form['name']['#default_value']);
+    if (isset($count[0]->node_taxonomy_index_title)) {
+      $num_records = $count[0]->node_taxonomy_index_title;
+      if ($num_records != 0) {
+        $form['actions']['delete']['#disabled'] = TRUE;
+        $form['footnote'] = array(
+          '#type' => 'item',
+          '#markup' => t('* This term has @records associated database records and cannot be deleted.', array('@records' => $num_records)),
+          '#weight' => 500,
+        );
+      }
+    }
+  }
+  if ($form_id == 'bonus_node_form') {
+    $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();;
+  }
+}
+
+/**
+ *  Implements hook_libraries_info
+ *
+ *  Add jquery libraries
+ */
+function decathlon_libraries_info() {
+
+  $libraries['easy-ticker'] = array(
+    'name' => 'Easy Ticker',
+    'version callback' => 'decathlon_version_callback',
+    'files' => array(
+      'js' => array('jquery.easy-ticker.min.js'),
+    ),
+  );
+
+  $libraries['scrollbox'] = array(
+    'name' => 'Scrollbox',
+    'version callback' => 'decathlon_version_callback',
+    'files' => array(
+      'js' => array('jquery.scrollbox.min.js'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Callback for hook_libraries_info
+ */
+function decathlon_version_callback() {
+  return TRUE;
+}
+
+/**
+ * Implements hook_init
+ *
+ * Set a SESSION variable for current event
+ */
+function decathlon_init() {
+  if (! isset($_SESSION['decathlon_event'])) {
+    decathlon_set_event(decathlon_get_current_event());
+  }
+}
+
+/**
+ * Set SESSION variable for current event, clear caches, reset standings cache
+ */
+function decathlon_set_event($event) {
+  $_SESSION['decathlon_event'] = $event;
+}
+
+/**
+ * Return SESSION variable for event
+ */
+function decathlon_get_event() {
+  if (! isset($_SESSION['decathlon_event'])) {
+    decathlon_set_event(decathlon_get_current_event());
+  }
+  return $_SESSION['decathlon_event'];
+}
+
+/**
+ * Return taxonomy term ID for latest event as default
+ */
+function decathlon_get_current_event() {
+  $record = views_get_view_result('event', 'panel_pane_1');
+  return $record[0]->tid;
+}
+
+/**
+ * Implements hook_menu()
+ */
+function decathlon_menu() {
+  $items = array();
+
+  return $items;
+}
+
+/**
+ * Register ctools plugins
+ *
+ * Find these under decathlon/plugins
+ */
+function decathlon_ctools_plugin_directory($owner, $plugin) {
+  if ($owner == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+

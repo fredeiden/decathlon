@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Register ctools plugins
+ *
+ * Find these under ./plugins
+ */
+function decathlon_players_ctools_plugin_directory($owner, $plugin) {
+  if ($owner == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+

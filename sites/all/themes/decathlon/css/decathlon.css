@@ -1,0 +1,351 @@
+/**
+ * Decathlon
+ */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 100%;
+}
+
+.region-header .block-menu {
+  width: auto;
+  border: 0;
+}
+
+.region-header .block-menu ul li {
+  display: inline-block;
+}
+
+.region-header .block-menu ul li a {
+  border: 0;
+  padding: 2px 4px;
+}
+
+#logo {
+  padding: 0;
+}
+
+.webmaster-menu {
+  background: #615555;
+}
+.webmaster-menu ul.menu > li:hover > a {
+  border-radius: 0;
+}
+
+table {
+  margin: 0;
+}
+
+.small-edit-link,
+.archive-link {
+  font-size: 75%;
+}
+
+.selection-menu {
+  text-align: right;
+  margin-right: 1em;
+}
+
+.archive-notice {
+  width: 100%;
+  background: #D63030;
+  text-align: center;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.panel-3col-33-stacked .panel-col-top .inside {
+  margin: 0;
+}
+
+.node-type-game table caption {
+  font-size: 160%;
+}
+
+.node-type-game .view-scores-game table {
+  margin-bottom: 1em;
+}
+
+.page-admin-record-game .score-group {
+  clear: left;
+}
+
+.page-admin-record-game .score-group div {
+  float: left;
+  margin-right: 2em;
+}
+
+.game-rules {
+  background: #EEEEEE;
+  border: 1px solid #FFFFFF;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.page-rules .game-rules li {
+  font-size: 0.875em;
+}
+
+.game-rules h2 {
+  text-align: center;
+  border-bottom: 1px solid #FFFFFF;
+}
+
+.tabs {
+  margin: 0;
+}
+
+.tabs ul.primary {
+  background-image: none;
+}
+
+.tabs ul.primary li {
+  margin-right: 1px;
+}
+
+.tabs ul.primary li a {
+  border-radius: 0;
+  border: none;
+  background-color: #BEBEBE;
+  text-shadow: none;
+}
+
+.tabs ul.primary li a.active {
+  background-color: #EDEDED;
+  border-bottom: 1px solid #EDEDED;
+}
+
+.left-menu ul {
+  padding: 0;
+  margin: 2em 0 0 1em;
+}
+
+.left-menu ul li.leaf {
+  list-style-type: none;
+  list-style-image: none;
+}
+
+.page-scores .region-content {
+  background: #EDEDED;
+  padding: 1em;
+}
+
+.page-scores .region-content .content {
+  margin: 0;
+}
+
+.page-scores table {
+  margin-bottom: 1em;
+}
+
+.page-scores table th,
+.page-scores table td {
+  text-align: center;
+}
+
+.page-scores table td {
+  width: 12%;
+}
+
+.page-scores-players table td.views-field-counter {
+  width: 5%;
+}
+
+.page-scores table caption {
+  font-size: 150%;
+}
+
+.eligible {
+  background: #99D6AD;
+}
+
+.not-eligible {
+  background: #CC9999;
+}
+
+div.eligible, div.not-eligible {
+  width: 9em;
+  margin: 2px;
+  padding: 3px;
+  text-align: center;
+}
+
+td .left,
+td .right {
+  padding: .2em 0;
+  display: inline-block;
+}
+
+td .left {
+  background: #ababab;
+  width: 30%;
+}
+td .right {
+  background: #c1c1c1;
+  width: 50%;
+}
+
+.small-table-captions table caption {
+  font-size: 100%;
+}
+
+.page-scores-games table {
+  width: 70%;
+}
+
+.page-scores-games table td {
+  width: 15%;
+}
+
+.page-scores-games .view-game-list {
+  margin-top: 2em;
+  margin-left: 1em;
+}
+
+.page-scores-games .view-game-list a.active {
+  color: #3B3B3B;
+}
+
+.page-scores-game .view-display-id-panel_pane_3 .item-list {
+  display: inline-block;
+  vertical-align: top;
+  width: 20%;
+  margin-right: 2px;
+  padding: .5em;
+  background-color: #DDDDDD;
+}
+
+.page-scores-game .view-display-id-panel_pane_3 .item-list h3,
+.page-scores-game .view-display-id-panel_pane_3 .item-list ul {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.page-scores-game .view-display-id-panel_pane_3 .item-list li {
+  list-style-type: none;
+  background: #CCCCCC;
+  margin-bottom: 1px;
+}
+
+.page-scores-players .view-empty {
+  background-color: #DDDDDD;
+}
+
+.page-scores-players .player-image-edit-link {
+  position: relative;
+  top: -2em;
+}
+
+.page-scores-players .small-edit-link {
+  margin-left: 2em;
+}
+
+.page-scores-players .table-total table {
+  position: relative;
+  top: -1em;
+}
+
+.page-scores-players .table-total .views-field-field-score {
+  text-align: right;
+}
+
+.link-list {
+  margin-top: 1em;
+}
+
+.link-list a {
+  padding: .2em 1em .2em .5em;
+}
+
+.link-list a.active {
+  color: #004F7D;
+  background-color: #DDDDDD;
+}
+
+.link-list a.active:before {
+  content: "- ";
+}
+
+.page-scores-new .game-rules {
+  float: right;
+  margin: 1em;
+  width: 20em;
+}
+
+select {}
+{
+  border: 1px solid #CCCCCC;
+  -moz-border-radius: 3px;
+  -webkit-border-radius:3px;
+  border-radius:3px;
+  color: #555555;
+  margin: 0;
+  padding: 6px 4px;
+  width:100%;
+}
+
+.top10-report {
+  margin: 0 1em;
+  width: 22%;
+  float: left;
+}
+
+a.add-link {
+  font-weight: bold;
+  font-size 120%;
+}
+
+a.add-link:before {
+  content: " + ";
+}
+
+#block-menu-menu-editors {
+  position: absolute;
+  top: 0;
+  background: #6e6e6e;
+  width: 100%;
+  float: left;
+  clear: both;
+}
+
+.scoring-group .active {
+  background: #eee;
+}
+
+.page-game-scoring .views-field-field-picture {
+  display: none;		  
+}
+
+.page-game-scoring .scoring-column {
+}
+
+.page-game-scoring .player-image {
+  border: 1px solid #000;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+}
+
+.page-game-scoring .player-image .help-text {
+}
+
+.page-game-scoring tr, tr.even {
+  background: #fff;
+}
+
+.page-game-scoring tr td {
+  text-align: center;
+  width: 33%;		  
+  border: 1px solid #ccc;
+}
+
+.page-game-selecting tr td {
+  text-align: center;
+}
+
+.page-game-selecting tr td:hover {
+  background: #ddd;
+}
+  

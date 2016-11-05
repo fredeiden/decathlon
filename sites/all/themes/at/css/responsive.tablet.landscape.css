@@ -1,0 +1,42 @@
+/*
+ *   Important Information about this CSS File
+ *
+ * - Do not delete or rename this file, if you do not use it leave it blank (delete 
+ *   everything) and the file will be skipped when you enable Production Mode in
+ *   the Global theme settings.
+ *
+ * - Read the _README file in this directory, it contains useful help and other information.
+ */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000319}}
+.scoreboard .scorecards ul.scorecard-header li {
+  font-size: 100%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000327}}
+.item-list-player-total ul.header,
+.item-list-player-total ul.scores {
+  font-size: 80%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000330}}
+.item-list-player-total ul.header li.chart,
+.item-list-player-total ul.scores li.chart {
+  width: 50%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000334}}
+.item-list-player-total li.leader li.chart div {
+  width: 70%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000337}}
+.item-list-player-total h3 {
+  font-size: 80%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000342}}
+.grid-8 .views-row {
+  width: 15%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.tablet\.landscape\.scss}line{font-family:\0000343}}
+.game-standings-grid .leaderboard-game-standings {
+  width: 24%;
+}

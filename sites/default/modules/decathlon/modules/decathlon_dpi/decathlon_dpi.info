@@ -1,0 +1,4 @@
+name = Decathlon DPI
+description = Custom ranking config
+core = 7.x
+package = Decathlon

@@ -1,0 +1,4 @@
+name = Decathlon Edit
+description = Custom functions for decathlon
+core = 7.x
+package = Decathlon

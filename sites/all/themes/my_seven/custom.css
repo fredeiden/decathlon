@@ -1,0 +1,133 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  margin: 0 0 30px; /* footer height */
+}
+#page {
+  margin-left: 0;
+  margin-right: 0;
+  padding-bottom: 0;
+  position: static;
+}
+#content {
+  margin: 0 40px;
+}
+#footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 30px;
+  width: 100%;
+  text-align: center;
+  background: #e0e0d8;
+}
+#block-menu-menu-configuration {
+  margin: 0;
+}
+#block-menu-menu-configuration ul {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+#block-menu-menu-configuration ul li {
+  height: 30px;
+  line-height: 30px;
+  text-transform: uppercase;
+  list-style-image: none;
+  list-style-type: none;
+  margin: 0;
+  padding: 0 10px;
+  border-left: 1px solid #fff;
+  display: inline-block;
+}
+#block-menu-menu-configuration ul li a {
+  display: block;
+  color: #000;
+}
+#block-menu-menu-configuration ul li.last {
+  border-right: 1px solid #fff;
+}
+.help-link {
+  font-size: 90%;
+  text-align: right;
+  margin-right: 1em;
+}
+.dpi-form-table table {
+  margin: 2em auto;
+}
+.dpi-form-table table,
+.dpi-form-table table th {
+  text-align: center;
+}
+.dpi-form-table table caption {
+  font-weight: bold;
+  font-size: 110%;
+  padding: .5em 0;
+}
+.dpi-form-multipliers table {
+  width: 30%;
+}
+.page-admin-record-game .score-group {
+  clear: left;
+}
+.page-admin-record-game .score-group div {
+  float: left;
+  margin-right: 2em;
+}
+.dpi-notes,
+.game-rules {
+  background: #EEEEEE;
+  border: 1px solid #FFFFFF;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+.dpi-table,
+.dpi-notes {
+  margin: 0 2em;
+}
+.dpi-notes {
+  font-size: 120%;
+}
+.game-rules h2 {
+  text-align: center;
+  border-bottom: 1px solid #FFFFFF;
+}
+.view-game-list a.active {
+  color: #3B3B3B;
+  font-weight: bold;
+}
+.admin-sidebar {
+  background: #f3f4ee;
+  border: 1px solid #bebfb9;
+  padding: 1em;
+  text-align: center;
+}
+.admin-sidebar table caption {
+  font-size: 120%;
+  font-weight: bold;
+  line-height: 1.5em;
+}
+.admin-sidebar table {
+  width: 95%;
+  margin: 1em auto;
+}
+.admin-sidebar table th {
+  padding: 0;
+  text-align: center;
+}
+.view-manage-players td {
+  text-align: center;
+}
+.view-manage-players .views-field-name {
+  font-size: 120%;
+  font-weight: bold;
+  margin-bottom: .2em;
+}
+.inactive-player {
+  color: red;
+}
+ul.action-links {
+  padding: 0;
+}

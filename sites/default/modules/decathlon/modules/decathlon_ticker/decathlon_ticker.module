@@ -1,0 +1,169 @@
+<?php
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * For defining external libraries.
+ */
+
+function decathlon_ticker_libraries_info() {
+
+  $libraries['liscroll'] = array(
+    'name' => 'Ticker',
+    'version callback' => 'decathlon_ticker_version_callback',
+    'files' => array(
+      'js' => array('jquery.li-scroller.1.0.js'),
+      'css' => array('li-scroller.css'),
+    ),
+  );
+
+  return $libraries;
+}
+
+function decathlon_ticker_version_callback() {
+  return TRUE;
+}
+
+/**
+ * Register plugins for ctools
+ */
+function decathlon_ticker_ctools_plugin_directory($owner, $plugin) {
+  if ($owner == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * form
+ */
+function decathlon_ticker_form($form, &$form_state) {
+
+  $list = decathlon_ticker_get_permanent_tickers();
+
+  $form['new'] = array(
+    '#type' => 'fieldset',
+  );
+
+  $form['new']['ticker'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Add new entry',
+  );
+
+  $form['new']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['existing'] = array(
+    '#tree' => TRUE,
+    '#attached' => array(
+      'library' => array(
+        array('system', 'ui.button'),
+      ),
+    ),
+  );
+
+  foreach ($list as $id => $entry) {
+    $form['existing'][$id] = array(
+      '#type' => 'fieldset',
+      '#prefix' => "<div id='ticker_{$id}'>",
+      '#suffix' => "</div>",
+    );
+    $form['existing'][$id]['action'] = array(
+      '#type' => 'checkbox',
+      '#name' => "ticker_" . $id,
+      '#title' => 'icon',
+      '#prefix' => '<div class="checkbox_wrapper">',
+      '#suffix' => '</div><span>' . $entry . '</span>',
+      '#ajax' => array(
+        'callback' => 'decathlon_ticker_remove_callback',
+      ),
+    );
+  }
+
+  return $form;
+}
+
+function decathlon_ticker_remove_callback($form, &$form_state) {
+
+  $item = $form_state['triggering_element']['#name'];
+  $selector = "#" . $item;
+  $id = substr($item, (strpos($item, "_") + 1));
+
+  decathlon_ticker_delete_ticker($id);
+
+  $commands = array();
+  //$commands[] = ajax_command_alert("Alert requested by " . $form_state['triggering_element']['#name']);
+  $commands[] = ajax_command_remove($selector);
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function decathlon_ticker_form_submit($form, &$form_state) {
+  if (!empty($form_state['values']['ticker'])) {
+    decathlon_ticker_add_permanent_ticker($form_state['values']['ticker']);
+  }
+}
+
+/**
+ * helper for insert
+ */
+function decathlon_ticker_add_permanent_ticker($ticker) {
+  decathlon_ticker_add_ticker($ticker, 1);
+}
+
+/**
+ * helper for insert
+ */
+function decathlon_ticker_add_temporary_ticker($ticker) {
+  decathlon_ticker_add_ticker($ticker, 0);
+}
+
+/**
+ * insert function
+ */
+function decathlon_ticker_add_ticker($ticker, $type) {
+  $nid = db_insert('decathlon_ticker')
+    ->fields(array(
+        'item' => $ticker,
+        'type' => $type,
+        'created' => REQUEST_TIME,
+      ))
+    ->execute();
+}
+
+/**
+ * delete function
+ */
+function decathlon_ticker_delete_ticker($id) {
+  $num_deleted = db_delete('decathlon_ticker')
+    ->condition('id', $id)
+    ->execute();
+  return $num_deleted;
+}
+
+/**
+ * helper for get
+ */
+function decathlon_ticker_get_permanent_tickers() {
+  return decathlon_ticker_get_tickers(1);
+}
+
+/**
+ * helper for get
+ */
+function decathlon_ticker_get_temporary_tickers() {
+  return decathlon_ticker_get_tickers(0);
+}
+
+/**
+ * get function
+ */
+function decathlon_ticker_get_tickers($type) {
+  $result = db_query("SELECT id, item from {decathlon_ticker} WHERE type  = 1")->fetchAll();
+  $list = array();
+  foreach ($result as $row) {
+    $list[$row->id] = $row->item;
+  }
+  return $list;
+}
+

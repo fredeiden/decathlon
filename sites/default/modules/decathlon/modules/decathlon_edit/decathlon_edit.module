@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * Implements hook_menu
+ */
+function decathlon_edit_menu() {
+  $items = array();
+
+  $items['scores/game/%/edit'] = array(
+    'title' => 'Edit Game',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('decathlon_edit_game_form', 2),
+    'access callback' => TRUE,
+    'file' => 'decathlon.inc',
+    'file path' => drupal_get_path('module', 'decathlon'),
+  );
+
+  return $items;
+}
+
+/**
+ *
+ */
+function decathlon_edit_game_form($form, &$form_state, $game) {
+
+  // load game scores
+  $scores = db_query(
+    "SELECT pid, score FROM {decathlon_scores} WHERE contest = :contest",
+    array(':contest' => $game)
+  )->fetchAll();
+
+  // load players
+  $view = views_get_view_result('players', 'panel_pane_2');
+  $players = array();
+  foreach ($view as $row) {
+    $players[$row->tid] = $row->taxonomy_term_data_name;
+  }
+
+  $form['test'] = array(
+    '#type' => 'item',
+    '#markup' => 'Editing game number ' . $game,
+  );
+
+  $form['scores'] = array(
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+  );
+  foreach ($scores as $row) {
+    $form['scores'][$row->pid]['player'] = array(
+      '#type' => 'select',
+      '#title' => 'Player',
+      '#options' => $players,
+      '#default_value' => $row->pid,
+    );
+    $form['scores'][$row->pid]['score'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Score',
+      '#default_value' => $row->score,
+    );
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit Changes',
+  );
+
+  return $form;
+}
+
+/**
+ *
+ */
+function decathlon_edit_game_form_submit($form, &$form_state) {
+
+  $contest = $form_state['build_info']['args'][0];
+  $scores = $form_state['values']['scores'];
+  $changed = FALSE;
+  foreach ($scores as $pid => $data) {
+    if ($pid != $data['player']) { // changed player
+      db_update('decathlon_scores')
+        ->fields(array(
+            'pid' => $data['player'],
+          ))
+        ->condition('contest', $contest, '=')
+        ->condition('pid', $pid, '=')
+        ->execute();
+      drupal_set_message("Changed player from " . decathlon_player_link($pid) . ' to ' . decathlon_player_link($data['player']) );
+      $changed = TRUE;
+    }
+    if ($data['score'] != $form['scores'][$pid]['score']['#default_value']) { // changed score
+      db_update('decathlon_scores')
+        ->fields(array(
+            'score' => $data['score'],
+          ))
+        ->condition('contest', $contest, '=')
+        ->condition('pid', $pid, '=')
+        ->execute();
+      drupal_set_message("Changed score to " . $data['score']);
+      $changed = TRUE;
+    }
+  }
+  
+  if ($changed == TRUE) {
+
+    module_load_include('inc', 'decathlon', 'modules/decathlon_scoring/decathlon_scoring');
+
+    $batch = array(
+      'operations' => decathlon_scoring_reset_scores(),
+      'finished' => 'decathlon_edit_batch_finished',
+      'title' => t('Resetting scores'),
+      'init_message' => t('Process is starting.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('Process has encountered an error.'),
+    );
+
+    batch_set($batch);
+  }
+
+  $redirect = '/scores/game/' . $contest;
+  $form_state['redirect'] = $redirect;
+}
+
+/**
+ *
+ */
+function decathlon_edit_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $message = t("@records records processed.", array('@records' => count($results)));
+  }
+  else {
+    $message = t('Error');
+  }
+}

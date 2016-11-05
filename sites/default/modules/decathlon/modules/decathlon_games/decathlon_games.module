@@ -1,0 +1,189 @@
+<?php
+
+/**
+ * Implements hook_menu
+ */
+function decathlon_games_menu() {
+  $items = array();
+
+  $items['delete-game/progress/%'] = array(
+    'title' => 'Deleting game',
+    'page callback' => 'decathlon_games_progress',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Register a content_types for ctools
+ */
+function decathlon_games_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Custom form for editing games taxonomy terms
+ */
+function decathlon_games_form($form, &$form_state, $arg) {
+
+  $form_state['time'] = REQUEST_TIME;
+
+  // A DIV which the progress bar can occupy.
+  $form['status'] = array(
+    '#markup' => '<div id="delete-status"></div>',
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete game'),
+    '#ajax' => array(
+      'callback' => 'decathlon_games_callback',
+      'wrapper' => 'delete-status',
+      'progress' => array(
+        'type' => 'bar',
+        'message' => t('Deleting...'),
+        'url' => url('delete-game/progress/' . $form_state['time']),
+        'interval' => 1000,
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ *
+ */
+function decathlon_games_progress($time) {
+  $progress = array(
+    'message' => t('Starting...'),
+    'percentage' => -1,
+  );
+
+  $completed_percentage = variable_get('delete_status_' . $time, 0);
+
+  if ($completed_percentage) {
+    $progress['message'] = t('Deleting...');
+    $progress['percentage'] = $completed_percentage;
+  }
+
+  drupal_json_output($progress);
+}
+
+/**
+ *
+ */
+function decathlon_games_callback($form, &$form_state) {
+
+  $contest_nid = $form_state['build_info']['args'][0][0];
+  $variable_name = 'delete_status_' . $form_state['time'];
+  $commands = array();
+
+  //
+  // Get all the contests so far for this game, year, and players
+  // Foreach contest, delete the besting table rows and besting points in the scoring table
+  //
+
+  // game tid
+  $node = node_load($contest_nid);
+  // player tids
+  $players = views_get_view_result("players_for_contest", "default", $contest_nid);
+  $player_tids = array();
+  foreach ($players as $row) {
+    $player_tids[] = $row->field_field_contestant[0]['raw']['tid'];
+  }
+  // get all contests involving this set of players in this game
+  $contest_list =  views_get_view_result('contest_history', 'default', $node->field_game['und'][0]['tid'], decathlon_get_event(), implode(",",$player_tids));
+  // build a new list of nids other than the nid passed into this function, as it gets cleaned up later
+  $contests = array();
+  foreach ($contest_list as $row) {
+    if ($row->node_field_data_field_contest_nid != $contest_nid) {
+      $contests[] = $row->node_field_data_field_contest_nid;
+    }
+  }
+
+  //dsm("DELETING BESTING RECORDS FOR RELATED CONTESTS");
+  foreach ($contests as $related_nid) {
+    // rows from besting table
+    $besting_rows = views_get_view_result("bestings_for_contest", "default", $related_nid);
+    foreach ($besting_rows as $besting) {
+      //dsm("Deleting besting record " . $besting->nid);
+      node_delete($besting->nid);
+    }
+    // rows from scoring table
+    $besting_points = views_get_view_result("scoring_for_contest", "panel_pane_1", $related_nid);
+    foreach ($besting_points as $point) {
+      //dsm("Deleting besting point " . $point->nid);
+      node_delete($point->nid);
+    }
+  }
+
+  //
+  // Now delete the records for the contest itself: besting, scoring, honors, scores, and contest
+  //
+
+  //dsm("DELETING CONTEST");
+  // rows from besting table
+  $besting_rows = views_get_view_result("bestings_for_contest", "default", $contest_nid);
+  foreach ($besting_rows as $besting) {
+    //dsm("Deleting besting record " . $besting->nid);
+    node_delete($besting->nid);
+  }
+
+  //delete the points
+  $points = views_get_view_result("scoring_for_contest", "default", $contest_nid);
+  //dsm("Erasing " . count($points) . " contest points");
+  foreach ($points as $row) {
+    //dsm("Deleting game point " . $row->nid);
+    node_delete($row->nid);
+  }
+
+  //delete the honors
+  $honors = views_get_view_result('honors_for_contest', 'default', $contest_nid);
+  //dsm("Erasing " . count($honors) . " contest honors");
+  foreach ($honors as $row) {
+    //dsm("Deleting honor " . $row->nid);
+    node_delete($row->nid);
+  }
+
+  // delete the scores
+  $scores = views_get_view_result('scores_for_contest', 'default', $contest_nid);
+  //dsm("Erasing " . count($scores) . " contest scores");
+  foreach ($scores as $row) {
+    //dsm("Deleting score " . $row->nid);
+    node_delete($row->nid);
+  }
+
+  // delete the contest
+  //dsm("Deleting contest " . $contest_nid);
+  node_delete($contest_nid);
+  variable_set($variable_name, 30);
+
+  //
+  // Now write new besting records for other contests
+  //
+  //dsm("Writing new besting records for " . count($contests) . " related contests");
+  $loop = (70 / count($contests));
+  $i = 1;
+  foreach ($contests as $related_nid) {
+    decathlon_write_game_record($related_nid, "RESET", FALSE, TRUE);
+    variable_set($variable_name, (30 + ($i * $loop)));
+    $i++;
+  }
+
+  // Finally, rebuild the cache
+  variable_del($variable_name);
+
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  $commands[] = ajax_command_html('#progress-status', t('Executed.'));
+  $commands[] = ctools_ajax_command_redirect('scores/decathlon');
+  print ajax_render($commands);
+  exit;
+
+}

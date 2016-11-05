@@ -1,0 +1,11 @@
+name = Responsive menu
+description = Provides an off-canvas responsive css menu capable of drop downs and flyouts on desktop size.
+core = 7.x
+configure = admin/structure/menu/settings
+package = Other
+; Information added by Drupal.org packaging script on 2015-03-03
+version = "7.x-1.0-alpha1+4-dev"
+core = "7.x"
+project = "responsive_menu"
+datestamp = "1425373982"
+
