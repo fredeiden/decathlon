@@ -90,7 +90,7 @@ function decathlon_standings_most_opponents() {
 
   // get all games and players
   $results = db_query(
-    "SELECT dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event", 
+    "SELECT dc.contest, dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event ORDER BY dc.contest", 
     array(':event' => decathlon_get_event())
   )->fetchAll();
 
@@ -103,14 +103,17 @@ function decathlon_standings_most_opponents() {
     $players = array();
     foreach ($results as $row) {
       if ($type != 'decathlon' && decathlon_game_type($row->gid) != $type) { continue; }
-      if (isset($this_game) && $row->gid != $this_game) {
+      if (isset($this_contest) && $row->contest != $this_contest) {
         foreach ($players as $p) {
           $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
         }
         $players = array(); // reset
       }
       $players[] = $row->pid;
-      $this_game = $row->gid;
+      $this_contest = $row->contest;
+    }
+    foreach ($players as $p) {
+      $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
     }
 
     // remove duplicates
@@ -128,7 +131,7 @@ function decathlon_standings_most_opponents() {
     foreach ($opponents as $index => $played) {
       $rows[] = 
         '<div class="name">' . decathlon_player_link($index) . '</div>' . 
-        '<div class = "count">' . (count($played) - 1) . '</div>';
+        '<div class = "count">' . (count($played)) . '</div>';
     }
 
     $html .= '<div class="leaderboard-mostp-standings">';
