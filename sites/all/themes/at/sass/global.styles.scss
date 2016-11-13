@@ -293,9 +293,19 @@ table {
   }
 }
 
+.list-table {
+  td.first {
+    width: 10%;
+  }	    
+}
+
 .table-14 {
   th, td {
     width: 6%;	  
+  }
+  th a {
+    display: block;		     
+    font-size: 70%;
   }
 }
 
@@ -303,6 +313,15 @@ table {
   td {
     width: 10%;
   }
+}
+
+.table-header-format th a {
+  display: block;		     
+  font-size: 50%;
+  width: 50px;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow: hidden;  		     
 }
 
 table,
@@ -1145,6 +1164,7 @@ ul.score-list {
     overflow: hidden;
   }      
   .leaderboard-game-standings {
+    vertical-align: top;
     .item-list {
       height: 290px;
       overflow: scroll;

@@ -475,14 +475,26 @@ function decathlon_game_report_game_summary() {
 
   $content = decathlon_table($header, $game_data);
 
+  //
   // athlon table
+  //
+
+  // distinct players athlons
+  $unique_players = array();
+  $query = db_query("SELECT COUNT(DISTINCT ds.pid) players, field_type_tid athlon FROM {decathlon_scores} ds, {decathlon_contests} dc, {field_data_field_type} ft WHERE ds.contest = dc.contest AND dc.gid = ft.entity_id AND dc.event = :event GROUP BY ft.field_type_tid", array(':event' => decathlon_get_event()))->fetchAllKeyed(1,0);
+  foreach ($query as $athlon => $count) {
+    $unique_players[strtolower(decathlon_get_term_name($athlon))] = $count;
+  }
+  // distinct players decathlon
+  $unique_players['decathlon'] = db_query("SELECT COUNT(DISTINCT ds.pid) players FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE ds.contest = dc.contest AND dc.event = :event", array(':event' => decathlon_get_event()))->fetchField();
+
   $rows = array();
   foreach ($athlon_data as $athlon => $data) {
     $rows[] = array(
       'data' => array(
         strtoupper($athlon),
         $data['games'],
-        $data['players'],
+        $unique_players[$athlon],
         decathlon_hours_and_minutes($data['minutes']),
         $data['plays'],
         $data['besting'],

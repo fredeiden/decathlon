@@ -83,6 +83,20 @@ function decathlon_get_player_game_bested($pid, $gid) {
 /**
  *
  */
+function decathlon_get_contests() {
+  $results = &drupal_static(__FUNCTION__);
+  if (! isset($results)) {
+    $results = db_query(
+      "SELECT dc.contest, dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event ORDER BY dc.contest", 
+      array(':event' => decathlon_get_event())
+    )->fetchAll();
+  }
+  return $results;
+}
+
+/**
+ *
+ */
 function decathlon_get_term_name($tid) {
   $my_map = &drupal_static(__FUNCTION__);
   if (!isset($my_map)) {
@@ -572,6 +586,45 @@ function decathlon_get_ranking_points() {
   }
 
   return $sums;
+}
+
+/**
+ *
+ */
+function decathlon_get_opponents($athlon) {
+
+  $results = decathlon_get_contests(); // get games and players
+  $html = '';
+  $opponents = array();
+  $players = array();
+
+  foreach ($results as $row) {
+    if ($athlon != 'decathlon' && decathlon_game_type($row->gid) != $athlon) { continue; }
+    if (isset($this_contest) && $row->contest != $this_contest) {
+      foreach ($players as $p) {
+        $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
+      }
+      $players = array(); // reset
+    }
+    $players[] = $row->pid;
+    $this_contest = $row->contest;
+  }
+  foreach ($players as $p) {
+    $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
+  }
+
+  // remove duplicates
+  foreach ($opponents as $index => $played) {
+    $opponents[$index] = array_unique($played);
+  }
+
+  return $opponents;
+}
+
+/**
+ *
+ */
+function decathlon_player_opponents($pid) {
 }
 
 /**

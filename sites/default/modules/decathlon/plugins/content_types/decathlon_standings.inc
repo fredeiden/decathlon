@@ -88,39 +88,13 @@ function decathlon_standings_render($subtype, $conf, $args, $context) {
  */
 function decathlon_standings_most_opponents() {
 
-  // get all games and players
-  $results = db_query(
-    "SELECT dc.contest, dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event ORDER BY dc.contest", 
-    array(':event' => decathlon_get_event())
-  )->fetchAll();
-
   $html = '';
   $groups = array('decathlon', 'leisure', 'parlor');
-  foreach ($groups as $type) {
+  foreach ($groups as $athlon) {
 
-    // walk through list and build array of players played
-    $opponents = array();
-    $players = array();
-    foreach ($results as $row) {
-      if ($type != 'decathlon' && decathlon_game_type($row->gid) != $type) { continue; }
-      if (isset($this_contest) && $row->contest != $this_contest) {
-        foreach ($players as $p) {
-          $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
-        }
-        $players = array(); // reset
-      }
-      $players[] = $row->pid;
-      $this_contest = $row->contest;
-    }
-    foreach ($players as $p) {
-      $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
-    }
+    // player opponents
+    $opponents = decathlon_get_opponents($athlon);
 
-    // remove duplicates
-    foreach ($opponents as $index => $played) {
-      $opponents[$index] = array_unique($played);
-    }
-  
     // sort descending
     uasort($opponents, function($a, $b) {
         return count($b) - count($a);
@@ -130,12 +104,12 @@ function decathlon_standings_most_opponents() {
     $rows = array();
     foreach ($opponents as $index => $played) {
       $rows[] = 
-        '<div class="name">' . decathlon_player_link($index) . '</div>' . 
+        '<div class="name">' . strtoupper(decathlon_player_link($index)) . '</div>' . 
         '<div class = "count">' . (count($played)) . '</div>';
     }
 
     $html .= '<div class="leaderboard-mostp-standings">';
-    $html .= '<h3>' . ucfirst($type) . '</h3>';
+    $html .= '<h3>' . ucfirst($athlon) . '</h3>';
     $html .= theme('item_list', array(
               'items' => $rows, 
               'type' => 'ul', 
@@ -153,7 +127,7 @@ function decathlon_standings_most_opponents() {
 function decathlon_standings_honors_leaders() {
 
   // honors list for data handling and table header
-  $tree = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('bonus')->vid); // honor is called bonus due to historical blunder
+  $tree = decathlon_standings_get_honors_tree();
 
   // honors table
   $records = db_query(
@@ -375,5 +349,22 @@ function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) 
   }
 
   return theme('table', array('sticky' => TRUE, 'header' => $header, 'rows' => $rows));
+}
+
+/**
+ *
+ */
+function decathlon_standings_get_honors_tree() {
+  $tree = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('bonus')->vid); // honor is called bonus due to historical blunder
+  $games = decathlon_get_event_games();
+  foreach ($tree as $index => $row) {
+    $term = taxonomy_term_load($row->tid);
+    $items = field_get_items('taxonomy_term', $term, 'field_game');
+    $value = field_view_value('taxonomy_term', $term, 'field_game', $items[0]);
+    if (!in_array($value['#title'], $games)) {
+      unset($tree[$index]);
+    }
+  }
+  return $tree;
 }
 

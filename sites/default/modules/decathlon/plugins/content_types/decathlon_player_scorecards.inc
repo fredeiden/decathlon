@@ -122,7 +122,7 @@ function decathlon_player_scorecards_point_table($report, $this_pid, $athlon, $t
     'Honor',
     'Skunk',
     'Points',
-    $type == 'weighted' ? 'Rank DPI' : 'Rank',
+    'Rank',
   );
 
   $filter = decathlon_get_event_games($athlon); // only working on these games

@@ -221,12 +221,20 @@ function decathlon_player_standings_besting_table($pid, $type = 'besting') {
   $groups = array();
 
   foreach ($records as $data) {
-    $groups[$data->game][] = decathlon_player_link($data->name);
+    $groups[$data->game][] = decathlon_get_term_name($data->name);
   }
 
+  uksort($groups, function($a, $b) {
+      return strcmp(decathlon_get_term_name($a), decathlon_get_term_name($b));
+    });
+
   foreach ($groups as $game => $list) {
+    sort($list);
+    array_walk($list, function(&$val) {
+        $val = decathlon_player_link_from_name($val);
+      });
     $rows[] = array(
-      decathlon_get_term_name($game),
+      array('data' => decathlon_game_link($game), 'class' => array('first')),
       implode(', ', $list),
     );
   }
@@ -312,7 +320,7 @@ function decathlon_player_standings_game_summary($pid) {
   // also includes keys (lookup) for this function
   $header = array(
     'game' => array('data' => 'Game', 'convert' => 'decathlon_game_link_from_name'),
-    'plays' => array('data' => 'Participation', 'type' => 'lookup'),
+    'plays' => array('data' => 'Part', 'type' => 'lookup'),
     'minutes' => array('data' => 'Time', 'type' => 'lookup', 'convert' => 'decathlon_hours_and_minutes'),
     'players' => array('data' => 'Opponents', 'type' => 'lookup'),
     'avg' => array('data' => 'Avg Score', 'type' => 'lookup'),
@@ -397,7 +405,7 @@ function decathlon_player_standings_game_summary($pid) {
         strtoupper($athlon),
         $data['plays'],
         decathlon_hours_and_minutes($data['minutes']),
-        $data['players'],
+        '<a href="/leaderboard/mostp">MostP</a>',
         '-',
         $data['besting'],
         $data['bested'],
@@ -430,18 +438,21 @@ function decathlon_player_standings_stats_table() {
     'leisure' => array('data' => 'Leisure'),
     'parlor' => array('data' => 'Parlor'),
     'time' => array('data' => 'Time', 'convert' => 'decathlon_hours_and_minutes'),
+    'opponents' => array('data' => 'MostP'),
     'play' => array('data' => 'Part'), 
     'besting' => array('data' => 'Besting'),
-    'bgpar' => array('data' => 'BgPar'),
     'bested' => array('data' => 'Bested'),
-    'bdpar' => array('data' => 'BdPar'),
     'honor' => array('data' => 'Honor'),
+    'bgpar' => array('data' => 'BgPar'),
+    'bdpar' => array('data' => 'BdPar'),
     'hopar' => array('data' => 'HoPar'),
   );
 
   $dpi = decathlon_get_ranking_points();
   $points = decathlon_player_standings_get_points();
+  $opponents = decathlon_get_opponents('decathlon');
   $table_data = array();
+
   foreach (array_keys($dpi['decathlon']) as $pid) {
 
     $bested = db_query(
@@ -455,12 +466,13 @@ function decathlon_player_standings_stats_table() {
       'leisure' => isset($dpi['leisure'][$pid]['dpi']) ? $dpi['leisure'][$pid]['dpi'] : 0,
       'parlor' => isset($dpi['parlor'][$pid]['dpi']) ? $dpi['parlor'][$pid]['dpi'] : 0,
       'time' => isset($points[$pid]['time']) ? $points[$pid]['time'] : 0,
+      'opponents' => isset($opponents[$pid]) ? count($opponents[$pid]) : 0,
       'play' => isset($points[$pid]['play']) ? $points[$pid]['play'] : 0,
       'besting' => isset($points[$pid]['besting']) ? $points[$pid]['besting'] : 0,
-      'bgpar' => isset($points[$pid]['besting']) ? round(($points[$pid]['besting']/$points[$pid]['play']), 1) : 0,
       'bested' => isset($bested) ? $bested : 0,
-      'bdpar' => isset($bested) ? round(($bested/$points[$pid]['play']), 1) : 0,
       'honor' => isset($points[$pid]['honor']) ? $points[$pid]['honor'] : 0,
+      'bgpar' => isset($points[$pid]['besting']) ? round(($points[$pid]['besting']/$points[$pid]['play']), 1) : 0,
+      'bdpar' => isset($bested) ? round(($bested/$points[$pid]['play']), 1) : 0,
       'hopar' => isset($points[$pid]['honor']) ? round(($points[$pid]['honor']/$points[$pid]['play']), 1) : 0,
     );
   }
