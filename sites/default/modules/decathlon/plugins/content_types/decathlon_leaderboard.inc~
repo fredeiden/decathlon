@@ -102,81 +102,78 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
   // create list
   $rows = array();
   $i = 1;
+  foreach ($sums[$athlon] as $pid => $info) {
 
-  if (!empty($sums)) {
-    foreach ($sums[$athlon] as $pid => $info) {
+    // podium house rule
+    $podium = FALSE;
+    $podium_text = '';
+    if (isset($info['podium'])) {
+      $podium = TRUE;
+      $podium_text = $info['podium'];
+    }
 
-      // podium house rule
-      $podium = FALSE;
-      $podium_text = '';
-      if (isset($info['podium'])) {
-        $podium = TRUE;
-        $podium_text = $info['podium'];
-      }
-      
-      // eligibility
-      if (isset($results[$pid]['play'])) {
-        $eligibility = decathlon_get_leaderboard_eligibility($results[$pid], $athlon);
-      } else {
-        // this player only has bonus points
-        $eligibility = 10;
-      }
-      
-      // offense
-      if (isset($results[$pid]['offense'][$athlon]['game'])) {
-        $offense = decathlon_game_icon($results[$pid]['offense'][$athlon]['game']);
-      } else {
-        $offense = "?";
-      }
+    // eligibility
+    if (isset($results[$pid]['play'])) {
+      $eligibility = decathlon_get_leaderboard_eligibility($results[$pid], $athlon);
+    } else {
+      // this player only has bonus points
+      $eligibility = 10;
+    }
 
-      // defense
-      if (isset($results[$pid]['defense'][$athlon]['game'])) {
-        $defense = decathlon_game_icon($results[$pid]['defense'][$athlon]['game']);
-      } else {
-        $defense = "-";
-      }
+    // offense
+    if (isset($results[$pid]['offense'][$athlon]['game'])) {
+      $offense = decathlon_game_icon($results[$pid]['offense'][$athlon]['game']);
+    } else {
+      $offense = "?";
+    }
 
-      $rank = '';
-      $rank_class = 'rank podium';
-      if ($podium == FALSE) {
-        if ($eligibility == 0) {
-          $rank = $i;
-          if ($i <= 3) {
-            $rank_class = 'rank podium';
-          }
+    // defense
+    if (isset($results[$pid]['defense'][$athlon]['game'])) {
+      $defense = decathlon_game_icon($results[$pid]['defense'][$athlon]['game']);
+    } else {
+      $defense = "-";
+    }
+
+    $rank = '';
+    $rank_class = 'rank podium';
+    if ($podium == FALSE) {
+      if ($eligibility == 0) {
+        $rank = $i;
+        if ($i <= 3) {
+          $rank_class = 'rank podium';
         }
       }
+    }
 
-      if ($version == "full") {
+    if ($version == "full") {
+
+      $data =
+        (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
+        '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
+        '<div class="offense">' . $offense . '</div>' .
+        '<div class="defense">' . $defense . '</div>';
+
+      $rows[] = array(
+        "data" => $data,
+      );
+      
+      if ($podium == FALSE && $eligibility == 0) {        
+        $eligibility == 0 && $i++;
+      }
+    } else {
+      if ($podium == FALSE && $eligibility == 0) {
 
         $data =
           (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
-          '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
+          '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player' . $pid) . '</div>' .
           '<div class="offense">' . $offense . '</div>' .
           '<div class="defense">' . $defense . '</div>';
-        
+
         $rows[] = array(
           "data" => $data,
         );
         
-        if ($podium == FALSE && $eligibility == 0) {        
-          $eligibility == 0 && $i++;
-        }
-      } else {
-        if ($podium == FALSE && $eligibility == 0) {
-          
-          $data =
-            (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
-            '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player' . $pid) . '</div>' .
-            '<div class="offense">' . $offense . '</div>' .
-            '<div class="defense">' . $defense . '</div>';
-
-          $rows[] = array(
-            "data" => $data,
-          );
-        
-          $eligibility == 0 && $i++;
-        }
+        $eligibility == 0 && $i++;
       }
     }
   }

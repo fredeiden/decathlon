@@ -218,7 +218,6 @@ function decathlon_get_rankings() {
   // query to fetch game, player, point type, points
   //
   $results = decathlon_get_all_typed_rankings();
-  if (count($results) == 0) { return array(); }
 
   //
   // loop over results and calculate unweighted and weighted point totals
@@ -484,8 +483,7 @@ function decathlon_get_rankings_player_sums($pid) {
  */
 function decathlon_get_rankings_all_sums() {
   $results = decathlon_get_rankings();
-  if (isset($results['sums'])) { return $results['sums']; }
-  return array();
+  return $results['sums'];  
 }
 
 /**
@@ -494,7 +492,6 @@ function decathlon_get_rankings_all_sums() {
 function decathlon_get_ranking_points() {
 
   $results = decathlon_get_rankings_all_sums();
-  if (empty($results)) { return array(); }
   $sums = array();
 
   foreach ($results as $pid => $data) {
@@ -525,11 +522,9 @@ function decathlon_get_ranking_points() {
 
   // sort each array group by points
   foreach (array('leisure', 'parlor', 'decathlon') as $group) {
-    if (isset($sums[$group])) {
-      uasort($sums[$group], function($a, $b) {
-          return $b['dpi'] - $a['dpi'];
-        });
-    }
+    uasort($sums[$group], function($a, $b) {
+        return $b['dpi'] - $a['dpi'];
+      });
   }
 
   // apply house rule for podium positions
@@ -542,53 +537,51 @@ function decathlon_get_ranking_points() {
   //
   // this routine does not account for a tiebreaker between leisure and parlor, but simply gives
   // leisure first dibs
-  if (!empty($sums)) {
-    $group = array(
-      'decathlon' => array(
-        'index' => 0,
-        'keys' => array_keys($sums['decathlon']),
-        'other' => array('leisure', 'parlor'),
-      ),
-      'leisure' => array(
-        'index' => 0,
-        'keys' => array_keys($sums['leisure']),
-        'other' => array('decathlon', 'parlor'),
-      ),
-      'parlor' => array(
-        'index' => 0,
-        'keys' => array_keys($sums['parlor']),
-        'other' => array('decathlon', 'leisure'),
-      ),
-    );
-    for ($i = 0; $i < count($results); $i++) { // 3 passes
-      foreach ($group as $name => $settings) {
-        $keys = $settings['keys'];
-        $index = $settings['index'];
-        
+  $group = array(
+    'decathlon' => array(
+      'index' => 0,
+      'keys' => array_keys($sums['decathlon']),
+      'other' => array('leisure', 'parlor'),
+    ),
+    'leisure' => array(
+      'index' => 0,
+      'keys' => array_keys($sums['leisure']),
+      'other' => array('decathlon', 'parlor'),
+    ),
+    'parlor' => array(
+      'index' => 0,
+      'keys' => array_keys($sums['parlor']),
+      'other' => array('decathlon', 'leisure'),
+    ),
+  );
+  for ($i = 0; $i < count($results); $i++) { // 3 passes
+    foreach ($group as $name => $settings) {
+      $keys = $settings['keys'];
+      $index = $settings['index'];
+
+      if (isset($keys[$index])) {
+        $pid = $keys[$index];
+      } else {
+        break;
+      }
+      
+      // find eligible player not currently on a podium
+      while (!empty($sums[$name][$pid]['podium']) || (decathlon_get_leaderboard_eligibility($results[$pid], $name) != 0)) { 
+        $index++;
         if (isset($keys[$index])) {
           $pid = $keys[$index];
         } else {
           break;
         }
-      
-        // find eligible player not currently on a podium
-        while (!empty($sums[$name][$pid]['podium']) || (decathlon_get_leaderboard_eligibility($results[$pid], $name) != 0)) { 
-          $index++;
-          if (isset($keys[$index])) {
-            $pid = $keys[$index];
-          } else {
-            break;
-          }
-        }
-
-        // in the categories other than this, mark player as on podium
-        foreach ($settings['other'] as $other) { 
-          $sums[$other][$pid]['podium'] = $name;
-        }
-        
-        $index++; // increment for next pass
-        $group[$name]['index'] = $index;  // save new index
       }
+
+      // in the categories other than this, mark player as on podium
+      foreach ($settings['other'] as $other) { 
+        $sums[$other][$pid]['podium'] = $name;
+      }
+
+      $index++; // increment for next pass
+      $group[$name]['index'] = $index;  // save new index
     }
   }
 

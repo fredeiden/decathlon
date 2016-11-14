@@ -348,7 +348,7 @@ function decathlon_game_report_game_leaders($gid = NULL) {
   }
   $cols[] = '-';
   $cols[] = $totals['bested'];
-  $cols[] = !empty($table_data) ? round(($totals['avg']/count($table_data))) : 0;
+  $cols[] = round(($totals['avg']/count($table_data)));
   $cols[] = $totals['max'];
   $cols[] = $totals['min'];
   $cols[] = '';
@@ -494,7 +494,7 @@ function decathlon_game_report_game_summary() {
       'data' => array(
         strtoupper($athlon),
         $data['games'],
-        isset($unique_players[$athlon]) ? $unique_players[$athlon] : 0,
+        $unique_players[$athlon],
         decathlon_hours_and_minutes($data['minutes']),
         $data['plays'],
         $data['besting'],
@@ -504,9 +504,9 @@ function decathlon_game_report_game_summary() {
         '-',
         '-',
         '-',
-        $data['games'] > 0 ? round(($data['besting']/$data['games']), 1) : 0,
-        $data['games'] > 0 ? round(($data['bested']/$data['games']), 1) : 0,
-        $data['games'] > 0 ? round(($data['honors']/$data['games']), 1) : 0,
+        round(($data['besting']/$data['games']), 1),
+        round(($data['bested']/$data['games']), 1),
+        round(($data['honors']/$data['games']), 1),
       ),
     'class' => array('totals-row'),
     );
