@@ -234,7 +234,7 @@ function decathlon_game_report_game_leaders($gid = NULL) {
       array('data' => 'Time', 'field' => 'time'),
     ), 
     array_map(
-      function($type) {return array('data' => $type, 'field' => strtolower($type));},
+      function($type) {return array('data' => $type == 'Participation' ? substr($type, 0, 4) : $type, 'field' => strtolower($type));},
       array_values($types)
     ),
     array(
@@ -247,8 +247,8 @@ function decathlon_game_report_game_leaders($gid = NULL) {
       array('data' => 'BdPaR', 'field' => 'bdpar', 'title' => 'Bested-to-Participation Ratio'),
       array('data' => 'HoPaR', 'field' => 'hopar', 'title' => 'Honors-to-Participation Ratio'),
     ));
-  $table_data = array();
 
+  $table_data = array();
   foreach ($games as $row) {
     $tid = $row->pid;
     $type = decathlon_get_term_name($row->point_type);
@@ -400,14 +400,12 @@ function decathlon_game_report_game_summary() {
     'minutes' => array('data' => 'Time', 'type' => 'lookup'),
     'plays' => array('data' => 'Part', 'type' => 'lookup'),
     'besting' => array('data' => 'Besting', 'type' => 'lookup'),
-    'bested' => array('data' => 'Bested', 'type' => 'lookup'),
     'honors' => array('data' => 'Honors', 'type' => 'lookup'),
     'skunks' => array('data' => 'Skunks', 'type' => 'lookup'),
     'average' => array('data' => 'Avg Score', 'type' => 'lookup', 'convert' => 'decathlon_round'),
     'max' => array('data' => 'Max Score', 'type' => 'lookup'),
     'min' => array('data' => 'Min Score', 'type' => 'lookup'),
     'bggam' => array('data' => 'BgGam'),
-    'bdgam' => array('data' => 'BdGam'),
     'hogam' => array('data' => 'HoGam'),
   );
   // copy header fields of type lookup to an array to capture values as we go
@@ -447,9 +445,6 @@ function decathlon_game_report_game_summary() {
     $honors = isset($points[$id][77]) ? $points[$id][77] : 0; 
     $skunks = isset($points[$id][76]) ? $points[$id][76] : 0; 
 
-    // bested
-    $bested = db_query("SELECT COUNT(bestee) bested FROM {decathlon_besting} WHERE event = :event AND game = :gid", array(':event' => decathlon_get_event(), ':gid' => $id))->fetchField();
-
     // assign data values to fields and write rows
     $set = array();
     $type = decathlon_game_type($id);
@@ -467,7 +462,6 @@ function decathlon_game_report_game_summary() {
       $set,
       array(
         'bggam' => round(($besting/$games), 1),
-        'bdgam' => round(($bested/$games), 1),        
         'hogam' => round(($honors/$games), 1),
       )
     );
@@ -498,14 +492,12 @@ function decathlon_game_report_game_summary() {
         decathlon_hours_and_minutes($data['minutes']),
         $data['plays'],
         $data['besting'],
-        $data['bested'],
         $data['honors'],
         $data['skunks'],
         '-',
         '-',
         '-',
         $data['games'] > 0 ? round(($data['besting']/$data['games']), 1) : 0,
-        $data['games'] > 0 ? round(($data['bested']/$data['games']), 1) : 0,
         $data['games'] > 0 ? round(($data['honors']/$data['games']), 1) : 0,
       ),
     'class' => array('totals-row'),
