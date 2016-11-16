@@ -35,8 +35,8 @@ function decathlon_2010_upload_form($form, &$form_state) {
 }
 
 function decathlon_2010_upload_form_submit($form, &$form_state) {
-  //decathlon_2010_record_scores();
-  decathlon_2010_record_bonuses();
+  decathlon_2010_record_scores();
+  //decathlon_2010_record_bonuses();
 }
 
 
