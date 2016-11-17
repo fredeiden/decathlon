@@ -260,65 +260,31 @@ function decathlon_scoring_honor_automatic($tid) {
 }
 
 /**
- * Caller needs to set up a batch to process returned operations array
+ * 
  */
-function decathlon_scoring_reset_scores() {
+function decathlon_scoring_reset_scores($event) {
 
-  $operations = array();
-
-  // this function is rewriting these tables
-  $operations[] = array('decathlon_scoring_reset_truncate_table', array('decathlon_besting'));
-  $operations[] = array('decathlon_scoring_reset_truncate_table', array('decathlon_points'));
-  $operations[] = array('decathlon_scoring_reset_truncate_table', array('decathlon_skunks'));
-
-  // operate on all events
-  $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('event')->vid);
-
-  foreach ($terms as $event) {
-
-    // load scores
-    $scores = db_query("SELECT dc.gid, dc.created, ds.contest contest, ds.pid, ds.score FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE ds.contest = dc.contest AND dc.event = :event", array(':event' => $event->tid))->fetchAll();
+  // load scores
+  $scores = db_query("SELECT dc.gid, dc.created, ds.contest contest, ds.pid, ds.score FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE ds.contest = dc.contest AND dc.event = :event", array(':event' => $event))->fetchAll();
     
-    // load honors
-    $honors = db_query("SELECT dh.pid, dh.contest, dh.honor, dh.count FROM {decathlon_honors} dh, {decathlon_contests} dc WHERE dh.contest = dc.contest AND dc.event = :event", array(':event' => $event->tid))->fetchAll();
-
-    // build scores and honors into an array to pass to decathlon_scoring_score_game
-    $results = array();
-    foreach ($scores as $row) {
-      $results[$row->contest]['game'] = $row->gid;
-      $results[$row->contest]['players'][$row->pid]['score'] = $row->score;
-    }
-
-    foreach ($honors as $row) {
-      $results[$row->contest]['players'][$row->pid]['honors'] = $row->count;
-    }
-
-    // rewrite
-    foreach ($results as $contest => $data) {
-      $operations[] = array('decathlon_scoring_reset_score_game', array($event->tid, $contest, $data['game'], $data['players']));
-    }
+  // load honors
+  $honors = db_query("SELECT dh.pid, dh.contest, dh.honor, dh.count FROM {decathlon_honors} dh, {decathlon_contests} dc WHERE dh.contest = dc.contest AND dc.event = :event", array(':event' => $event))->fetchAll();
+  
+  // build scores and honors into an array to pass to decathlon_scoring_score_game
+  $results = array();
+  foreach ($scores as $row) {
+    $results[$row->contest]['game'] = $row->gid;
+    $results[$row->contest]['players'][$row->pid]['score'] = $row->score;
   }
 
-  return $operations;
-}
-
-/**
- *
- */
-function decathlon_scoring_reset_truncate_table($table, &$context) {
-  db_truncate($table)->execute();
-  $text = "Truncated table " . $table;
-  $context['message'] = $text;
-  $context['results'][] = $text;
-}
-
-/**
- *
- */
-function decathlon_scoring_reset_score_game($event, $contest, $game, $players, &$context) {
-  decathlon_scoring_score_game($event, $contest, $game, $players);
-  $text = "Scored " . $contest;
-  $context['message'] = $text;
-  $context['results'][] = $text;
+  foreach ($honors as $row) {
+    $results[$row->contest]['players'][$row->pid]['honors'] = $row->count;
+  }
+  
+  // rewrite
+  foreach ($results as $contest => $data) {
+    $notes = decathlon_scoring_score_game($event, $contest, $data['game'], $data['players']);
+    decathlon_scoring_add_contest_notes($contest, $notes);
+  }
 }
 

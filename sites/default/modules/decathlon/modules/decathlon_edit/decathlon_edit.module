@@ -102,32 +102,25 @@ function decathlon_edit_game_form_submit($form, &$form_state) {
   
   if ($changed == TRUE) {
 
+    $event = decathlon_get_event();
+
+    // clear besting records
+    $rows = db_delete('decathlon_besting')
+      ->condition('event', $event)
+      ->execute();
+
+    // clear points and skunks
+    $query = "DELETE FROM {decathlon_points} WHERE contest in (SELECT contest FROM {decathlon_contests} WHERE event = $event)";
+    db_query($query)->execute();
+    $query = "DELETE FROM {decathlon_skunks} WHERE contest in (SELECT contest FROM {decathlon_contests} WHERE event = $event)";
+    db_query($query)->execute();
+
+    // reset points, bestings, skunks
     module_load_include('inc', 'decathlon', 'modules/decathlon_scoring/decathlon_scoring');
-
-    $batch = array(
-      'operations' => decathlon_scoring_reset_scores(),
-      'finished' => 'decathlon_edit_batch_finished',
-      'title' => t('Resetting scores'),
-      'init_message' => t('Process is starting.'),
-      'progress_message' => t('Processed @current out of @total.'),
-      'error_message' => t('Process has encountered an error.'),
-    );
-
-    batch_set($batch);
+    decathlon_scoring_reset_scores($event);
   }
 
   $redirect = '/scores/game/' . $contest;
   $form_state['redirect'] = $redirect;
 }
 
-/**
- *
- */
-function decathlon_edit_batch_finished($success, $results, $operations) {
-  if ($success) {
-    $message = t("@records records processed.", array('@records' => count($results)));
-  }
-  else {
-    $message = t('Error');
-  }
-}

@@ -75,29 +75,7 @@ function decathlon_scoring_reset_scores_form($form, &$form_state) {
  *
  */
 function decathlon_scoring_reset_scores_form_submit($form, &$form_state) {
-
-    $batch = array(
-      'operations' => decathlon_scoring_reset_scores(),
-      'finished' => 'decathlon_scoring_batch_finished',
-      'title' => t('Resetting scores'),
-      'init_message' => t('Process is starting.'),
-      'progress_message' => t('Processed @current out of @total.'),
-      'error_message' => t('Process has encountered an error.'),
-    );
-
-    batch_set($batch);
-
-    $form_state['redirect'] = url('');
+  decathlon_scoring_reset_scores(decathlon_get_event());
+  $form_state['redirect'] = url('');
 }
 
-/**
- *
- */
-function decathlon_scoring_batch_finished($success, $results, $operations) {
-  if ($success) {
-    $message = t("@records records processed.", array('@records' => count($results)));
-  }
-  else {
-    $message = t('Error');
-  }
-}

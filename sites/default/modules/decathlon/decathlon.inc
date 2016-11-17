@@ -319,6 +319,8 @@ function decathlon_get_rankings() {
         }
         // move the rank up
         if ($previous_total != $total) {
+          $previous_rank = $index == 0 ? 1 : $rank; // save next best rank
+          $previous_rank_total = $previous_total;
           $rank = $index + 1;
         }
         
@@ -351,20 +353,17 @@ function decathlon_get_rankings() {
         if ($rank > 1 && $game_weight > 0) { // skip when already leading or game not weighted
 
           // points available to next ranking
-          $point_differential = decathlon_dpi_get_ranking($rank - 1) - decathlon_dpi_get_ranking($rank);
-
-          // how much you'd need to score to get to the next ranking
-          if ($previous_total == $total) { // tie
-            $j = $index - 2;
-            while ($previous_total == $total) {
-              $previous_total = $scores[$j]['Total'];
-              $j--;
-            }
+          $spread = 0;
+          $tie_bump = 0;
+          if (($previous_rank_total - $total) == 1) { // 1 point to next rank
+            $spread = decathlon_dpi_get_ranking($previous_rank) - decathlon_dpi_get_ranking($rank);
           }
-          $score_to_next = $previous_total - $total;
-
+          if ($tie == TRUE) {
+            $tie_bump = (decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1));
+          }
+          
           // the nugget
-          $next_best_rank = $point_differential / $game_weight * (1 / $score_to_next);          
+          $next_best_rank = ($spread + $tie_bump) / $game_weight;
 
           // separate athlons
           if (isset($totals['sums'][$pid]['offense'][$athlon]['value'])) {
@@ -397,7 +396,7 @@ function decathlon_get_rankings() {
 
           // point difference from next ranking
           if ($tie == TRUE && $rank > 1) {
-            $point_differential = decathlon_dpi_get_ranking($rank - 1) - decathlon_dpi_get_ranking($rank); // same as offense
+            $point_differential = decathlon_dpi_get_ranking($previous_rank) - decathlon_dpi_get_ranking($rank); // same as offense
           } else {
             $point_differential = decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1);
           }
