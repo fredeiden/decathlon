@@ -362,7 +362,8 @@ function decathlon_scoring_form_standard_form_submit($form, &$form_state) {
             }
           } elseif (isset($honor['count']) && $honor['count'] > 0) {
             decathlon_scoring_add_honor($contest, $player[1], $honor['tid'], $honor['count']);
-            $results[$player[1]]['honors'] = decathlon_get_honors_award($honor['tid'], $honor['count']);
+            $award = decathlon_get_honors_award($honor['tid'], $honor['count']);
+            if ($award > 0) { $results[$player[1]]['honors'] = $award; }
           }
         }
       }

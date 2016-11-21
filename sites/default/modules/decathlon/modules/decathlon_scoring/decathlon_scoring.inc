@@ -1,12 +1,27 @@
 <?php
 
-
 /**
+ * Save values to decathlon_points, decathlon_skunks, and decathlon_besting
+ * 
+ * @param $event
+ *  The event 
  *
+ * @param $contest
+ *  The contest (a game between players)
+ *
+ * @param $game
+ *  The taxonomy term ID of the game
+ *
+ * @param $results
+ *  An array of results where the key is the player taxonomy term ID and there are columns for score and honors
+ *
+ * @return
+ *  Text describing values saved (for text field in decathlon_points)
  */
 function decathlon_scoring_score_game($event, $contest, $game, $results) {
 
-  $log_message = "<ul><li>" . date("h:i:s") . "</li>";
+  $start_time = microtime(TRUE);
+  $log_message = "<ul>";
 
   //build a list of taxonomy ids to make display text clearer
   $id_list = array();
@@ -28,8 +43,6 @@ function decathlon_scoring_score_game($event, $contest, $game, $results) {
   foreach ($skunk_yes_no as $row) {
     $skunk_bonus[$row->entity_id] = $row->field_skunk_point_value;
   }
-
-  //$log_message .= "<li>" . date("h:i:s") . " - built lists</li>";
 
   $game_results = array();
   $skunk = 0;
@@ -154,7 +167,10 @@ function decathlon_scoring_score_game($event, $contest, $game, $results) {
     decathlon_scoring_add_points($contest, $winner, 74, $count); // 74 is besting tid
   }
 
-  $log_message .= "</ul>";
+  $end_time = microtime(TRUE);
+  $interval = $end_time - $start_time;
+  $log_message .= "<li>" . $interval . " seconds elapsed</li></ul>";
+
   return $log_message;
 }
 
@@ -252,7 +268,15 @@ function decathlon_scoring_honor_automatic($tid) {
 }
 
 /**
- * 
+ * Rewrite points, skunks, and besting tables for an event.
+ *
+ * This can be called when a single game needs to be edited or deleted.  Why not just fix the values individually?  That
+ * would work, but it is more complex.  The bestings in particular have a cascading effect and it would be much more
+ * difficult to unwind a set of them than to just redo them all.  If there were many thousands of players and games in question,
+ * then the reverse might be true.
+ *
+ * @param $event
+ *  The event for which a contest record has been altered.
  */
 function decathlon_scoring_reset_scores($event) {
 
@@ -285,7 +309,8 @@ function decathlon_scoring_reset_scores($event) {
   }
 
   foreach ($honors as $row) {
-    $results[$row->contest]['players'][$row->pid]['honors'] = decathlon_get_honors_award($row->honor, $row->count);
+    $award = decathlon_get_honors_award($row->honor, $row->count);
+    $award > 0 && $results[$row->contest]['players'][$row->pid]['honors'] = $award;
   }
   
   // rewrite
