@@ -100,7 +100,6 @@ function decathlon_event_select_event_form($form, &$form_state) {
  */
 function decathlon_event_select_event_form_submit($form, &$form_state) {
   decathlon_set_event($form_state['values']['event']);
-  $form_state['redirect'] = '';
 }
 
 /**
