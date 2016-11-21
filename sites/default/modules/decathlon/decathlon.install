@@ -266,7 +266,10 @@ function decathlon_uninstall() {
 /**
  * New table for taxonomy field overrides
  */
-function decathlon_update_7100() {
+function decathlon_update_7200() {
+  // kill reporting table
+  db_drop_table('decathlon_reporting');
+
   // new table
   $schema['decathlon_taxonomy_value'] = array(
     'description' => 'Taxonomy term field overrides per event',
