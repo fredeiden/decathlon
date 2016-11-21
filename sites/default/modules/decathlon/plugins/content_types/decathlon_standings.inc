@@ -131,7 +131,7 @@ function decathlon_standings_honors_leaders() {
 
   // honors table
   $records = db_query(
-    "SELECT dh.pid, dh.honor, SUM(dh.count) count FROM decathlon_honors dh, decathlon_contests dc WHERE dh.contest = dc.contest AND dc.event = :event GROUP BY dh.pid, dh.honor", 
+    "SELECT dc.contest, dh.pid, dh.honor, dh.count FROM decathlon_honors dh, decathlon_contests dc WHERE dh.contest = dc.contest AND dc.event = :event", 
     array(
       ':event' => decathlon_get_event(),
     )
@@ -143,26 +143,27 @@ function decathlon_standings_honors_leaders() {
   foreach ($records as $row) {
 
     $pid = $row->pid;
+    $count = decathlon_count_honors($row->honor, $row->count);
 
     // count by player by type
     if (isset($results[$pid][$row->honor])) {
-      $results[$pid][$row->honor] += $row->count;
+      $results[$pid][$row->honor] += $count;
     } else {
-      $results[$pid][$row->honor] = $row->count;
+      $results[$pid][$row->honor] = $count;
     }
 
     // total by player
     if (isset($results[$pid]['total'])) {
-      $results[$pid]['total'] += $row->count;
+      $results[$pid]['total'] += $count;
     } else {
-      $results[$pid]['total'] = $row->count;
+      $results[$pid]['total'] = $count;
     }
 
     // total
     if (isset($totals[$row->honor])) {
-      $totals[$row->honor] += $row->count;
+      $totals[$row->honor] += $count;
     } else {
-      $totals[$row->honor] = $row->count;
+      $totals[$row->honor] = $count;
     }
   }
 

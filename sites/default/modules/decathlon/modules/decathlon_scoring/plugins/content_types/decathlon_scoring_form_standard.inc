@@ -9,7 +9,8 @@ $plugin = array(
 
 function decathlon_scoring_form_standard_render($subtype, $conf, $args, $context) {
 
-  module_load_include('inc', 'decathlon', 'decathlon_scoring');
+  module_load_include('inc', 'decathlon', 'modules/decathlon_scoring/decathlon_scoring');
+  module_load_include('inc', 'decathlon', 'decathlon');
 
   $block = new stdClass();
   $block->content = drupal_get_form('decathlon_scoring_form_standard_form', $args);
@@ -361,7 +362,7 @@ function decathlon_scoring_form_standard_form_submit($form, &$form_state) {
             }
           } elseif (isset($honor['count']) && $honor['count'] > 0) {
             decathlon_scoring_add_honor($contest, $player[1], $honor['tid'], $honor['count']);
-            $results[$player[1]]['honors'] = _count_honors($honor['tid'], $honor['count']);
+            $results[$player[1]]['honors'] = decathlon_get_honors_award($honor['tid'], $honor['count']);
           }
         }
       }
@@ -375,24 +376,4 @@ function decathlon_scoring_form_standard_form_submit($form, &$form_state) {
   $form_state['values']['contest'] = $contest;
   $form_state['redirect'] = 'scores/game/' . $contest;
 }
-
-function _count_honors($tid, $count) {
-
-  // get honors factors: value and min_to_score
-  $data = decathlon_scoring_get_honor_data($tid);
-  $value = $data[0];
-  $min_to_score = $data[1];
-
-  // check for min to score and then multiply count by value
-  if (isset($min_to_score)) {
-    if ($min_to_score > 1) {
-      $count = ($count - ($min_to_score - 1));
-      if ($count < 0) { $count = 0; }
-    }
-  }
-  $award = $count * $value;
-
-  return $award;
-}
-
 

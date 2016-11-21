@@ -842,3 +842,36 @@ function decathlon_table_row(&$value, $key, $header) {
     $value = $value;
   }
 }
+
+/**
+ *
+ */
+function decathlon_count_honors($tid, $count) {
+  
+  // get honors minimum to score (i.e. need 3 ringers to score the honor)
+  $min_to_score = decathlon_taxonomy_get_override($tid, 'field_min_to_score');
+
+  // check for min to score and then multiply count by value
+  if (isset($min_to_score)) {
+    if ($min_to_score > 1) {
+      $count = ($count - ($min_to_score - 1));
+      if ($count < 0) { $count = 0; }
+    }
+  }
+
+  return $count;
+}
+
+/**
+ *
+ */
+function decathlon_get_honors_award($tid, $count) {
+  // get honors value
+  $term = taxonomy_term_load($tid);
+  $value = $term->field_value['und'][0]['value'];
+
+  $adjusted_for_min = decathlon_count_honors($tid, $count);
+
+  return ($adjusted_for_min * $value);
+}
+

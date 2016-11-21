@@ -13,6 +13,23 @@
  */
 function decathlon_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'taxonomy_form_term') {
+
+    // overrides
+    if ($form['#term']['tid'] == 62) {
+      $results = db_query("SELECT field, value from {decathlon_taxonomy_value} WHERE event = :event AND term = :tid",
+                 array(
+                   ':event' => decathlon_get_event(),
+                   ':tid' => $form['#term']['tid'],
+                 ))->fetchAllKeyed();
+
+      if (!empty($results)) {
+        $form['field_min_to_score']['und'][0]['value']['#default_value'] = $results['field_min_to_score'];
+      }
+
+      $form['#submit'][] = 'decathlon_taxonomy_submit_override';
+    }
+
+    // disable delete for term
     $count = views_get_view_result('term_delete_check', 'default', $form['name']['#default_value']);
     if (isset($count[0]->node_taxonomy_index_title)) {
       $num_records = $count[0]->node_taxonomy_index_title;
@@ -28,6 +45,53 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
   }
   if ($form_id == 'bonus_node_form') {
     $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();;
+  }
+}
+
+
+/**
+ * Submit handler to save value to decathlon_taxonomy_value
+ */
+function decathlon_taxonomy_submit_override($form, &$form_state) {
+  db_merge('decathlon_taxonomy_value')
+    ->key(array(
+        'event' => decathlon_get_event(),
+        'term' => $form['#term']['tid'],
+        'field' => 'field_min_to_score',
+      ))
+    ->fields(array(
+        'value' => $form_state['values']['field_min_to_score']['und'][0]['value'],
+      ))
+    ->execute();
+}
+
+/**
+ *
+ */
+function decathlon_taxonomy_get_override($tid, $field) {
+  $value = db_query("SELECT value from {decathlon_taxonomy_value} WHERE event = :event AND term = :tid AND field = :field",
+           array(
+             ':event' => decathlon_get_event(),
+             ':tid' => $tid,
+             ':field' => $field,
+           ))->fetchField();
+  if (empty($value)) {
+    $term = taxonomy_term_load($tid);
+    $value = $term->{$field}['und'][0]['value'];
+  }
+  return $value;
+}
+
+/**
+ *
+ */
+function decathlon_views_pre_render(&$view) {
+  $tid = 62;
+  $field = 'field_min_to_score';
+  foreach ($view->result as $index => $row) {
+    if (isset($row->tid) && $row->tid == $tid) {
+      $view->result[$index]->field_field_min_to_score[0]['rendered']['#markup'] = decathlon_taxonomy_get_override($tid, $field);
+    }
   }
 }
 

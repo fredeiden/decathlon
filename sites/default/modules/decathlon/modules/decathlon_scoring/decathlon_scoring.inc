@@ -158,14 +158,6 @@ function decathlon_scoring_score_game($event, $contest, $game, $results) {
   return $log_message;
 }
 
-function decathlon_scoring_get_honor_data($tid) {
-  $result = views_get_view_result('honor_data', 'panel_pane_1', $tid);
-  return array(
-    $result[0]->field_field_value[0]['raw']['value'],
-    $result[0]->field_field_min_to_score[0]['raw']['value'],
-  );
-}
-
 function decathlon_scoring_add_contest($gid) {
 
   global $user;
@@ -264,6 +256,21 @@ function decathlon_scoring_honor_automatic($tid) {
  */
 function decathlon_scoring_reset_scores($event) {
 
+  module_load_include('inc', 'decathlon', 'decathlon');
+
+  // clear besting records
+  $rows = db_delete('decathlon_besting')
+    ->condition('event', $event)
+    ->execute();
+
+  // clear points
+  $query = "DELETE FROM {decathlon_points} WHERE contest in (SELECT contest FROM {decathlon_contests} WHERE event = $event)";
+  db_query($query)->execute();
+
+  // clear skunks
+  $query = "DELETE FROM {decathlon_skunks} WHERE contest in (SELECT contest FROM {decathlon_contests} WHERE event = $event)";
+  db_query($query)->execute();
+
   // load scores
   $scores = db_query("SELECT dc.gid, dc.created, ds.contest contest, ds.pid, ds.score FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE ds.contest = dc.contest AND dc.event = :event", array(':event' => $event))->fetchAll();
     
@@ -278,7 +285,7 @@ function decathlon_scoring_reset_scores($event) {
   }
 
   foreach ($honors as $row) {
-    $results[$row->contest]['players'][$row->pid]['honors'] = $row->count;
+    $results[$row->contest]['players'][$row->pid]['honors'] = decathlon_get_honors_award($row->honor, $row->count);
   }
   
   // rewrite
