@@ -9,9 +9,6 @@ $plugin = array(
 
 function decathlon_scoring_form_standard_render($subtype, $conf, $args, $context) {
 
-  module_load_include('inc', 'decathlon', 'modules/decathlon_scoring/decathlon_scoring');
-  module_load_include('inc', 'decathlon', 'decathlon');
-
   $block = new stdClass();
   $block->content = drupal_get_form('decathlon_scoring_form_standard_form', $args);
   return $block;
@@ -21,6 +18,10 @@ function decathlon_scoring_form_standard_render($subtype, $conf, $args, $context
  * Form
  */
 function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
+
+  form_load_include($form_state, 'inc', 'decathlon', 'modules/decathlon_scoring/decathlon_scoring');
+  form_load_include($form_state, 'inc', 'decathlon', 'modules/decathlon_scoring/plugins/content_types/decathlon_scoring_form_standard');
+  form_load_include($form_state, 'inc', 'decathlon', 'decathlon');
 
   $tid = $arg[0];
   $game = taxonomy_term_load($tid);
