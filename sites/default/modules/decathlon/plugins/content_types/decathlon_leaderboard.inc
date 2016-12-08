@@ -167,7 +167,7 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
           
           $data =
             (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
-            '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player' . $pid) . '</div>' .
+            '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
             '<div class="offense">' . $offense . '</div>' .
             '<div class="defense">' . $defense . '</div>';
 
