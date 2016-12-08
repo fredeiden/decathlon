@@ -405,7 +405,6 @@ function decathlon_game_report_game_summary() {
     'average' => array('data' => 'Avg Score', 'type' => 'lookup', 'convert' => 'decathlon_round'),
     'max' => array('data' => 'Max Score', 'type' => 'lookup'),
     'min' => array('data' => 'Min Score', 'type' => 'lookup'),
-    'bggam' => array('data' => 'BgGam'),
     'hogam' => array('data' => 'HoGam'),
   );
   // copy header fields of type lookup to an array to capture values as we go
@@ -461,7 +460,6 @@ function decathlon_game_report_game_summary() {
       ),
       $set,
       array(
-        'bggam' => round(($besting/$games), 1),
         'hogam' => round(($honors/$games), 1),
       )
     );
@@ -497,7 +495,6 @@ function decathlon_game_report_game_summary() {
         '-',
         '-',
         '-',
-        $data['games'] > 0 ? round(($data['besting']/$data['games']), 1) : 0,
         $data['games'] > 0 ? round(($data['honors']/$data['games']), 1) : 0,
       ),
     'class' => array('totals-row'),
