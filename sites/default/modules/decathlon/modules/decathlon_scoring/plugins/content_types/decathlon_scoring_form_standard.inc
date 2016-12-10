@@ -29,17 +29,22 @@ function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
   $scoring_format = taxonomy_term_load($game->field_scoring_format['und'][0]['tid']);
   $honors = views_get_view_result('honors_list', 'panel_pane_1', $tid);
 
-  // Should this be in the database?
+  // Map to describe what choices to offer for number of players in the game.  The index number says
+  // how many player-score-honors groups to present.  The value is simply the name and only shows up on the form item.
+  // Should this be in the database?  This is the only place that it is used and
+  // it is much simpler to just have it here.
   $layout_map = array(
-    0 => array('2' => '2 Players'),
-    1 => array('2' => '2 Players', '4' => '4 Players'),
-    2 => array('3' => '3 Players', '4' => '4 Players'),
-    3 => array('2' => '2 Players', '3' => '3 Players', '4' => '4 Players'),
-    4 => array('2' => 'Singles', '5' => 'Doubles'),
-    5 => array('5' => 'Doubles'),
+    206 => array('2' => '2 Players'),
+    235 => array('2' => '2 Players', '4' => '4 Players'),
+    207 => array('3' => '3 Players', '4' => '4 Players'),
+    209 => array('2' => '2 Players', '3' => '3 Players', '4' => '4 Players'),
+    339 => array('4' => '4 Players'),
+    204 => array('2' => 'Singles', '5' => 'Doubles'),
+    205 => array('5' => 'Doubles'),
   );
-  $layout = $layout_map[$format->field_layout['und'][0]['value']];
+  $layout = $layout_map[$format->tid];
 
+  // Add some jquery stuff
   $form['#attached'] = array(
     'js' => array(
       drupal_get_path('module', 'decathlon_scoring') . '/decathlon_scoring.js',
@@ -49,6 +54,7 @@ function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
     ),
   );
 
+  // At the top of the form present layout options
   $form['layout'] = array(
     '#type' => 'radios',
     '#required' => TRUE,
@@ -60,20 +66,24 @@ function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
     '#prefix' => '<div class="layout buttonset">',
     '#suffix' => '</div>',
     '#options' => $layout,
-   '#default_value' => key($layout),
+    '#default_value' => key($layout),
   );
 
+  // Store the game tid
   $form['game'] = array(
     '#type' => 'hidden',
     '#value' => $tid,
   );
 
-  // number of scoring boxes and placing options
-  // form state value or default to first key of layout option list
-  $layout_key = !empty($form_state['values']['layout']) ? $form_state['values']['layout'] : key($layout);
+  // On the rest of the form, render fields to store player, score, and honors and
+  // render either 2, 3, 4, or 2 sets of 2.
+  // Which one is determined either from $form_state value or default of first one in the list
+  $layout_key = !empty($form_state['values']['layout']) ? $form_state['values']['layout'] : key($layout); // key returns current pointer key
 
   // *** AJAX **********************************************************
   // *** This section of the form is replaced by the ajax call above ***
+
+  // outer wrapper
   $form['scores'] = array(
     '#type' => 'fieldset',
     '#prefix' => '<div id="scores">',
@@ -82,12 +92,13 @@ function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
     '#attributes' => array('class' => array('no-border')),
   );
 
-  if ($layout_key == 5) { // placeholder for doubles
+  if ($layout_key == 5) { // placeholder for doubles (2 sets of 2)
     $limit = 2;
   } else {
     $limit = $layout_key;
   }
   for ($i = 1; $i <= $limit; $i++) {
+    // wrapper around each set
     $form['scores'][$i] = array(
       '#type' => 'fieldset',
       '#prefix' => '<div class="scoring-group">',
@@ -100,10 +111,12 @@ function decathlon_scoring_form_standard_form($form, &$form_state, $arg) {
       '#attributes' => array('class' => array('no-border', 'players')),
     );
     $form['scores'][$i]['player'][0] = _add_player();
-    if ($layout_key == 5) { // placeholder for doubles
+    if ($layout_key == 5) { // placeholder for doubles (2 sets of 2)
       $form['scores'][$i]['player'][1] = _add_player();
     }
 
+    // score
+    // different formats depending on the game
     if ($scoring_format->name == 'Games Won') {
       // games won radios
       $form['scores'][$i]['score'] = _add_wins();
