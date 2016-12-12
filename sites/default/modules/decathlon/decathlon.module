@@ -165,10 +165,25 @@ function decathlon_get_current_event() {
 }
 
 /**
+ * Change event from link
+ */
+function decathlon_change_event($event) {
+  decathlon_set_event($event);
+  drupal_goto();
+}
+
+/**
  * Implements hook_menu()
  */
 function decathlon_menu() {
   $items = array();
+
+  $items['decathlon/change-event/%'] = array(
+    'page callback' => 'decathlon_change_event',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
 
   return $items;
 }
