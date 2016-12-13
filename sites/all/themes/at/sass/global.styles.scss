@@ -1274,6 +1274,13 @@ ul.score-list {
   }
 }
 
+.data-table {
+  width: 50%;
+  td.number {
+    text-align: right;
+  }
+}
+
 .view-id-manage_players {
   .views-row {
     margin-top: 5px; 
