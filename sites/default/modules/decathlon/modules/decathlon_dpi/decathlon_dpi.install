@@ -22,12 +22,12 @@ function decathlon_dpi_schema() {
        'not null' => TRUE,
        'default' => 0
      ),
-     'year' => array(
-       'description' => 'Year',
+     'event' => array(
+       'description' => 'Event',
        'type' => 'int',
        'unsigned' => TRUE,
        'not null' => TRUE,
-       'default' => date("Y"),
+       'default' => 0
      ),
    ),
  );

@@ -246,3 +246,13 @@ function decathlon_dpi_set_multiplier($tid, $value) {
     ->execute();
 }
 
+/**
+ * Implements hook_views_api()
+ */
+function decathlon_dpi_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'decathlon_dpi'),
+  );
+} 
+
