@@ -4,16 +4,18 @@ function decathlon_dpi_averages() {
 
   module_load_include('inc', 'decathlon');
 
-  $query = db_query("SELECT gid, pid, AVG(points) avg, MAX(points) max FROM (SELECT contest AS contest, pid AS pid, SUM(points) AS points FROM decathlon_points GROUP BY pid, contest) AS sdp, decathlon_contests dc WHERE sdp.contest = dc.contest GROUP BY pid, gid", array())->fetchAll();
+  $query = db_query("SELECT gid, pid, AVG(points) avg, MAX(points) max, COUNT(sdp.contest) count FROM (SELECT contest AS contest, pid AS pid, SUM(points) AS points FROM decathlon_points GROUP BY pid, contest) AS sdp, decathlon_contests dc WHERE sdp.contest = dc.contest GROUP BY pid, gid", array())->fetchAll();
 
   // write query as associative array of game:player:average
   $players = array();
   foreach ($query as $row) {
     $data[$row->gid][$row->pid]['avg'] = $row->avg;
     $data[$row->gid][$row->pid]['max'] = $row->max;
+    $data[$row->gid][$row->pid]['count'] = $row->count;
     $players[decathlon_get_term_name($row->pid)] = $row->pid;
   }
 
+  // sort array key by name
   ksort($players);
 
   // write array of arrays for theme table
@@ -28,6 +30,7 @@ function decathlon_dpi_averages() {
                  'items' => array(
                    isset($totals[$pid]['avg']) ? round($totals[$pid]['avg'], 1) : '-', 
                    isset($totals[$pid]['max']) ? $totals[$pid]['max'] : '-', 
+                   isset($totals[$pid]['count']) ? $totals[$pid]['count'] : '-', 
                  ),
                ));
     }
@@ -41,7 +44,6 @@ function decathlon_dpi_averages() {
   return theme('table', array(
       'header' => $header,
       'rows' => $rows,
-      'caption' => t('Player Historical Avg and Max Point'),
       'sticky' => TRUE,
     ));
 }
