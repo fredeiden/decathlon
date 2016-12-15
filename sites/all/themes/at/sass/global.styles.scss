@@ -1021,9 +1021,13 @@ ul.score-list {
   table {
     width: 80%;
     margin: 0 auto;
+    caption {
+      font-size: 150%;
+      margin: .5em 0;
+    }
   }
   .game-rules {
-    text-align :center;
+    text-align: left;
     margin: 0 10%;
   }
 }
@@ -1275,9 +1279,11 @@ ul.score-list {
 }
 
 .data-table {
-  width: 50%;
-  td.number {
-    text-align: right;
+  table {
+    width: 30%;
+    td.number {
+      text-align: right;
+    }
   }
 }
 
@@ -1327,3 +1333,17 @@ ul.score-list {
   }
 }
 
+ul.table-cell-set {
+  text-align: center;		  
+  list-style-type: none;
+  margin: 0;
+  width: 100%;
+  li {
+    margin: 0 1%;
+    padding: 2px 0;
+    display: inline-block;
+    width: 48%;
+    font-size: 80%;
+    background: #ddd;
+  }
+}
