@@ -18,7 +18,7 @@ function decathlon_dpi_get_player_points($gid, $pid) {
           for ($j = $i; $j <= $limit; $j++) {
             $count += isset($points[$j]) ? $points[$j] : 0;
           }
-          $my_map[$gid][$pid][$i] = round (($count/$total) * 100, 0);
+          $my_map[$gid][$pid][$i] = $count == 0 ? '-' : round (($count/$total) * 100, 0) . '%';
           //$my_map[$gid][$pid][$i] = isset($points[$i]) ? $points[$i] : 0;
         }
       }
@@ -78,6 +78,6 @@ function decathlon_dpi_averages() {
   return theme('table', array(
       'header' => $header,
       'rows' => $rows,
-      'sticky' => FALSE,
+      'sticky' => TRUE,
     ));
 }

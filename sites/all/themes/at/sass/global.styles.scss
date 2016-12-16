@@ -1336,14 +1336,24 @@ ul.score-list {
 ul.table-cell-set {
   text-align: center;		  
   list-style-type: none;
-  margin: 0;
-  width: 100%;
+  margin: 0 auto;
+  width: 50px;
   li {
-    margin: 0 1%;
+    margin: 1% 0;
     padding: 2px 0;
-    display: inline-block;
-    width: 31%;
-    font-size: 80%;
+    font-size: 70%;
     background: #ddd;
+  }
+}
+
+.scroll-table {
+  width: 99%;
+  overflow: scroll;
+  table {
+    table-layout: fixed;
+    width: 100%;
+    th,td {
+      width: 120px;
+    }
   }
 }

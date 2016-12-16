@@ -1495,15 +1495,28 @@ ul.score-list li .score {
 ul.table-cell-set {
   text-align: center;
   list-style-type: none;
-  margin: 0;
-  width: 100%;
+  margin: 0 auto;
+  width: 50px;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/global\.styles\.scss}line{font-family:\000031341}}
 ul.table-cell-set li {
-  margin: 0 1%;
+  margin: 1% 0;
   padding: 2px 0;
-  display: inline-block;
-  width: 31%;
-  font-size: 80%;
+  font-size: 70%;
   background: #ddd;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/global\.styles\.scss}line{font-family:\000031349}}
+.scroll-table {
+  width: 99%;
+  overflow: scroll;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/global\.styles\.scss}line{font-family:\000031352}}
+.scroll-table table {
+  table-layout: fixed;
+  width: 100%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/global\.styles\.scss}line{font-family:\000031355}}
+.scroll-table table th, .scroll-table table td {
+  width: 120px;
 }
