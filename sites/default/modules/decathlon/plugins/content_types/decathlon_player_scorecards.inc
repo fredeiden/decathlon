@@ -372,7 +372,8 @@ function decathlon_player_scorecards_get_eligible_cell($num) {
  */
 function decathlon_player_scorecards_suggestion_log($pid) {
 
-  $log = decathlon_get_rankings_player_sums($pid)['log'];  
+  $results = decathlon_get_rankings_player_sums($pid);  
+  $log = $results['log'];
 
   uksort($log, function($a, $b) {
       return strcmp($a, $b);
