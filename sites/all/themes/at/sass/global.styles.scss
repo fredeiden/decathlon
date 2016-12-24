@@ -44,8 +44,6 @@ var {
       top: 0;
       left: 55%;
       z-index: 600;
-      .dropdown-list {
-      }      
       .dropdown-button {
 	height: 30px;
 	width: 30px;
@@ -147,6 +145,10 @@ a {
   }
 }
 
+a.highlight:hover {
+  text-decoration: none;
+  background-color: #ccc;
+}
 
 
 /* If li.content exists it's a problem, so reset the padding */
@@ -400,8 +402,9 @@ th {
   padding: 5px 7px;
 }
 
-
-tbody {}
+td.highlight-col {
+  background-color: $yellow_highlight;		 
+}
 
 
 tbody tr {
@@ -448,19 +451,12 @@ tr {
   }
 }
 
-
-/*
- * Forum tables
- * Core sets white-space to nowrap, which makes no sense
- */
-#forum td {
-  &.created,
-  &.posts,
-  &.topics,
-  &.last-reply,
-  &.replies,
-  &.pager {
-    white-space: normal;
+.log-table {
+  width: 70%;	   
+  margin: 10px auto;
+  th, td {
+    padding: 2px 3px;
+    font-size: 80%;
   }
 }
 
@@ -918,6 +914,11 @@ tr {
       }
     }
   }
+  .pane-taxonomy-term-field-picture { 
+    position: absolute;
+    top: 40px;
+    left: 20%;
+  }
   .pane-decathlon-player-scorecards {
     margin: 1em 1em 2em;
     padding: .5em .5em 2em;
@@ -1193,7 +1194,7 @@ ul.score-list {
     .rank {width: 20%;}
     .name {width: 45%;}
     .eligibility {width: 10%;}
-    .offense, .defense {width: 10%;}
+    .offense, .defense {width: 5%;}
     .timestamp {
       text-align: center;
       margin: 0;
@@ -1357,3 +1358,4 @@ ul.table-cell-set {
     }
   }
 }
+

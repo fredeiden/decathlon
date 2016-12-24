@@ -371,7 +371,7 @@ function decathlon_game_report_game_leaders($gid = NULL) {
       $row['besting'],
       $row['honor'],
       $row['skunk'],
-      $row['total'],
+      array('data' => $row['total'], 'class' => array('eligible')),
       $row['bested'],
       $row['avg'],
       $row['max'],

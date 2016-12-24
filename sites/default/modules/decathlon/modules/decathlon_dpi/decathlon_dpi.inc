@@ -1,44 +1,99 @@
 <?php
 
-function decathlon_dpi_get_player_points($gid, $pid) {
+function decathlon_dpi_get_player_multipliers($gid, $pid) {
   $my_map = &drupal_static(__FUNCTION__);
 
-  $limit = 6;  // max number of points
+  $limit = 8;  // max number of points
 
   if (!isset($my_map)) {
     $data = decathlon_dpi_get_points();
     foreach ($data as $gid => $players) {
       foreach ($players as $pid => $points) {
+
+        // sum the total points
         $total = 0;
         foreach ($points as $amount) {
           $total += $amount;
         }
+
+        // get last key
+        end($points);
+        $limit = key($points);
+        reset($points);
+
         for ($i = 1; $i <= $limit; $i++) {
           $count = 0;
           for ($j = $i; $j <= $limit; $j++) {
             $count += isset($points[$j]) ? $points[$j] : 0;
           }
-          $my_map[$gid][$pid][$i] = $count == 0 ? '-' : round (($count/$total) * 100, 0) . '%';
-          //$my_map[$gid][$pid][$i] = isset($points[$i]) ? $points[$i] : 0;
+          $my_map[$gid][$pid][$i] = $count == 0 ? 0 : round (($count/$total), 2);
         }
       }
     }
   }
 
   if (!isset($my_map[$gid][$pid])) {
-    return NULL;
+    return array();
   }
   return $my_map[$gid][$pid];
 }
 
+function decathlon_dpi_get_game_multipliers($gid) {
+  $my_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($my_map)) {
+
+    $data = decathlon_dpi_get_points();
+    $new = array();
+    foreach ($data as $gid => $players) {
+      foreach ($players as $pid => $points) {
+        foreach ($points as $value => $count) {
+          if (!isset($my_map[$gid][$value])) {
+            $new[$gid][$value] = 0; // initialize
+          }
+          $new[$gid][$value] += $count; // add
+        }
+      }
+    }
+
+    foreach ($new as $gid => $points) {
+
+      // sum the total points
+      $total = 0;
+      foreach ($points as $amount) {
+        $total += $amount;
+      }
+
+      // get last key
+      end($points);
+      $limit = key($points);
+      reset($points);
+
+      for ($i = 1; $i <= $limit; $i++) {
+        $count = 0;
+        for ($j = $i; $j <= $limit; $j++) {
+          $count += isset($points[$j]) ? $points[$j] : 0;
+        }
+        $my_map[$gid][$i] = $count == 0 ? 0 : round (($count/$total), 2);
+      }
+    }
+  }
+
+  return $my_map[$gid];
+}
+
 function decathlon_dpi_get_points() {
 
-  $query = db_query("SELECT gid, pid, points, COUNT(sdp.contest) count FROM (SELECT contest AS contest, pid AS pid, SUM(points) AS points FROM decathlon_points GROUP BY pid, contest) AS sdp, decathlon_contests dc WHERE sdp.contest = dc.contest GROUP BY pid, gid, points", array())->fetchAll();
+  $data = &drupal_static(__FUNCTION__);
 
-  // write query as associative array of game:player:points = number of times scored
-  $data = array();
-  foreach ($query as $row) {
-    $data[$row->gid][$row->pid][$row->points] = $row->count;
+  if (!isset($data)) {
+    $query = db_query("SELECT gid, pid, points, COUNT(sdp.contest) count FROM (SELECT contest AS contest, pid AS pid, SUM(points) AS points FROM decathlon_points GROUP BY pid, contest) AS sdp, decathlon_contests dc WHERE sdp.contest = dc.contest GROUP BY pid, gid, points", array())->fetchAll();
+
+    // write query as associative array of game:player:points = number of times scored
+    $data = array();
+    foreach ($query as $row) {
+      $data[$row->gid][$row->pid][$row->points] = $row->count;
+    }
   }
 
   return $data;
@@ -62,7 +117,7 @@ function decathlon_dpi_averages() {
       $row[] = theme('item_list', array(
                  'type' => 'ul', 
                  'attributes' => array('class' => array('table-cell-set')),
-                 'items' => decathlon_dpi_get_player_points($gid, $pid),
+                 'items' => decathlon_dpi_get_player_multipliers($gid, $pid),
                ));
     }
     $rows[] = $row;

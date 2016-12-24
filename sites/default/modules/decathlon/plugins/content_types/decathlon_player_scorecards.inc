@@ -30,6 +30,9 @@ function decathlon_player_scorecards_admin_info($subtype, $conf, $contexts) {
       case 5:
         $title = t('Parlor Player Totals');
         break;
+      case 6:
+        $title = t('Suggestion Algorithm Log');
+        break;
     }
 
     $block = new stdClass;
@@ -51,6 +54,7 @@ function decathlon_player_scorecards_edit_form($form, &$form_state) {
       3 => t('Decathlon Player Totals'),
       4 => t('Leisure Player Totals'),
       5 => t('Parlor Player Totals'),
+      6 => t('Suggestion Algorithm Log'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Point Type'),
@@ -66,6 +70,7 @@ function decathlon_player_scorecards_edit_form_submit($form, &$form_state) {
 function decathlon_player_scorecards_render($subtype, $conf, $args, $context) {
 
   module_load_include('inc', 'decathlon');
+  module_load_include('inc', 'decathlon_dpi');
 
   switch ($conf['type']) {
     case 0:
@@ -85,6 +90,9 @@ function decathlon_player_scorecards_render($subtype, $conf, $args, $context) {
       break;
     case 5:
       $content = decathlon_player_scorecards_all_totals('parlor');
+      break;
+    case 6:
+      $content = decathlon_player_scorecards_suggestion_log($args[0]);
       break;
   }
 
@@ -220,14 +228,7 @@ function decathlon_player_scorecards_all_totals($athlon = NULL) {
  */
 function decathlon_player_scorecards_player_totals($pid, $athlon = NULL) {
   $content = "";
-  $term = taxonomy_term_load($pid);
   $content .= '<div class="player-scorecard">';
-  $content .= '<div class="player-image">';
-  $content .= l(theme('image_style', array(
-                  'style_name' => 'player_medium', 
-                  'path' => !empty($term->field_picture['und'][0]['uri']) ? $term->field_picture['und'][0]['uri'] : 'public://default_images/yoda.jpg',
-                )), 'scores/players/' . $pid, array('html' => TRUE));
-  $content .= '</div>';
   $content .= decathlon_player_scorecards_scorecard($pid, $athlon);
   $content .= '</div>';
 
@@ -269,18 +270,14 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
       continue;
     }
 
-    // offense
-    if (isset($results['offense'][$athlon]['game'])) {
-      $offense = decathlon_game_icon($results['offense'][$athlon]['game']);
-    } else {
-      $offense = "?";
-    }
-
-    // defense
-    if (isset($results['defense'][$athlon]['game'])) {
-      $defense = decathlon_game_icon($results['defense'][$athlon]['game']);
-    } else {
-      $defense = "-";
+    // suggestion
+    $suggestion = array();
+    for ($points = 1; $points <= 5; $points++) {
+      if (isset($results[$points][$athlon]['game'])) {
+        $suggestion[] = decathlon_game_icon($results[$points][$athlon]['game']);
+      } else {
+        $suggestion[] = "-";
+      }
     }
 
     // eligibility
@@ -291,8 +288,11 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
       decathlon_get_ordinal($ranking[$athlon]),
       $type['points'] + $type['rank'] + $bonus,
       decathlon_get_eligible_string($eligibility, 'qualified'),
-      $offense,
-      $defense,
+      $suggestion[0],
+      $suggestion[1],
+      $suggestion[2],
+      $suggestion[3],
+      $suggestion[4],
     );
     $rows[] = array(
       'data' => $cols,
@@ -305,18 +305,14 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
 
   if ($athlon_only == NULL) {
 
-    // offense
-    if (isset($results['offense']['decathlon']['game'])) {
-      $offense = decathlon_game_icon($results['offense']['decathlon']['game']);
-    } else {
-      $offense = "?";
-    }
-
-    // defense
-    if (isset($results['defense']['decathlon']['game'])) {
-      $defense = decathlon_game_icon($results['defense']['decathlon']['game']);
-    } else {
-      $defense = "-";
+    // suggestion
+    $suggestion = array();
+    for ($points = 1; $points <= 5; $points++) {
+      if (isset($results[$points]['decathlon']['game'])) {
+        $suggestion[] = decathlon_game_icon($results[$points]['decathlon']['game']);
+      } else {
+        $suggestion[] = "-";
+      }
     }
 
     // eligibility
@@ -328,8 +324,11 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
         decathlon_get_ordinal($ranking['decathlon']),
         $totals['points'] + $totals['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
-        $offense,
-        $defense,
+        $suggestion[0],
+        $suggestion[1],
+        $suggestion[2],
+        $suggestion[3],
+        $suggestion[4],
       ),
       'class' => array(),
     );
@@ -340,8 +339,11 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
     'Rank',
     'DPI',
     'Eligibility',
-    'Offense',
-    'Defense',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
   );
 
   $html = theme('table', array('sticky' => FALSE, 'header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'dpi-table')));
@@ -365,3 +367,45 @@ function decathlon_player_scorecards_get_eligible_cell($num) {
   return $cell;
 }
 
+/**
+ *
+ */
+function decathlon_player_scorecards_suggestion_log($pid) {
+
+  $log = decathlon_get_rankings_player_sums($pid)['log'];  
+
+  uksort($log, function($a, $b) {
+      return strcmp($a, $b);
+    });
+
+  $content = "";
+  if (isset($log)) {
+    foreach ($log as $game => $point_list) {
+      $rows = array();
+      foreach ($point_list as $points => $factor_list) {
+        if ($factor_list[2] > 0) { // likelihood multiplier greater than 0
+          $rows[] = array(
+            $points, 
+            $factor_list[0],
+            $factor_list[1],
+            $factor_list[2],
+            $factor_list[3],
+            array('data' => $factor_list[4], 'class' => array('highlight-col')),
+          );
+        }
+      }
+  
+      $content .= theme('table', array(
+                    'rows' => $rows,
+                    'caption' => $game, 
+                    'header' => array('Points', 'Spread', 'Tie Bump', 'Likelihood', 'Game Weight', 'Result'),
+                    'attributes' => array(
+                      'class' => array('log-table')
+                      ),
+                    'sticky' => FALSE,
+                  ));
+    }
+  }
+
+  return $content;
+}

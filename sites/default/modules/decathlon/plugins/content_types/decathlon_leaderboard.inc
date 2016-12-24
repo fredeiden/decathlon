@@ -39,6 +39,7 @@ function decathlon_leaderboard_admin_info($subtype, $conf, $contexts) {
 function decathlon_leaderboard_render($subtype, $conf, $args, $context) {
 
   module_load_include('inc', 'decathlon');
+  module_load_include('inc', 'decathlon_dpi');
   libraries_load('scrollbox');
   drupal_add_js(drupal_get_path('module', 'decathlon') . '/decathlon.js');
 
@@ -122,18 +123,14 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
         $eligibility = 10;
       }
       
-      // offense
-      if (isset($results[$pid]['offense'][$athlon]['game'])) {
-        $offense = decathlon_game_icon($results[$pid]['offense'][$athlon]['game']);
-      } else {
-        $offense = "?";
-      }
-
-      // defense
-      if (isset($results[$pid]['defense'][$athlon]['game'])) {
-        $defense = decathlon_game_icon($results[$pid]['defense'][$athlon]['game']);
-      } else {
-        $defense = "-";
+      // suggestion
+      $suggestion = array();
+      for ($points = 1; $points <= 5; $points++) {
+        if (isset($results[$pid][$points][$athlon]['game'])) {
+          $suggestion[] = decathlon_game_icon($results[$pid][$points][$athlon]['game']);
+        } else {
+          $suggestion[] = "-";
+        }
       }
 
       $rank = '';
@@ -148,12 +145,15 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
       }
 
       if ($version == "full") {
-
         $data =
           (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
           '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
-          '<div class="offense">' . $offense . '</div>' .
-          '<div class="defense">' . $defense . '</div>';
+          '<div class="offense">' . $suggestion[0] . '</div>' .
+          '<div class="offense">' . $suggestion[1] . '</div>' .
+          '<div class="offense">' . $suggestion[2] . '</div>' .
+          '<div class="offense">' . $suggestion[3] . '</div>' .
+          '<div class="offense">' . $suggestion[4] . '</div>' .
+          '<div class="offense">' . l("&#10142;", 'leaderboard/suggestion-log/' . $pid, array('html' => TRUE, 'attributes' => array('class' => array('highlight')))) . '</div>';
         
         $rows[] = array(
           "data" => $data,
@@ -168,8 +168,11 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
           $data =
             (!empty($rank) ? '<div class="' . $rank_class . '"><span>' . decathlon_get_ordinal($rank) . '</span></div>' : decathlon_get_eligible_string($eligibility, $podium_text) ).
             '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
-            '<div class="offense">' . $offense . '</div>' .
-            '<div class="defense">' . $defense . '</div>';
+            '<div class="offense">' . $suggestion[0] . '</div>' .
+            '<div class="offense">' . $suggestion[1] . '</div>' .
+            '<div class="offense">' . $suggestion[2] . '</div>' .
+            '<div class="offense">' . $suggestion[3] . '</div>' .
+            '<div class="offense">' . $suggestion[4] . '</div>';
 
           $rows[] = array(
             "data" => $data,
@@ -187,8 +190,12 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
     '<ul class="leaderboard-header">' .
     '<li class="rank">Rank</li>' .
     '<li class="name">Player</li>' .
-    '<li class="offense">O</li>' .
-    '<li class="defense">D</li>' .
+    '<li class="offense">1</li>' .
+    '<li class="offense">2</li>' .
+    '<li class="offense">3</li>' .
+    '<li class="offense">4</li>' .
+    '<li class="offense">5</li>' .
+    '<li class="offense"> </li>' .
     '</ul>';
 
   $content = $header;

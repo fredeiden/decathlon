@@ -288,42 +288,42 @@ function decathlon_get_rankings() {
     $completed = array();
 
     foreach ($totals['games']['unweighted'] as $gid => $scores) {
-      $rank = 0; // initialize to 0 so first rank will be 1
+      $rank = 1; // initialize to 1
+      $counter = 0;
+      $gain = array();
       $athlon = decathlon_game_type($gid);
       $game_weight = decathlon_dpi_get_participation_weighting($gid);
+      $gm = decathlon_dpi_get_game_multipliers($gid);
+
       foreach ($scores as $index => $points) {
           
-        $total = $points['Total'];
+        $current_total = $points['Total'];
+        $previous_total = isset($scores[($index - 1)]['Total']) ? $scores[($index - 1)]['Total'] : 100000;
+        $next_total = isset($scores[($index + 1)]['Total']) ? $scores[($index + 1)]['Total'] : 0;
           
-        // look at the next players total, unless this is the last row
-        // next_total defaults to a number smaller than total to satisfy tie check
-        if ($index < (count($scores) - 1)) {
-          $next_total = $scores[($index + 1)]['Total'];
-        } else {
-          $next_total = 0;
+        // track ties by comparing current total to totals before and after
+        $tie = FALSE;
+        if ($index < (count($scores) - 1)) { // not the last row
+          if ($current_total == $next_total) { // total of this row and next row are equal
+            $tie = TRUE; // this is a tie
+          }
+        }
+        if ($index > 0) { // past the first row
+          if ($current_total == $previous_total) { // total of this row and previous row are equal
+            $tie = TRUE; // this is a tie
+          }
         }
 
-        // look at the previous players total, unless this is the first row
-        // previous_total defaults to a number larger than total to satisfy tie check
-        if ($index > 0) {
-          $previous_total = $scores[($index - 1)]['Total'];
-        } else {
-          $previous_total = 100000;
-        }
-
-        // if total matches next or previous total, mark as tie
-        if ($next_total == $total || $previous_total == $total) {
-          $tie = TRUE;
-        } else {
-          $tie = FALSE;
-        }
-        // move the rank up
-        if ($previous_total != $total) {
+        // adjust rank when not the first row and total has changed
+        if ($index > 0 && ($current_total != $previous_total)) {
           $previous_rank = $index == 0 ? 1 : $rank; // save next best rank
           $previous_rank_total = $previous_total;
-          $rank = $index + 1;
+          $rank = ($index + 1); // move the rank up
+          $counter++;
         }
-        
+        $gain[$counter]['gap'] = $current_total - $next_total;
+        $gain[$counter]['rank'] = $rank;
+
         // write unweighted column
         if ($tie == TRUE) {
           $totals['games']['unweighted'][$gid][$index]['Rank'] = "T" . decathlon_get_ordinal($rank);
@@ -346,89 +346,83 @@ function decathlon_get_rankings() {
         }
 
         //
-        // suggestion for offense
-        // ((point difference between next rank and current rank) / game weight) * (1 / (score to next rank))
-        // stored for each athlon and overall
+        // Suggestion algorithm
+        //
+        // This is based on the idea that when you move up in the rankings you increase your overall number of DPI points.
+        // For each player look at what they can achieve by scoring 1, 2, 3, 4, or 5 points.  Higher scores are less likely
+        // and are multiplied by a factor calculated from either the player's historical scores or, lacking that, historical scores
+        // of all players.
+        //
+        // Stored for each athlon and overall
         //
         if ($rank > 1 && $game_weight > 0) { // skip when already leading or game not weighted
 
-          // points available to next ranking
-          $spread = 0;
-          $tie_bump = 0;
-          if (($previous_rank_total - $total) == 1) { // 1 point to next rank
-            $spread = decathlon_dpi_get_ranking($previous_rank) - decathlon_dpi_get_ranking($rank);
+          // an array of multipliers for this game and player at each point level, i.e.
+          // 2 points in Boggle has a multiplier of .5, meaning this player gets 2 points half the time
+          $pm = decathlon_dpi_get_player_multipliers($gid, $pid);
+
+          // an array of the points this player is trailing by
+          $sp = array();
+          $deficit = 0;
+          $j = 1;
+          for ($i = ($counter - 1); $i >= 0; $i--) { // walk up the $gain list
+            $deficit += $gain[$i]['gap']; // add on the point gap
+            if ($deficit <= 5) { // can reach this level
+              $sp[$j] = decathlon_dpi_get_ranking($gain[$i]['rank']) - decathlon_dpi_get_ranking($rank);
+            }
+            $j++;
           }
-          if ($tie == TRUE) {
-            $tie_bump = (decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1));
-          }
+
+          for ($points = 1; $points <= 5; $points++) {
+            // points available to next ranking
+            $spread = 0;
+            if (isset($sp[$points])) {
+              $spread = $sp[$points];
+            }
+            
+            // in the case of a tie, moving up will cause tie-ees to move down
+            $tie_bump = 0;
+            if ($tie == TRUE) {
+              $tie_bump = (decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1));
+            }
           
-          // the nugget
-          $next_best_rank = ($spread + $tie_bump) / $game_weight;
-
-          // separate athlons
-          if (isset($totals['sums'][$pid]['offense'][$athlon]['value'])) {
-            if ($next_best_rank > $totals['sums'][$pid]['offense'][$athlon]['value']) {
-              $totals['sums'][$pid]['offense'][$athlon]['value'] = $next_best_rank;          
-              $totals['sums'][$pid]['offense'][$athlon]['game'] = $gid;          
+            // estimate the likelihood of getting this number of points
+            $multiplier = 0;
+            $multiplier_type = "";
+            if (isset($pm[$points])) {
+              $multiplier = $pm[$points];
+            } elseif(isset($gm[$points])) {
+              $multiplier = $gm[$points];
+              $multiplier_type = "(g)";
             }
-          } else {
-            $totals['sums'][$pid]['offense'][$athlon]['value'] = $next_best_rank;
-            $totals['sums'][$pid]['offense'][$athlon]['game'] = $gid;          
-          }
-          // decathlon
-          if (isset($totals['sums'][$pid]['offense']['decathlon']['value'])) {
-            if ($next_best_rank > $totals['sums'][$pid]['offense']['decathlon']['value']) {
-              $totals['sums'][$pid]['offense']['decathlon']['value'] = $next_best_rank;          
-              $totals['sums'][$pid]['offense']['decathlon']['game'] = $gid;          
+
+            // the magic number
+            $next_best_rank = (($spread + $tie_bump) * $multiplier) / $game_weight;
+
+            // log factors
+            $log = array($spread, $tie_bump, $multiplier . $multiplier_type, $game_weight, round($next_best_rank, 2));
+            $totals['sums'][$pid]['log'][decathlon_get_term_name($gid)][$points] = $log;
+
+            // separate athlons
+            if (isset($totals['sums'][$pid][$points][$athlon]['value'])) {
+              if ($next_best_rank > $totals['sums'][$pid][$points][$athlon]['value']) {
+                $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;          
+                $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
+              }
+            } else {
+              $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;
+              $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
             }
-          } else {
-            $totals['sums'][$pid]['offense']['decathlon']['value'] = $next_best_rank;
-            $totals['sums'][$pid]['offense']['decathlon']['game'] = $gid;          
-          }
-        }
-
-        //
-        // suggestion for defense
-        // 
-        // stored for each athlon and overall
-        //
-        if ($rank < 10 && $game_weight > 0) { // skip when not in the top 9 or game not weighted
-
-          // point difference from next ranking
-          if ($tie == TRUE && $rank > 1) {
-            $point_differential = decathlon_dpi_get_ranking($previous_rank) - decathlon_dpi_get_ranking($rank); // same as offense
-          } else {
-            $point_differential = decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1);
-          }
-
-          // how much they'd need to score to get to your ranking
-          if ($tie == TRUE) {
-            $score_to_displace = 1;
-          } else {
-            $score_to_displace = 1 + ($total - $next_total);
-          }
-
-          $most_valuable_rank = (($point_differential) * (1 / $score_to_displace)) / $game_weight;          
-          
-          // separate athlons
-          if (isset($totals['sums'][$pid]['defense'][$athlon]['value'])) {
-            if ($most_valuable_rank > $totals['sums'][$pid]['defense'][$athlon]['value']) {
-              $totals['sums'][$pid]['defense'][$athlon]['value'] = $most_valuable_rank;          
-              $totals['sums'][$pid]['defense'][$athlon]['game'] = $gid;          
+            // decathlon
+            if (isset($totals['sums'][$pid][$points]['decathlon']['value'])) {
+              if ($next_best_rank > $totals['sums'][$pid][$points]['decathlon']['value']) {
+                $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;          
+                $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
+              }
+            } else {
+              $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;
+              $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
             }
-          } else {
-            $totals['sums'][$pid]['defense'][$athlon]['value'] = $most_valuable_rank;
-            $totals['sums'][$pid]['defense'][$athlon]['game'] = $gid;          
-          }
-          // decathlon
-          if (isset($totals['sums'][$pid]['defense']['decathlon']['value'])) {
-            if ($most_valuable_rank > $totals['sums'][$pid]['defense']['decathlon']['value']) {
-              $totals['sums'][$pid]['defense']['decathlon']['value'] = $most_valuable_rank;          
-              $totals['sums'][$pid]['defense']['decathlon']['game'] = $gid;          
-            }
-          } else {
-            $totals['sums'][$pid]['defense']['decathlon']['value'] = $most_valuable_rank;
-            $totals['sums'][$pid]['defense']['decathlon']['game'] = $gid;          
           }
         }
 

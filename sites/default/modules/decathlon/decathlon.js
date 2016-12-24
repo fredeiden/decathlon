@@ -12,24 +12,6 @@
 		    $(this).parent("h3").addClass($(this).attr('class').split(' ')[1]);
 		});
 
-	    $('.eaderboard-game-standings .item-list').scrollbox({
-		    startDelay: 10,
-		    linear: true,
-			step: 1,
-			delay: 0,
-			speed: 40,
-			onMouseOverPause: true,
-			});
-
-	    $('.ane-decathlon-leaderboard .item-list').scrollbox({
-		    startDelay: 10,
-		    onMouseOverPause: true,
-		    speed: 30,
-		    delay: 0,
-		    step: 1,
-		    linear: true,
-			});
-
 	}
     };
 }(jQuery));
