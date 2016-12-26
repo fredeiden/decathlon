@@ -361,47 +361,63 @@ function decathlon_get_rankings() {
           // 2 points in Boggle has a multiplier of .5, meaning this player gets 2 points half the time
           $pm = decathlon_dpi_get_player_multipliers($gid, $pid);
 
-          // an array of the points this player is trailing by
+          // a array of the point totals that will reach a new rank
           $sp = array();
           $deficit = 0;
-          $j = 1;
           for ($i = ($counter - 1); $i >= 0; $i--) { // walk up the $gain list
             $deficit += $gain[$i]['gap']; // add on the point gap
-            if ($deficit <= 5) { // can reach this level
-              $sp[$j] = decathlon_dpi_get_ranking($gain[$i]['rank']) - decathlon_dpi_get_ranking($rank);
+
+            // stop looking after 5 points (this could be tailored to each game (and player)
+            if ($deficit > 5) {
+              break;
             }
-            $j++;
+              
+            // spread is the gain in dpi points for moving to a new rank
+            $sp[$deficit]['rank'] = $gain[$i]['rank'];
+            $sp[$deficit]['lower_rank'] = $gain[($i + 1)]['rank'];
           }
 
+          $spread = 0;
+          $bump = 0;
+          $this_bump = 0;
+          $new_rank = $rank;
           for ($points = 1; $points <= 5; $points++) {
+
             // points available to next ranking
-            $spread = 0;
-            if (isset($sp[$points])) {
-              $spread = $sp[$points];
+            if (isset($sp[$points]['rank'])) {
+              $new_rank = $sp[$points]['rank'];
+              // spread is the point gain from new rank to current rank
+              $spread = decathlon_dpi_get_ranking($new_rank) - decathlon_dpi_get_ranking($rank);
+              // moving into a tie for this total, current rank holder stays and player(s) behind will drop 1 rank relative to their current rank
+              $bump = decathlon_dpi_get_ranking($sp[$points]['lower_rank']) - decathlon_dpi_get_ranking(($sp[$points]['lower_rank'] + 1));
+            } else {
+              if ($spread == 0) {
+                // not enough to reach next rank, but would break a tie
+                if ($tie == TRUE) {
+                  $bump = decathlon_dpi_get_ranking(($rank)) - decathlon_dpi_get_ranking(($rank + 1));
+                }
+              } else {
+                // only player with this total, so current holder of this rank gets bumped from this to next
+                $bump = decathlon_dpi_get_ranking(($new_rank)) - decathlon_dpi_get_ranking(($new_rank + 1));
+              }
             }
             
-            // in the case of a tie, moving up will cause tie-ees to move down
-            $tie_bump = 0;
-            if ($tie == TRUE) {
-              $tie_bump = (decathlon_dpi_get_ranking($rank) - decathlon_dpi_get_ranking($rank + 1));
-            }
-          
             // estimate the likelihood of getting this number of points
             $multiplier = 0;
             $multiplier_type = "";
             if (isset($pm[$points])) {
               $multiplier = $pm[$points];
-            } elseif(isset($gm[$points])) {
+            } elseif($points < 5 && isset($gm[$points])) {
               $multiplier = $gm[$points];
               $multiplier_type = "(g)";
             }
 
             // the magic number
-            $next_best_rank = (($spread + $tie_bump) * $multiplier) / $game_weight;
+            $next_best_rank = (($spread + $bump) * $multiplier) / $game_weight;
 
             // log factors
-            $log = array($spread, $tie_bump, $multiplier . $multiplier_type, $game_weight, round($next_best_rank, 2));
-            $totals['sums'][$pid]['log'][decathlon_get_term_name($gid)][$points] = $log;
+            $log = array($spread, $bump, $multiplier . $multiplier_type, $game_weight, round($next_best_rank, 2));
+            $totals['sums'][$pid]['log'][$gid][$points] = $log;
 
             // separate athlons
             if (isset($totals['sums'][$pid][$points][$athlon]['value'])) {

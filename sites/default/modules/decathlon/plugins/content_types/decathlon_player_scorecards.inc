@@ -376,12 +376,12 @@ function decathlon_player_scorecards_suggestion_log($pid) {
   $log = $results['log'];
 
   uksort($log, function($a, $b) {
-      return strcmp($a, $b);
+      return strcmp(decathlon_get_term_name($a), decathlon_get_term_name($b));
     });
 
   $content = "";
   if (isset($log)) {
-    foreach ($log as $game => $point_list) {
+    foreach ($log as $gid => $point_list) {
       $rows = array();
       foreach ($point_list as $points => $factor_list) {
         if ($factor_list[2] > 0) { // likelihood multiplier greater than 0
@@ -398,8 +398,8 @@ function decathlon_player_scorecards_suggestion_log($pid) {
   
       $content .= theme('table', array(
                     'rows' => $rows,
-                    'caption' => $game, 
-                    'header' => array('Points', 'Spread', 'Tie Bump', 'Likelihood', 'Game Weight', 'Result'),
+                    'caption' => l(decathlon_get_term_name($gid), 'scores/games/' . $gid),
+                    'header' => array('Points', 'Spread', 'Bump', 'Likelihood', 'Game Weight', 'Result'),
                     'attributes' => array(
                       'class' => array('log-table')
                       ),
