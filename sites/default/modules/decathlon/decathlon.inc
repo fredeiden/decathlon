@@ -386,10 +386,16 @@ function decathlon_get_rankings() {
             // points available to next ranking
             if (isset($sp[$points]['rank'])) {
               $new_rank = $sp[$points]['rank'];
-              // spread is the point gain from new rank to current rank
-              $spread = decathlon_dpi_get_ranking($new_rank) - decathlon_dpi_get_ranking($rank);
+
               // moving into a tie for this total, current rank holder stays and player(s) behind will drop 1 rank relative to their current rank
               $bump = decathlon_dpi_get_ranking($sp[$points]['lower_rank']) - decathlon_dpi_get_ranking(($sp[$points]['lower_rank'] + 1));
+              if ($spread == 0 && $tie == FALSE) { // there is no bump here
+                $bump = 0;
+              }
+
+              // spread is the point gain from new rank to current rank
+              $spread = decathlon_dpi_get_ranking($new_rank) - decathlon_dpi_get_ranking($rank);
+
             } else {
               if ($spread == 0) {
                 // not enough to reach next rank, but would break a tie
