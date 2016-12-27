@@ -425,25 +425,27 @@ function decathlon_get_rankings() {
             $log = array($spread, $bump, $multiplier . $multiplier_type, $game_weight, round($next_best_rank, 2));
             $totals['sums'][$pid]['log'][$gid][$points] = $log;
 
-            // separate athlons
-            if (isset($totals['sums'][$pid][$points][$athlon]['value'])) {
-              if ($next_best_rank > $totals['sums'][$pid][$points][$athlon]['value']) {
-                $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;          
+            if ($next_best_rank > 0) {
+              // separate athlons
+              if (isset($totals['sums'][$pid][$points][$athlon]['value'])) {
+                if ($next_best_rank > $totals['sums'][$pid][$points][$athlon]['value']) {
+                  $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;          
+                  $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
+                }
+              } else {
+                $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;
                 $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
               }
-            } else {
-              $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;
-              $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
-            }
-            // decathlon
-            if (isset($totals['sums'][$pid][$points]['decathlon']['value'])) {
-              if ($next_best_rank > $totals['sums'][$pid][$points]['decathlon']['value']) {
-                $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;          
+              // decathlon
+              if (isset($totals['sums'][$pid][$points]['decathlon']['value'])) {
+                if ($next_best_rank > $totals['sums'][$pid][$points]['decathlon']['value']) {
+                  $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;          
+                  $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
+                }
+              } else {
+                $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;
                 $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
               }
-            } else {
-              $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;
-              $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
             }
           }
         }
