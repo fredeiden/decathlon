@@ -138,7 +138,7 @@ function decathlon_dpi_averages($pid) {
     $row[] = decathlon_game_link($g->tid);
     for ($i = 1; $i <= 8; $i++) {
       $multiplier = decathlon_dpi_get_player_multipliers($g->tid, $pid, $i);
-      $row[] = $multiplier['value']; 
+      $row[] = $multiplier['value'] . $multiplier['string']; 
     }
     $rows[] = $row;
   }
