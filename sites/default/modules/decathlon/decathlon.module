@@ -131,29 +131,31 @@ function decathlon_version_callback() {
 /**
  * Implements hook_init
  *
- * Set a SESSION variable for current event
+ * Set a variable for current event
  */
 function decathlon_init() {
-  if (! isset($_SESSION['decathlon_event'])) {
+  $event = variable_get('decathlon_event');
+  if ($event == NULL) {
     decathlon_set_event(decathlon_get_current_event());
   }
 }
 
 /**
- * Set SESSION variable for current event, clear caches, reset standings cache
+ * Set variable for current event, clear caches, reset standings cache
  */
 function decathlon_set_event($event) {
-  $_SESSION['decathlon_event'] = $event;
+  variable_set('decathlon_event', $event);
 }
 
 /**
- * Return SESSION variable for event
+ * Return variable for event
  */
 function decathlon_get_event() {
-  if (! isset($_SESSION['decathlon_event'])) {
+  $event = variable_get('decathlon_event');
+  if ($event == NULL) {
     decathlon_set_event(decathlon_get_current_event());
   }
-  return $_SESSION['decathlon_event'];
+  return variable_get('decathlon_event');
 }
 
 /**
