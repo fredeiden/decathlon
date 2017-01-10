@@ -124,15 +124,15 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
       }
       
       // suggestion
-      $suggestion = array();
+      $suggestion = array("-", "-", "-");
       // first column is simply 1 point
-      $suggestion[0] = decathlon_leaderboard_easy_option($results[$pid]['log'], $athlon);
+      isset($results[$pid]['log']) && $suggestion[0] = decathlon_leaderboard_easy_option($results[$pid]['log'], $athlon);
 
       // second column is average of 2 through 1-from-end
-      $suggestion[1] = decathlon_leaderboard_medium_option($results[$pid]['log'], $athlon);
+      isset($results[$pid]['log']) && $suggestion[1] = decathlon_leaderboard_medium_option($results[$pid]['log'], $athlon);
 
       // third column is end
-      $suggestion[2] = decathlon_leaderboard_hard_option($results[$pid]['log'], $athlon);
+      isset($results[$pid]['log']) && $suggestion[2] = decathlon_leaderboard_hard_option($results[$pid]['log'], $athlon);
 
       $rank = '';
       $rank_class = 'rank podium';

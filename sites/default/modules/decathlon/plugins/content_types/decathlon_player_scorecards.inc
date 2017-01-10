@@ -272,44 +272,36 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
 
   $rows = array();
 
-  foreach ($results['play'] as $athlon => $type) {
+  if (isset($results['play'])) {
+    foreach ($results['play'] as $athlon => $type) {
 
-    if ($athlon_only != NULL && $athlon != $athlon_only) {
-      continue;
+      if ($athlon_only != NULL && $athlon != $athlon_only) {
+        continue;
+      }
+
+      // eligibility
+      $eligibility = decathlon_get_leaderboard_eligibility($results, $athlon);
+      
+      $cols = array(
+        ucfirst($athlon),
+        decathlon_get_ordinal($ranking[$athlon]),
+        $type['points'] + $type['rank'] + $bonus,
+        decathlon_get_eligible_string($eligibility, 'qualified'),
+        isset($results['log']) ? decathlon_leaderboard_easy_option($results['log'], $athlon) : "-",
+        isset($results['log']) ? decathlon_leaderboard_medium_option($results['log'], $athlon) : "-",
+        isset($results['log']) ? decathlon_leaderboard_hard_option($results['log'], $athlon) : "-",
+      );
+      $rows[] = array(
+        'data' => $cols,
+        'class' => array(),
+      );
+
+      $totals['points'] += $type['points'];
+      $totals['rank'] += $type['rank'];
     }
-
-    // eligibility
-    $eligibility = decathlon_get_leaderboard_eligibility($results, $athlon);
-
-    $cols = array(
-      ucfirst($athlon),
-      decathlon_get_ordinal($ranking[$athlon]),
-      $type['points'] + $type['rank'] + $bonus,
-      decathlon_get_eligible_string($eligibility, 'qualified'),
-      decathlon_leaderboard_easy_option($results['log'], $athlon),
-      decathlon_leaderboard_medium_option($results['log'], $athlon),
-      decathlon_leaderboard_hard_option($results['log'], $athlon),
-    );
-    $rows[] = array(
-      'data' => $cols,
-      'class' => array(),
-    );
-
-    $totals['points'] += $type['points'];
-    $totals['rank'] += $type['rank'];
   }
 
   if ($athlon_only == NULL) {
-
-    // suggestion
-    $suggestion = array();
-    for ($points = 1; $points <= 5; $points++) {
-      if (isset($results[$points]['decathlon']['game'])) {
-        $suggestion[] = decathlon_game_icon($results[$points]['decathlon']['game']);
-      } else {
-        $suggestion[] = "-";
-      }
-    }
 
     // eligibility
     $eligibility = decathlon_get_leaderboard_eligibility($results, 'decathlon');
@@ -320,9 +312,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
         decathlon_get_ordinal($ranking['decathlon']),
         $totals['points'] + $totals['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
-        decathlon_leaderboard_easy_option($results['log'], 'decathlon'),
-        decathlon_leaderboard_medium_option($results['log'], 'decathlon'),
-        decathlon_leaderboard_hard_option($results['log'], 'decathlon'),
+        isset($results['log']) ? decathlon_leaderboard_easy_option($results['log'], 'decathlon') : "-",
+        isset($results['log']) ? decathlon_leaderboard_medium_option($results['log'], 'decathlon') : "-",
+        isset($results['log']) ? decathlon_leaderboard_hard_option($results['log'], 'decathlon') : "-",
       ),
       'class' => array(),
     );
