@@ -286,6 +286,7 @@ function decathlon_get_rankings() {
     //
     $exhibition_games = decathlon_get_event_games('exhibition');
     $completed = array();
+    $last_suggestion = array();
 
     foreach ($totals['games']['unweighted'] as $gid => $scores) {
       $rank = 1; // initialize to 1
@@ -293,9 +294,10 @@ function decathlon_get_rankings() {
       $gain = array();
       $athlon = decathlon_game_type($gid);
       $game_weight = decathlon_dpi_get_participation_weighting($gid);
-      $gm = decathlon_dpi_get_game_multipliers($gid);
 
       foreach ($scores as $index => $points) {
+
+        $pid = $points['player'];
           
         $current_total = $points['Total'];
         $previous_total = isset($scores[($index - 1)]['Total']) ? $scores[($index - 1)]['Total'] : 100000;
@@ -307,6 +309,8 @@ function decathlon_get_rankings() {
           if ($current_total == $next_total) { // total of this row and next row are equal
             $tie = TRUE; // this is a tie
           }
+        } else {
+          //dsm($scores);
         }
         if ($index > 0) { // past the first row
           if ($current_total == $previous_total) { // total of this row and previous row are equal
@@ -335,7 +339,6 @@ function decathlon_get_rankings() {
         // write weighted columns
         //
         $adjusted_rank = decathlon_dpi_get_ranking($rank);          
-        $pid = $totals['games']['weighted'][$gid][$index]['player'];
         // game
         $totals['games']['weighted'][$gid][$index]['Rank'] = $adjusted_rank;
         // overall by athlon
@@ -345,115 +348,23 @@ function decathlon_get_rankings() {
           $totals['sums'][$pid]['play'][$athlon]['rank'] = $adjusted_rank;
         }
 
-        //
-        // Suggestion algorithm
-        //
-        // This is based on the idea that when you move up in the rankings you increase your overall number of DPI points.
-        // For each player look at what they can achieve by scoring 1, 2, 3, 4, or 5 points.  Higher scores are less likely
-        // and are multiplied by a factor calculated from either the player's historical scores or, lacking that, historical scores
-        // of all players.
-        //
-        // Stored for each athlon and overall
-        //
+        // Suggestion
         if ($rank > 1 && $game_weight > 0) { // skip when already leading or game not weighted
-
-          // an array of multipliers for this game and player at each point level, i.e.
-          // 2 points in Boggle has a multiplier of .5, meaning this player gets 2 points half the time
-          $pm = decathlon_dpi_get_player_multipliers($gid, $pid);
-
-          // a array of the point totals that will reach a new rank
-          $sp = array();
-          $deficit = 0;
-          for ($i = ($counter - 1); $i >= 0; $i--) { // walk up the $gain list
-            $deficit += $gain[$i]['gap']; // add on the point gap
-
-            // stop looking after 5 points (this could be tailored to each game (and player)
-            if ($deficit > 5) {
-              break;
-            }
-              
-            // spread is the gain in dpi points for moving to a new rank
-            $sp[$deficit]['rank'] = $gain[$i]['rank'];
-            $sp[$deficit]['lower_rank'] = $gain[($i + 1)]['rank'];
-          }
-
-          $spread = 0;
-          $bump = 0;
-          $this_bump = 0;
-          $new_rank = $rank;
-          for ($points = 1; $points <= 5; $points++) {
-
-            // points available to next ranking
-            if (isset($sp[$points]['rank'])) {
-              $new_rank = $sp[$points]['rank'];
-
-              // moving into a tie for this total, current rank holder stays and player(s) behind will drop 1 rank relative to their current rank
-              $bump = decathlon_dpi_get_ranking($sp[$points]['lower_rank']) - decathlon_dpi_get_ranking(($sp[$points]['lower_rank'] + 1));
-              if ($spread == 0 && $tie == FALSE) { // there is no bump here
-                $bump = 0;
-              }
-
-              // spread is the point gain from new rank to current rank
-              $spread = decathlon_dpi_get_ranking($new_rank) - decathlon_dpi_get_ranking($rank);
-
-            } else {
-              if ($spread == 0) {
-                // not enough to reach next rank, but would break a tie
-                if ($tie == TRUE) {
-                  $bump = decathlon_dpi_get_ranking(($rank)) - decathlon_dpi_get_ranking(($rank + 1));
-                }
-              } else {
-                // only player with this total, so current holder of this rank gets bumped from this to next
-                $bump = decathlon_dpi_get_ranking(($new_rank)) - decathlon_dpi_get_ranking(($new_rank + 1));
-              }
-            }
-            
-            // estimate the likelihood of getting this number of points
-            $multiplier = 0;
-            $multiplier_type = "";
-            if (isset($pm[$points])) {
-              $multiplier = $pm[$points];
-            } elseif($points < 5 && isset($gm[$points])) {
-              $multiplier = $gm[$points];
-              $multiplier_type = "(g)";
-            }
-
-            // the magic number
-            $next_best_rank = (($spread + $bump) * $multiplier) / $game_weight;
-
-            // log factors
-            $log = array($spread, $bump, $multiplier . $multiplier_type, $game_weight, round($next_best_rank, 2));
-            $totals['sums'][$pid]['log'][$gid][$points] = $log;
-
-            if ($next_best_rank > 0) {
-              // separate athlons
-              if (isset($totals['sums'][$pid][$points][$athlon]['value'])) {
-                if ($next_best_rank > $totals['sums'][$pid][$points][$athlon]['value']) {
-                  $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;          
-                  $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
-                }
-              } else {
-                $totals['sums'][$pid][$points][$athlon]['value'] = $next_best_rank;
-                $totals['sums'][$pid][$points][$athlon]['game'] = $gid;          
-              }
-              // decathlon
-              if (isset($totals['sums'][$pid][$points]['decathlon']['value'])) {
-                if ($next_best_rank > $totals['sums'][$pid][$points]['decathlon']['value']) {
-                  $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;          
-                  $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
-                }
-              } else {
-                $totals['sums'][$pid][$points]['decathlon']['value'] = $next_best_rank;
-                $totals['sums'][$pid][$points]['decathlon']['game'] = $gid;          
-              }
-            }
-          }
+          $suggestion = decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pid, $counter, $gain);
+          decathlon_save_suggestion($totals, $suggestion, $pid, $gid);
         }
 
-        // for eligibility
+        // For eligibility
         // when not an exhibition game, add to completed game list
         empty($exhibition_games[$gid]) && $completed[$pid][$athlon][] = decathlon_get_term_name($gid);
       }
+
+      // save last suggestion data for players who have not played
+      $last_suggestion[$gid] = array(
+        'rank' => $rank,
+        'counter' => $counter,
+        'gain' => $gain,
+      );
     }
 
     // Bonus Results
@@ -464,7 +375,7 @@ function decathlon_get_rankings() {
       $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_multiplier('Bonus');
     }
 
-    // Eligibility
+    // Eligibility and secondary pass on suggestion (for uncompleted games)
     //
     $required_games = array(
       'leisure' => array_diff(decathlon_get_event_games('leisure'), $exhibition_games),
@@ -473,11 +384,150 @@ function decathlon_get_rankings() {
 
     foreach ($completed as $pid => $group) {
       foreach ($group as $athlon => $games) {
-        $totals['sums'][$pid]['play'][$athlon]['eligibility'] = count(array_diff($required_games[$athlon], $completed[$pid][$athlon]));
+
+        // list of games that player has not played
+        $unplayed = array_diff($required_games[$athlon], $completed[$pid][$athlon]);
+
+        // eligibility is simply a count of games unplayed
+        $totals['sums'][$pid]['play'][$athlon]['eligibility'] = count($unplayed);
+
+        // also relevant is the possibility that playing an unplayed game is the best possible point gain
+        // as a player does get a base number for playing at least once
+        foreach ($unplayed as $gid => $name) {
+          $game_weight = decathlon_dpi_get_participation_weighting($gid);
+          $ls = $last_suggestion[$gid];
+          $suggestion = decathlon_make_suggestion($athlon, $game_weight, $ls['rank'], FALSE, $gid, $pid, $ls['counter'], $ls['gain'], TRUE);
+          decathlon_save_suggestion($totals, $suggestion, $pid, $gid);
+        }
       }
     }
   }
+
   return $totals;
+}
+
+/**
+ * Suggestion algorithm
+ *
+ * This is based on the idea that when you move up in the rankings you increase your overall number of DPI points.
+ * For each player look at what they can achieve by scoring 1, 2, 3, 4, or 5 points.  Higher scores are less likely
+ * and are multiplied by a factor calculated from either the player's historical scores or, lacking that, historical scores
+ * of all players.
+ *
+ * Stored for each athlon and overall
+ *
+ * @param $athlon
+ * 
+ * @param $game_weight
+ * 
+ * @param $rank
+ *
+ * @param $tie
+ *
+ * @param $pid
+ *
+ * @param $counter
+ *
+ * @param $gain
+ *
+ * @param $new_player
+ *  flag to mark this player as new and therefore currently having no rank or points
+ *
+ */
+function decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pid, $counter, $gain, $new_player = FALSE) {
+
+  $suggestion = array();
+  $limit = 8; // you can only score so many points in each game, 5 is probably the max, but check 8 to be safe
+
+  // array of the point totals that will reach a new rank
+  $sp = array();
+  $deficit = 0;
+  for ($i = ($counter - 1); $i >= 0; $i--) { // walk up the $gain list
+    $deficit += $gain[$i]['gap']; // add on the point gap
+
+    // stop looking after n points (this could be tailored to each game and player?)
+    if ($deficit > $limit) {
+      break;
+    }
+              
+    // spread is the gain in dpi points for moving to a new rank
+    $sp[$deficit]['rank'] = $gain[$i]['rank'];
+    $sp[$deficit]['lower_rank'] = $gain[($i + 1)]['rank'];
+  }
+
+  $spread = 0;
+  $bump = 0;
+  $new_rank = $rank;
+  for ($points = 1; $points <= $limit; $points++) {
+    // points available to next ranking
+    if (isset($sp[$points]['rank'])) {
+
+      $new_rank = $sp[$points]['rank'];
+
+      // moving into a tie for this total, current rank holder stays and player(s) behind will drop 1 rank relative to their current rank
+      $bump = decathlon_dpi_get_ranking($sp[$points]['lower_rank']) - decathlon_dpi_get_ranking(($sp[$points]['lower_rank'] + 1));
+      if ($spread == 0 && $tie == FALSE) { // there is no bump here
+        $bump = 0;
+      }
+
+      // spread is the point gain from new rank to current rank
+      if ($new_player) {
+        $spread = decathlon_dpi_get_ranking($new_rank); // new player has 0 ranking points
+      } else {
+        $spread = decathlon_dpi_get_ranking($new_rank) - decathlon_dpi_get_ranking($rank);
+      }
+
+    } else {
+      if ($spread == 0) {
+        // not enough to reach next rank, but would break a tie
+        if ($tie == TRUE) {
+          $bump = decathlon_dpi_get_ranking(($rank)) - decathlon_dpi_get_ranking(($rank + 1));
+        }
+      } else {
+        // only player with this total, so current holder of this rank gets bumped from this to next
+        $bump = decathlon_dpi_get_ranking(($new_rank)) - decathlon_dpi_get_ranking(($new_rank + 1));
+      }
+    }
+            
+    // estimate of the likelihood of getting this number of points
+    $multiplier = decathlon_dpi_get_player_multipliers($gid, $pid, $points);
+
+    // the magic number
+    $next_best_rank = (($spread + $bump) * $multiplier['value']) / $game_weight;
+
+    $suggestion[] = array(
+      'points' => $points,
+      'athlon' => $athlon,
+      'spread' => $spread,
+      'bump' => $bump,
+      'multiplier' => $multiplier,
+      'game_weight' => $game_weight,
+      'result' => $next_best_rank,
+    );
+  }
+
+  return $suggestion;
+}
+
+
+/**
+ *
+ */
+function decathlon_save_suggestion(&$totals, $suggestion, $pid, $gid) {
+
+  foreach ($suggestion as $row) {
+    if ($row['multiplier']['value'] > 0) { // some chance of getting this
+      $totals['sums'][$pid]['log'][$gid][$row['points']] = array(
+        'athlon' => $row['athlon'],
+        'spread' => $row['spread'], 
+        'bump' => $row['bump'], 
+        'multiplier' => $row['multiplier']['value'],
+        'multiplier_suffix' => $row['multiplier']['string'], 
+        'game_weight' => $row['game_weight'], 
+        'result' => round($row['result'], 2),
+      );
+    }
+  }
 }
 
 /**
@@ -643,12 +693,6 @@ function decathlon_get_opponents($athlon) {
   }
 
   return $opponents;
-}
-
-/**
- *
- */
-function decathlon_player_opponents($pid) {
 }
 
 /**

@@ -15,7 +15,7 @@ function decathlon_dpi_admin_form($subtype, $conf, $contexts) {
       $title = t('Decathlon DPI Form');
       break;
     case 1: 
-      $title = t('Decathlon DPI Averages');
+      $title = t('Not In Use');
       break;
   }
 
@@ -32,7 +32,7 @@ function decathlon_dpi_edit_form($form, &$form_state) {
     '#type' => 'radios',
     '#options' => array(
       0 => t('DPI Form'),
-      1 => t('DPI Averages'),
+      1 => t('Not In Use'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Option'),
@@ -49,7 +49,7 @@ function decathlon_dpi_render($subtype, $conf, $args, $context) {
       $content = drupal_get_form('decathlon_dpi_form', $args);
       break;
     case 1:
-      $content = decathlon_dpi_averages();
+      $content = "";
       break;
   }
 

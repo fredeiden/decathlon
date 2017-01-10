@@ -23,12 +23,19 @@ body {
 
 #header-wrapper {
   font-size: 80%;		
-  #branding {
-    display: none;
-  }
   .region-header {
     position: static;
   }
+}
+
+#header-wrapper .region-header #block-views-event-block-1,
+#header-wrapper #branding,
+.page-players-player .pane-taxonomy-term-field-picture {
+  display: none;
+}
+
+ul.primary li a {
+  padding: 2px 5px;
 }
 
 .nav {font-size: 80%;}
@@ -134,5 +141,29 @@ body {
   text-align: center;
   .views-row {
     width: 8%;
+  }
+}
+
+.leaderboard .pane-decathlon-leaderboard {
+  margin-bottom: 1em;
+}
+
+.page-players-player {
+  .panel-pane {
+    margin: .5em 0;
+    padding: 0;
+    table {
+      width: 100%;
+    }
+  }
+  .pane-decathlon-player-scorecards {
+    div.player-scorecard {
+      position: static;
+      margin: 0;
+      .dpi-table {
+        margin: 0;
+        width: 100%;
+      }
+    }
   }
 }

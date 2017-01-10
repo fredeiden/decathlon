@@ -23,142 +23,175 @@ body {
   font-size: 80%;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000326}}
-#header-wrapper #branding {
-  display: none;
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000329}}
 #header-wrapper .region-header {
   position: static;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000334}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000331}}
+#header-wrapper .region-header #block-views-event-block-1,
+#header-wrapper #branding,
+.page-players-player .pane-taxonomy-term-field-picture {
+  display: none;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000337}}
+ul.primary li a {
+  padding: 2px 5px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000341}}
 .nav {
   font-size: 80%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000336}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000343}}
 .grid-games .views-row {
   width: 30%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000338}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000345}}
 .sf-menu.sf-style-space-orange li {
   width: auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000341}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000348}}
 .table-page #content {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000344}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000351}}
 .table-page table {
   font-size: 80%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000350}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000357}}
 .page-game-scoring #content {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000353}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000360}}
 .page-game-scoring .block-inner {
   margin: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000356}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000363}}
 .page-game-scoring .player-image {
   width: 70px;
   height: 70px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000363}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000370}}
 .scoreboard .scorecards {
   width: 100%;
   float: none;
   margin: 1em 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000368}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000375}}
 .scoreboard .scorecards ul.scorecard-header li {
   font-size: 90%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000375}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000382}}
 .item-list-player-total {
   margin: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000377}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000384}}
 .item-list-player-total h3 {
   position: static;
   width: inherit;
   font-size: 80%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000381}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000388}}
 .item-list-player-total h3 div.label-text div {
   display: inline-block;
   padding: 0 2em;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000386}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000393}}
 .item-list-player-total ul.player-total {
   border: 1px solid #ccc;
   margin: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000390}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000397}}
 .item-list-player-total ul.header,
 .item-list-player-total ul.scores {
   margin: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000393}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003100}}
 .item-list-player-total ul.header li,
 .item-list-player-total ul.scores li {
   font-size: 65%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000397}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003104}}
 .item-list-player-total ul.player-total.card-1 {
   border-bottom: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003100}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003107}}
 .item-list-player-total li.total {
   font-size: 90%;
   padding: 5px 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003107}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003114}}
 .page-scores-players table {
   font-size: 80%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003112}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003119}}
 .page-scores-games #main-content-header {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003114}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003121}}
 .page-scores-games #main-content-header #page-title {
   width: 100%;
   float: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003122}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003129}}
 .page-scores-game #content {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003125}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003132}}
 .page-scores-game table, .page-scores-game ul {
   font-size: 80%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003130}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003137}}
 .game-standings-grid .leaderboard-game-standings {
   width: 48%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003131}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003138}}
 .grid-8 .views-row {
   width: 30%;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003133}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003140}}
 .game-list {
   text-align: center;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003135}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003142}}
 .game-list .views-row {
   width: 8%;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003147}}
+.leaderboard .pane-decathlon-leaderboard {
+  margin-bottom: 1em;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003152}}
+.page-players-player .panel-pane {
+  margin: .5em 0;
+  padding: 0;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003155}}
+.page-players-player .panel-pane table {
+  width: 100%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003160}}
+.page-players-player .pane-decathlon-player-scorecards div.player-scorecard {
+  position: static;
+  margin: 0;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\00003163}}
+.page-players-player .pane-decathlon-player-scorecards div.player-scorecard .dpi-table {
+  margin: 0;
+  width: 100%;
 }

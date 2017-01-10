@@ -91,6 +91,7 @@ function decathlon_player_standings_render($subtype, $conf, $args, $context) {
       $content = decathlon_player_standings_game_summary($args[0]);
       break;
     case 6:
+      module_load_include('inc', 'decathlon_dpi');
       $content = decathlon_player_standings_stats_table();
       break;
   }

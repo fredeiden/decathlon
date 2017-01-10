@@ -1,44 +1,68 @@
 <?php
 
-function decathlon_dpi_get_player_multipliers($gid, $pid) {
+function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
   $my_map = &drupal_static(__FUNCTION__);
 
-  $limit = 8;  // max number of points
-
   if (!isset($my_map)) {
+
     $data = decathlon_dpi_get_points();
+
     foreach ($data as $gid => $players) {
       foreach ($players as $pid => $points) {
 
-        // sum the total points
+        // sum the total points earned by this player
         $total = 0;
         foreach ($points as $amount) {
           $total += $amount;
         }
+        $my_map[$gid][$pid]['total'] = $total;
+
+        // walk through the list and calculate the average number of times
+        // player earns the points at each level
 
         // get last key
         end($points);
         $limit = key($points);
         reset($points);
 
+        // at each level count the points at and above and then divide by the total
+        // for instance, you score 4 points when you score 4, 5, or 6 points
         for ($i = 1; $i <= $limit; $i++) {
           $count = 0;
           for ($j = $i; $j <= $limit; $j++) {
             $count += isset($points[$j]) ? $points[$j] : 0;
           }
-          $my_map[$gid][$pid][$i] = $count == 0 ? 0 : round (($count/$total), 2);
+          $my_map[$gid][$pid][$i] = round(($count/$total), 2);
         }
       }
     }
   }
 
-  if (!isset($my_map[$gid][$pid])) {
-    return array();
+  // return a multiplier
+  // if the player has not played or has only played a little, use a global average
+  $multiplier = array(
+    'value' => 0,
+    'string' => "",
+    'global' => 0,
+  );
+  if (isset($my_map[$gid][$pid][$p])) {
+    $multiplier['value'] = $my_map[$gid][$pid][$p];
+  } else {
+    if ($p <= 3) { // only use globals for 3 and under
+      if (!isset($my_map[$gid][$pid]['total']) || $my_map[$gid][$pid]['total'] < 5) {
+        $gm = decathlon_dpi_get_global_multipliers($gid); // substitute these when player has none
+        if (isset($gm[$p])) {
+          $multiplier['value'] = $gm[$p];
+          $multiplier['string'] = "(g)";
+          $multiplier['global'] = 1;
+        }
+      }
+    }
   }
-  return $my_map[$gid][$pid];
+  return $multiplier;
 }
 
-function decathlon_dpi_get_game_multipliers($gid) {
+function decathlon_dpi_get_global_multipliers($gid) {
   $my_map = &drupal_static(__FUNCTION__);
 
   if (!isset($my_map)) {
@@ -48,7 +72,7 @@ function decathlon_dpi_get_game_multipliers($gid) {
     foreach ($data as $gid => $players) {
       foreach ($players as $pid => $points) {
         foreach ($points as $value => $count) {
-          if (!isset($my_map[$gid][$value])) {
+          if (!isset($new[$gid][$value])) {
             $new[$gid][$value] = 0; // initialize
           }
           $new[$gid][$value] += $count; // add
@@ -69,6 +93,8 @@ function decathlon_dpi_get_game_multipliers($gid) {
       $limit = key($points);
       reset($points);
 
+      // at each level count the points at and above and then divide by the total
+      // for instance, you score 4 points when you score 4, 5, or 6 points
       for ($i = 1; $i <= $limit; $i++) {
         $count = 0;
         for ($j = $i; $j <= $limit; $j++) {
@@ -79,7 +105,9 @@ function decathlon_dpi_get_game_multipliers($gid) {
     }
   }
 
-  return $my_map[$gid];
+  if (isset($my_map[$gid])) {
+    return $my_map[$gid];
+  }
 }
 
 function decathlon_dpi_get_points() {
@@ -99,40 +127,32 @@ function decathlon_dpi_get_points() {
   return $data;
 }
 
-function decathlon_dpi_averages() {
+function decathlon_dpi_averages($pid) {
 
-  module_load_include('inc', 'decathlon');
-
-  $players = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("players")->vid);
   $games = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("games")->vid);
+  $rows = array();
 
   // write array of arrays for theme table
-  $row = array();
-  foreach ($players as $p) {
-    $pid = $p->tid;
+  foreach ($games as $g) {
     $row = array();
-    $row[] = decathlon_player_link($pid);
-    foreach ($games as $g) {
-      $gid = $g->tid;
-      $row[] = theme('item_list', array(
-                 'type' => 'ul', 
-                 'attributes' => array('class' => array('table-cell-set')),
-                 'items' => decathlon_dpi_get_player_multipliers($gid, $pid),
-               ));
+    $row[] = decathlon_game_link($g->tid);
+    for ($i = 1; $i <= 8; $i++) {
+      $multiplier = decathlon_dpi_get_player_multipliers($g->tid, $pid, $i);
+      $row[] = $multiplier['value']; 
     }
     $rows[] = $row;
   }
   
   // header array for theme table
-  $header = array("");
-  foreach ($games as $g) {
-    $header[] = $g->name;
+  $header = array("Game");
+  for ($i = 1; $i <= 8; $i++) {
+    $header[] = $i;
   }
 
   // table array
   return theme('table', array(
       'header' => $header,
       'rows' => $rows,
-      'sticky' => TRUE,
+      'sticky' => FALSE,
     ));
 }

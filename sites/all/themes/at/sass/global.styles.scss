@@ -916,22 +916,18 @@ tr {
   }
   .pane-taxonomy-term-field-picture { 
     position: absolute;
-    top: 40px;
-    left: 20%;
+    left: 15%;
+    top: 30px;
   }
-  .pane-decathlon-player-scorecards {
+  .panel-pane {
     margin: 1em 1em 2em;
     padding: .5em .5em 2em;
     background: #e5e5e5;
+  }
+  .pane-decathlon-player-scorecards {
     div.player-scorecard {
       position: relative;
       margin: 1em 0;
-      .player-image {
-        position: absolute;
-        left: 15%;
-        list-style-type: none;
-        text-align: center;
-      }
       .dpi-table {
         margin-left: 35%;
         width: 50%;
@@ -943,9 +939,6 @@ tr {
     }
   }
   .pane-decathlon-player-standings {
-    margin: 1em 1em 2em;
-    padding: .5em .5em 2em;
-    background: #e5e5e5;
     table {
       width: 100%;
       margin: 0 auto;
@@ -1359,3 +1352,9 @@ ul.table-cell-set {
   }
 }
 
+.inline-radios {
+  .form-type-radio {
+    display: inline;
+    margin: 0 .5em 0 0;
+  }
+} 

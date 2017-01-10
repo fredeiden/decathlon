@@ -125,13 +125,14 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
       
       // suggestion
       $suggestion = array();
-      for ($points = 1; $points <= 5; $points++) {
-        if (isset($results[$pid][$points][$athlon]['game'])) {
-          $suggestion[] = decathlon_game_icon($results[$pid][$points][$athlon]['game']);
-        } else {
-          $suggestion[] = "-";
-        }
-      }
+      // first column is simply 1 point
+      $suggestion[0] = decathlon_leaderboard_easy_option($results[$pid]['log'], $athlon);
+
+      // second column is average of 2 through 1-from-end
+      $suggestion[1] = decathlon_leaderboard_medium_option($results[$pid]['log'], $athlon);
+
+      // third column is end
+      $suggestion[2] = decathlon_leaderboard_hard_option($results[$pid]['log'], $athlon);
 
       $rank = '';
       $rank_class = 'rank podium';
@@ -151,8 +152,6 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
           '<div class="offense">' . $suggestion[0] . '</div>' .
           '<div class="offense">' . $suggestion[1] . '</div>' .
           '<div class="offense">' . $suggestion[2] . '</div>' .
-          '<div class="offense">' . $suggestion[3] . '</div>' .
-          '<div class="offense">' . $suggestion[4] . '</div>' .
           '<div class="offense">' . l("&#10142;", 'leaderboard/suggestion-log/' . $pid, array('html' => TRUE, 'attributes' => array('class' => array('highlight')))) . '</div>';
         
         $rows[] = array(
@@ -170,10 +169,8 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
             '<div class="name">' . l(strtoupper(decathlon_get_term_name($pid)), 'players/player/' . $pid) . '</div>' .
             '<div class="offense">' . $suggestion[0] . '</div>' .
             '<div class="offense">' . $suggestion[1] . '</div>' .
-            '<div class="offense">' . $suggestion[2] . '</div>' .
-            '<div class="offense">' . $suggestion[3] . '</div>' .
-            '<div class="offense">' . $suggestion[4] . '</div>';
-
+            '<div class="offense">' . $suggestion[2] . '</div>';
+          
           $rows[] = array(
             "data" => $data,
           );
@@ -190,11 +187,9 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
     '<ul class="leaderboard-header">' .
     '<li class="rank">Rank</li>' .
     '<li class="name">Player</li>' .
-    '<li class="offense">1</li>' .
-    '<li class="offense">2</li>' .
-    '<li class="offense">3</li>' .
-    '<li class="offense">4</li>' .
-    '<li class="offense">5</li>' .
+    '<li class="offense"> </li>' .
+    '<li class="offense"> </li>' .
+    '<li class="offense"> </li>' .
     '<li class="offense"> </li>' .
     '</ul>';
 
@@ -208,3 +203,65 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
   return $content;
 }
 
+function decathlon_leaderboard_easy_option($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      if ($levels[1]['result'] > $max) { // array indexed starting from 1
+        $max = $levels[1]['result'];
+        $option = $gid;
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
+}
+
+function decathlon_leaderboard_medium_option($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      // sum totals for rows other than low and high
+      $start = 2; // array indexed starting from 1; start at second row
+      $end = (count($levels) - 1); // end at penultimate row
+      $total = 0;
+      $num_rows = 0;
+      for ($i = $start; $i <= $end; $i++) {
+        $total += $levels[$i]['result'];
+        $num_rows++;
+      }
+      if ($num_rows > 0) {
+        $avg = ($total / $num_rows);
+        if ($avg > $max) {
+          $max = $avg;
+          $option = $gid;
+        }
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
+}
+
+function decathlon_leaderboard_hard_option($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      $last = count($levels); // log array indexed starting from 1
+      if (isset($levels[$last]['result'])) {
+        if ($levels[$last]['result'] > $max) {
+          $max = $levels[$last]['result'];
+          $option = $gid;
+        }
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
+}

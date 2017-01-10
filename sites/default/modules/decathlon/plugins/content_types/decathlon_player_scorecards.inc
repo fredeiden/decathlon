@@ -33,6 +33,9 @@ function decathlon_player_scorecards_admin_info($subtype, $conf, $contexts) {
       case 6:
         $title = t('Suggestion Algorithm Log');
         break;
+      case 7:
+        $title = t('Player Multipliers');
+        break;
     }
 
     $block = new stdClass;
@@ -55,6 +58,7 @@ function decathlon_player_scorecards_edit_form($form, &$form_state) {
       4 => t('Leisure Player Totals'),
       5 => t('Parlor Player Totals'),
       6 => t('Suggestion Algorithm Log'),
+      7 => t('Player Multipliers'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Point Type'),
@@ -93,6 +97,9 @@ function decathlon_player_scorecards_render($subtype, $conf, $args, $context) {
       break;
     case 6:
       $content = decathlon_player_scorecards_suggestion_log($args[0]);
+      break;
+    case 7:
+      $content = decathlon_dpi_averages($args[0]);
       break;
   }
 
@@ -242,6 +249,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
 
   $sums = decathlon_get_ranking_points();
   $results = decathlon_get_rankings_player_sums($this_pid);
+  module_load_include('inc', 'decathlon', 'plugins/content_types/decathlon_leaderboard');
 
   $ranking = array();
   foreach ($sums as $group => $scores) {
@@ -270,16 +278,6 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
       continue;
     }
 
-    // suggestion
-    $suggestion = array();
-    for ($points = 1; $points <= 5; $points++) {
-      if (isset($results[$points][$athlon]['game'])) {
-        $suggestion[] = decathlon_game_icon($results[$points][$athlon]['game']);
-      } else {
-        $suggestion[] = "-";
-      }
-    }
-
     // eligibility
     $eligibility = decathlon_get_leaderboard_eligibility($results, $athlon);
 
@@ -288,11 +286,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
       decathlon_get_ordinal($ranking[$athlon]),
       $type['points'] + $type['rank'] + $bonus,
       decathlon_get_eligible_string($eligibility, 'qualified'),
-      $suggestion[0],
-      $suggestion[1],
-      $suggestion[2],
-      $suggestion[3],
-      $suggestion[4],
+      decathlon_leaderboard_easy_option($results['log'], $athlon),
+      decathlon_leaderboard_medium_option($results['log'], $athlon),
+      decathlon_leaderboard_hard_option($results['log'], $athlon),
     );
     $rows[] = array(
       'data' => $cols,
@@ -324,11 +320,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
         decathlon_get_ordinal($ranking['decathlon']),
         $totals['points'] + $totals['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
-        $suggestion[0],
-        $suggestion[1],
-        $suggestion[2],
-        $suggestion[3],
-        $suggestion[4],
+        decathlon_leaderboard_easy_option($results['log'], 'decathlon'),
+        decathlon_leaderboard_medium_option($results['log'], 'decathlon'),
+        decathlon_leaderboard_hard_option($results['log'], 'decathlon'),
       ),
       'class' => array(),
     );
@@ -339,11 +333,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
     'Rank',
     'DPI',
     'Eligibility',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
+    '',
+    '',
+    '',
   );
 
   $html = theme('table', array('sticky' => FALSE, 'header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'dpi-table')));
@@ -384,16 +376,14 @@ function decathlon_player_scorecards_suggestion_log($pid) {
     foreach ($log as $gid => $point_list) {
       $rows = array();
       foreach ($point_list as $points => $factor_list) {
-        if ($factor_list[2] > 0) { // likelihood multiplier greater than 0
-          $rows[] = array(
-            $points, 
-            $factor_list[0],
-            $factor_list[1],
-            $factor_list[2],
-            $factor_list[3],
-            array('data' => $factor_list[4], 'class' => array('highlight-col')),
-          );
-        }
+        $rows[] = array(
+          $points, 
+          $factor_list['spread'],
+          $factor_list['bump'],
+          $factor_list['multiplier'] . $factor_list['multiplier_suffix'],
+          $factor_list['game_weight'],
+          array('data' => $factor_list['result'], 'class' => array('highlight-col')),
+        );
       }
   
       $content .= theme('table', array(
