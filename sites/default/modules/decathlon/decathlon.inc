@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Utility function to print 1st, 2nd, 3rd, etc.
  */
 function decathlon_get_ordinal($number) {
   $ends = array('th','st','nd','rd','th','th','th','th','th','th');
@@ -13,10 +13,10 @@ function decathlon_get_ordinal($number) {
 }
 
 /**
- *
+ * Points are stored in the Drupal taxonomy structure and have taxonomy term IDs. 
+ * Should probably clean this up and go to the database for these, but they never change.
  */
 function decathlon_get_point_types() {
-  // could go to the database for these, but they never change
   return array(
     73 => 'Participation',
     74 => 'Besting',
@@ -26,7 +26,7 @@ function decathlon_get_point_types() {
 }
 
 /**
- *
+ * Query to fetch sum of points for each player in each game in the current event
  */
 function decathlon_get_all_rankings() {
   $results = db_query("SELECT dc.gid, dp.pid, SUM(dp.points) points FROM {decathlon_points} dp, {decathlon_contests} dc WHERE dp.contest = dc.contest AND dc.event = :event GROUP BY dc.gid, dp.pid ORDER BY dc.gid, SUM(dp.points) DESC", array(':event' => decathlon_get_event()))->fetchAll();
@@ -34,7 +34,7 @@ function decathlon_get_all_rankings() {
 }
 
 /**
- *
+ * Query to fetch sum of points by point type and game in the current event
  */
 function decathlon_get_points_games() {
   $results = db_query("SELECT dc.gid, dp.point_type, SUM(dp.points) points FROM {decathlon_points} dp, {decathlon_contests} dc WHERE dp.contest = dc.contest AND dc.event = :event GROUP BY dc.gid, dp.point_type ORDER BY dc.gid ASC", array(':event' => decathlon_get_event()));
@@ -46,7 +46,7 @@ function decathlon_get_points_games() {
 }
 
 /**
- *
+ * Query to fetch sum of points by game, player, and point type in the current event
  */
 function decathlon_get_all_typed_rankings() {
   $results = &drupal_static(__FUNCTION__);
@@ -57,7 +57,10 @@ function decathlon_get_all_typed_rankings() {
 }
 
 /**
- *
+ * Query to fetch sum of points by player and point type for a specific game in the current event
+ * 
+ * @param $gid
+ *  The taxonomy term ID for the game (backgammon is a game whereas a specific game of backgammon is a contest)
  */
 function decathlon_get_game_rankings($gid) {
   $results = db_query("SELECT dp.pid, dp.point_type, SUM(dp.points) points FROM {decathlon_points} dp, {decathlon_contests} dc WHERE dp.contest = dc.contest AND dc.event = :event AND dc.gid = :gid GROUP BY dp.pid, dp.point_type ORDER BY dc.gid, SUM(dp.points) DESC", array(':event' => decathlon_get_event(), ':gid' => $gid))->fetchAll();
@@ -65,7 +68,13 @@ function decathlon_get_game_rankings($gid) {
 }
 
 /**
+ * Query to fetch avg, min, and max scores for a player in a game in the current event
  *
+ * @param $pid
+ *  The taxonomy term ID for a player
+ *
+ * @param $gid
+ *  The taxonomy term ID for a game
  */
 function decathlon_get_player_game_scores($pid, $gid) {
   $results = db_query("SELECT AVG(ds.score) avg, MIN(ds.score) min, MAX(ds.score) max FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE ds.contest = dc.contest AND dc.event = :event AND ds.pid = :pid AND dc.gid = :gid", array(':event' => decathlon_get_event(), ':pid' => $pid, ':gid' => $gid))->fetchObject();
@@ -73,7 +82,13 @@ function decathlon_get_player_game_scores($pid, $gid) {
 }
 
 /**
+ * Query to fetch number of besters for a player in a game in the current event
  *
+ * @param $pid
+ *  The taxonomy term ID for a player
+ *
+ * @param $gid
+ *  The taxonomy term ID for a game
  */
 function decathlon_get_player_game_bested($pid, $gid) {
   $results = db_query("SELECT COUNT(bester) bested FROM {decathlon_besting} WHERE event = :event AND bestee = :pid AND game = :gid", array(':event' => decathlon_get_event(), ':pid' => $pid, ':gid' => $gid))->fetchObject();
@@ -81,7 +96,7 @@ function decathlon_get_player_game_bested($pid, $gid) {
 }
 
 /**
- *
+ * Query to fetch all contest, game, and player rows from the current event
  */
 function decathlon_get_contests() {
   $results = &drupal_static(__FUNCTION__);
@@ -95,7 +110,11 @@ function decathlon_get_contests() {
 }
 
 /**
+ * Helper function to return the name for a Drupal taxonomy term ID.
+ * Heavily used, so cache all rows with one query. 
  *
+ * @param $tid
+ *  The taxonomy term ID for a player, game, etc.
  */
 function decathlon_get_term_name($tid) {
   $my_map = &drupal_static(__FUNCTION__);
@@ -106,44 +125,58 @@ function decathlon_get_term_name($tid) {
 }
 
 /**
+ * Helper function to create HTML <a></a> link for a game
  *
+ * @param $gid
+ *  The taxonomy term ID for a game
  */
-function decathlon_game_link($tid) {
-  return l(decathlon_get_term_name($tid), 'scores/games/' . $tid);
+function decathlon_game_link($gid) {
+  return l(decathlon_get_term_name($gid), 'scores/games/' . $gid);
 }
 
 /**
+ * Helper function to create HTML <a></a> link for a contest
  *
+ * @param $id
+ *  The contest ID
  */
 function decathlon_contest_link($id) {
   return l($id, 'scores/game/' . $id);
 }
 
 /**
- *
+ * Helper function to provide HTML <a></a> link to game based on game name
  */
 function decathlon_game_link_from_name($name) {
+  // Use Drupal function to get array of taxonomy term objects
   $terms = taxonomy_get_term_by_name($name);
+  // Return the ID of the first object
   return decathlon_game_link(array_pop($terms)->tid);
 }
 
 /**
+ * Helper function to create HTML <a></a> link for a player
  *
+ * @param $pid
+ *  The taxonomy term ID for a player
  */
-function decathlon_player_link($tid) {
-  return l(decathlon_get_term_name($tid), 'players/player/' . $tid);
+function decathlon_player_link($pid) {
+  return l(decathlon_get_term_name($pid), 'players/player/' . $pid);
 }
 
 /**
- *
+ * Helper function to provide HTML <a></a> link to player based on player name
  */
 function decathlon_player_link_from_name($name) {
+  // Use Drupal function to get array of taxonomy term objects
   $terms = taxonomy_get_term_by_name($name);
+  // Return the ID of the first object
   return decathlon_player_link(array_pop($terms)->tid);
 }
 
 /**
- *
+ * Get the value of the high_score_wins variable for a game using some Drupal-ly stuff.
+ * Games are stored as taxonomy terms in Drupal and have the associated overhead.
  */
 function decathlon_high_score_wins($gid) {
   $term = taxonomy_term_load($gid);
@@ -152,7 +185,8 @@ function decathlon_high_score_wins($gid) {
 }
 
 /**
- *
+ * Get the type of game using some Drupal-ly stuff.
+ * Games are stored as taxonomy terms in Drupal and have the associated overhead.
  */
 function decathlon_game_type($gid) {
   $term = taxonomy_term_load($gid);
@@ -162,7 +196,11 @@ function decathlon_game_type($gid) {
 }
 
 /**
- *
+ * Decathlon games are separated into leisure games and parlor games.  All are decathlon. Some are exhibition.
+ * This function will return a list of games for the respective grouping.
+ * 
+ * @param $athlon
+ *  String assigned as 'decathlon', 'leisure', 'parlor', or 'exhibition'
  */
 function decathlon_get_event_games($athlon = NULL) {
 
@@ -210,7 +248,12 @@ function decathlon_get_event_games($athlon = NULL) {
 }
 
 /**
+ * This is the super scary, gigantic, left-over, legacy procedural mess that I just can't seem to kill.
+ * It is like the water sprouts that keep growing on top of my fruit tree.
  *
+ * In brief, loops over all scoring records for the current event and returns
+ * an array of arrays indexed by game and player.  It is used by the various reports
+ * that show game rankings, player standings, and game recommendations.
  */
 function decathlon_get_rankings() {
 
@@ -349,7 +392,8 @@ function decathlon_get_rankings() {
         }
 
         // Suggestion
-        if ($rank > 1 && $game_weight > 0) { // skip when already leading or game not weighted
+//        if ($rank > 1 && $game_weight > 0) { // skip when already leading or game not weighted
+        if ($game_weight > 0) { // skip when already leading or game not weighted
           $suggestion = decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pid, $counter, $gain);
           decathlon_save_suggestion($totals, $suggestion, $pid, $gid);
         }
@@ -413,6 +457,9 @@ function decathlon_get_rankings() {
  * For each player look at what they can achieve by scoring 1, 2, 3, 4, or 5 points.  Higher scores are less likely
  * and are multiplied by a factor calculated from either the player's historical scores or, lacking that, historical scores
  * of all players.
+ *
+ * This list of params is ridiculous, I know.  It is the side effect of extracting this from the clutches
+ * of decathlon_get_rankings().
  *
  * Stored for each athlon and overall
  *
@@ -511,7 +558,9 @@ function decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pi
 
 
 /**
- *
+ * Save a suggestion array to a totals array.  What the hell does that mean?
+ * This is called in two places in decathlon_get_rankings() and is really just a convenience.
+ * Good luck finding another use for this!
  */
 function decathlon_save_suggestion(&$totals, $suggestion, $pid, $gid) {
 
@@ -531,7 +580,7 @@ function decathlon_save_suggestion(&$totals, $suggestion, $pid, $gid) {
 }
 
 /**
- *
+ * Return a portion of the decathlon_get_rankings() array.
  */
 function decathlon_get_rankings_by_type($type) {
   $results = decathlon_get_rankings();
@@ -539,7 +588,7 @@ function decathlon_get_rankings_by_type($type) {
 }
 
 /**
- *
+ * Return a portion of the decathlon_get_rankings() array.
  */
 function decathlon_get_rankings_player_sums($pid) {
   $results = decathlon_get_rankings();
@@ -547,7 +596,7 @@ function decathlon_get_rankings_player_sums($pid) {
 }
 
 /**
- *
+ * Return a portion of the decathlon_get_rankings() array.
  */
 function decathlon_get_rankings_all_sums() {
   $results = decathlon_get_rankings();
@@ -556,7 +605,7 @@ function decathlon_get_rankings_all_sums() {
 }
 
 /**
- *
+ * Set overall DPI totals for each player and apply podium house rule.
  */
 function decathlon_get_ranking_points() {
 
@@ -663,17 +712,25 @@ function decathlon_get_ranking_points() {
 }
 
 /**
+ * Build a list of players that each player has played
  *
+ * @param $athlon
+ *  Set as either decathlon, leisure, or parlor
  */
 function decathlon_get_opponents($athlon) {
 
   $results = decathlon_get_contests(); // get games and players
-  $html = '';
   $opponents = array();
   $players = array();
 
+  // loop over query from decathlon_get_contests
+  // query is grouped by contest
   foreach ($results as $row) {
+
+    // only look at relevant athlon
     if ($athlon != 'decathlon' && decathlon_game_type($row->gid) != $athlon) { continue; }
+
+    // each time contest ID changes, store player set and loop some more
     if (isset($this_contest) && $row->contest != $this_contest) {
       foreach ($players as $p) {
         $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
@@ -683,6 +740,8 @@ function decathlon_get_opponents($athlon) {
     $players[] = $row->pid;
     $this_contest = $row->contest;
   }
+
+  // grab the last set
   foreach ($players as $p) {
     $opponents[$p] = isset($opponents[$p]) ? array_merge($opponents[$p], $players) : $players;
   }
@@ -690,6 +749,12 @@ function decathlon_get_opponents($athlon) {
   // remove duplicates
   foreach ($opponents as $index => $played) {
     $opponents[$index] = array_unique($played);
+  }
+
+  // remove self
+  foreach ($opponents as $index => $played) {
+    $self = array_search($index, $played);
+    unset($opponents[$index][$self]);
   }
 
   return $opponents;
