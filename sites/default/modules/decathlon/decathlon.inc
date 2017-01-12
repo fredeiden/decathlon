@@ -222,9 +222,6 @@ function decathlon_get_event_games($athlon = NULL) {
         $row->field_field_parlor_games[0]['raw']['entity']->name;
     }
 
-    //decathlon
-    $game_list['decathlon'] = array_merge($game_list['leisure'], $game_list['parlor']);
-
     //exhibition
     $exhibition = views_get_view_result('event_games', 'panel_pane_3');
     foreach ($exhibition as $row) {
@@ -244,7 +241,7 @@ function decathlon_get_event_games($athlon = NULL) {
   if ($athlon == 'exhibition') {
     return !empty($game_list['exhibition']) ? $game_list['exhibition'] : array();
   }
-  return $game_list['decathlon'];
+  return $game_list['leisure'] + $game_list['parlor'];
 }
 
 /**
@@ -906,10 +903,12 @@ function decathlon_round($num) {
  *
  */
 function decathlon_table_sort($data, $index, $sort) {
+  dsm($data);
   if (empty($index)) {return $data;}
   uasort($data, function($a, $b) use ($index, $sort) {
       if ($sort == 'asc') {
         if (is_numeric($a[$index])) {
+          dsm($a[$index] . " " . $b[$index]);
           if ($a[$index] == $b[$index]) {return 0;}
           return ($a[$index] > $b[$index]) ? 1 : -1;
         } else {

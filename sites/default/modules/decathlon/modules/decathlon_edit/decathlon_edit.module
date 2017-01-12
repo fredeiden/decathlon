@@ -153,30 +153,32 @@ function decathlon_edit_game_form_submit($form, &$form_state) {
     }
 
     // check for changed honors
-    foreach ($data['honors'] as $honor => $value) {
-      if ($value != $form['scores'][$pid]['honors'][$honor]['#default_value']) {
-        if ($value == 0) {
-          // remove the row when the count is changed to 0
-          db_delete('decathlon_honors')
-            ->condition('contest', $contest)
-            ->condition('pid', $pid)
-            ->condition('honor', $honor)
-            ->execute();
-        } else {
-          // use db_merge in case this is a new entry
-          db_merge('decathlon_honors')
-            ->key(array(
-                'contest' => $contest,
-                'pid' => $pid,
-                'honor' => $honor,
-              ))
-            ->fields(array(
-                'count' => $value,
-              ))
-            ->execute();
+    if (isset($data['honors'])) {
+      foreach ($data['honors'] as $honor => $value) {
+        if ($value != $form['scores'][$pid]['honors'][$honor]['#default_value']) {
+          if ($value == 0) {
+            // remove the row when the count is changed to 0
+            db_delete('decathlon_honors')
+              ->condition('contest', $contest)
+              ->condition('pid', $pid)
+              ->condition('honor', $honor)
+              ->execute();
+          } else {
+            // use db_merge in case this is a new entry
+            db_merge('decathlon_honors')
+              ->key(array(
+                  'contest' => $contest,
+                  'pid' => $pid,
+                  'honor' => $honor,
+                ))
+              ->fields(array(
+                  'count' => $value,
+                ))
+              ->execute();
+          }
+          drupal_set_message("Changed honor count to " . $value);
+          $changed = TRUE;
         }
-        drupal_set_message("Changed honor count to " . $value);
-        $changed = TRUE;
       }
     }
   }

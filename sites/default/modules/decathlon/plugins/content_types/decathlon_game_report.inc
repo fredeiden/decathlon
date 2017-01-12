@@ -24,6 +24,9 @@ function decathlon_game_report_admin_info($subtype, $conf, $contexts) {
       case 4:
         $title = t('Game Summary');
         break;
+      case 5:
+        $title = t('Game Weights');
+        break;
     }
 
     $block = new stdClass;
@@ -43,6 +46,7 @@ function decathlon_game_report_edit_form($form, &$form_state) {
       2 => t('Game Leaders'),
       3 => t('Single Game Record'),
       4 => t('Game Summary'),
+      5 => t('Game Weights'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Options'),
@@ -71,6 +75,9 @@ function decathlon_game_report_render($subtype, $conf, $args, $context) {
       break;
     case 4:
       $content = decathlon_game_report_game_summary();
+      break;
+    case 5:
+      $content = decathlon_game_report_game_weights();
       break;
   }
 
@@ -510,4 +517,24 @@ function decathlon_game_report_game_summary() {
   
 }
 
+/*
+ * Table of games and game weights for current event
+ */
+function decathlon_game_report_game_weights() {
 
+  // list of games for current event
+  $games = decathlon_get_event_games();
+  asort($games);
+
+  // table rows and cols
+  $rows = array();
+  foreach ($games as $gid => $name) {
+    $rows[] = array($name, decathlon_dpi_get_participation_weighting($gid));
+  }
+
+  // theme table
+  return theme('table', array(
+      'sticky' => FALSE, 
+      'rows' => $rows,
+    ));
+}
