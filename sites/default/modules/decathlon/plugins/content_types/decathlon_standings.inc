@@ -113,7 +113,6 @@ function decathlon_standings_most_opponents() {
     $html .= theme('item_list', array(
               'items' => $rows, 
               'type' => 'ul', 
-              'attributes' => array('class' => ''),
             ));
     $html .= '</div>';
   }    
