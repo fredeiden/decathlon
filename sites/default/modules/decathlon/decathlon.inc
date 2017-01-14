@@ -903,12 +903,10 @@ function decathlon_round($num) {
  *
  */
 function decathlon_table_sort($data, $index, $sort) {
-  dsm($data);
   if (empty($index)) {return $data;}
   uasort($data, function($a, $b) use ($index, $sort) {
       if ($sort == 'asc') {
         if (is_numeric($a[$index])) {
-          dsm($a[$index] . " " . $b[$index]);
           if ($a[$index] == $b[$index]) {return 0;}
           return ($a[$index] > $b[$index]) ? 1 : -1;
         } else {

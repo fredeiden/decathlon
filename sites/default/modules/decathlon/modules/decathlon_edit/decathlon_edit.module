@@ -125,34 +125,41 @@ function decathlon_edit_game_form_submit($form, &$form_state) {
   $scores = $form_state['values']['scores'];
   $changed = FALSE;
   foreach ($scores as $pid => $data) {
+    
+    $new_fields = array();
 
-    // check for changed player
-    if ($pid != $data['player']) { 
+    // Update the decathlon_scores table, which has the columns:
+    //  contest
+    //  pid
+    //  score
+    // If a player has been changed, update the player.
+    // If a score has been changed, update the score.
+    // Though unlikely, do them together in case both are being altered.
+    if ($pid != $data['player'] || $data['score'] != $form['scores'][$pid]['score']['#default_value']) {
+      if ($pid != $data['player']) {
+        $new_fields['pid'] = $data['player'];
+        drupal_set_message("Changed player from " . decathlon_player_link($pid) . ' to ' . decathlon_player_link($data['player']) );
+      }
+      if ($data['score'] != $form['scores'][$pid]['score']['#default_value']) {
+        $new_fields['score'] = $data['score'];
+        drupal_set_message("Changed score to " . $data['score']);
+      }
       db_update('decathlon_scores')
-        ->fields(array(
-            'pid' => $data['player'],
-          ))
+        ->fields($new_fields)
         ->condition('contest', $contest, '=')
         ->condition('pid', $pid, '=')
         ->execute();
-      drupal_set_message("Changed player from " . decathlon_player_link($pid) . ' to ' . decathlon_player_link($data['player']) );
       $changed = TRUE;
     }
 
-    // check for changed score
-    if ($data['score'] != $form['scores'][$pid]['score']['#default_value']) {
-      db_update('decathlon_scores')
-        ->fields(array(
-            'score' => $data['score'],
-          ))
-        ->condition('contest', $contest, '=')
-        ->condition('pid', $pid, '=')
-        ->execute();
-      drupal_set_message("Changed score to " . $data['score']);
-      $changed = TRUE;
-    }
-
-    // check for changed honors
+    // Update the decathlon_honors table, which has the columns:
+    //  contest
+    //  pid
+    //  honor
+    //  count
+    // If an honor has changed or been added, merge the row.
+    // If an honor has been set to 0, delete the row.
+    // Watch out for player change.
     if (isset($data['honors'])) {
       foreach ($data['honors'] as $honor => $value) {
         if ($value != $form['scores'][$pid]['honors'][$honor]['#default_value']) {
@@ -178,6 +185,19 @@ function decathlon_edit_game_form_submit($form, &$form_state) {
           }
           drupal_set_message("Changed honor count to " . $value);
           $changed = TRUE;
+        }
+        if ($pid != $data['player']) { // player has changed
+          if ($value != 0) { // the row has been deleted
+            db_update('decathlon_honors')
+              ->fields(array(
+                  'pid' => $data['player']
+                ))
+              ->condition('contest', $contest, '=')
+              ->condition('pid', $pid, '=')
+              ->condition('honor', $honor, '=')
+              ->execute();
+            $changed = TRUE;
+          }
         }
       }
     }

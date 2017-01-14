@@ -134,8 +134,7 @@ function decathlon_version_callback() {
  * Set a variable for current event
  */
 function decathlon_init() {
-  $event = variable_get('decathlon_event');
-  if ($event == NULL) {
+  if (!isset($_SESSION['decathlon_event_id'])) {
     decathlon_set_event(decathlon_get_current_event());
   }
 }
@@ -144,18 +143,19 @@ function decathlon_init() {
  * Set variable for current event, clear caches, reset standings cache
  */
 function decathlon_set_event($event) {
-  variable_set('decathlon_event', $event);
+  $_SESSION['decathlon_event_id'] = $event;
 }
 
 /**
  * Return variable for event
  */
 function decathlon_get_event() {
-  $event = variable_get('decathlon_event');
+  $event = $_SESSION['decathlon_event_id'];
   if ($event == NULL) {
-    decathlon_set_event(decathlon_get_current_event());
+    $event = decathlon_get_current_event();
+    decathlon_set_event($event);
   }
-  return variable_get('decathlon_event');
+  return $event;
 }
 
 /**
