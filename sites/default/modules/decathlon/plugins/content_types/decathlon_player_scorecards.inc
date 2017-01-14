@@ -331,7 +331,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
   );
 
   $html = theme('table', array('sticky' => FALSE, 'header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'dpi-table')));
-  $html .= '<div class="dpi-table table-footnote">' . $bonus . ' bonus points applied to DPI totals' . '</div>';
+  $html .= '<div class="dpi-table table-footnote">' . $bonus . l(' bonus points applied to DPI totals', 'players/player/bonuses/' . $this_pid) . '</div>';
 
   return $html;
 }

@@ -12,10 +12,11 @@
  * Autofill event on add bonus form
  */
 function decathlon_form_alter(&$form, &$form_state, $form_id) {
+
   if ($form_id == 'taxonomy_form_term') {
 
     // overrides
-    if ($form['#term']['tid'] == 62) {
+    if (is_array($form['#term']) && $form['#term']['tid'] == 62) {
       $results = db_query("SELECT field, value from {decathlon_taxonomy_value} WHERE event = :event AND term = :tid",
                  array(
                    ':event' => decathlon_get_event(),
@@ -30,19 +31,23 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
     }
 
     // disable delete for term
-    $count = views_get_view_result('term_delete_check', 'default', $form['name']['#default_value']);
-    if (isset($count[0]->node_taxonomy_index_title)) {
-      $num_records = $count[0]->node_taxonomy_index_title;
-      if ($num_records != 0) {
-        $form['actions']['delete']['#disabled'] = TRUE;
-        $form['footnote'] = array(
-          '#type' => 'item',
-          '#markup' => t('* This term has @records associated database records and cannot be deleted.', array('@records' => $num_records)),
-          '#weight' => 500,
-        );
+    if (isset($form['name']['#default_value'])) {
+      $count = views_get_view_result('term_delete_check', 'default', $form['name']['#default_value']);
+      if (isset($count[0]->node_taxonomy_index_title)) {
+        $num_records = $count[0]->node_taxonomy_index_title;
+        if ($num_records != 0) {
+          $form['actions']['delete']['#disabled'] = TRUE;
+          $form['footnote'] = array(
+            '#type' => 'item',
+            '#markup' => t('* This term has @records associated database records and cannot be deleted.', array('@records' => $num_records)),
+            '#weight' => 500,
+          );
+        }
       }
     }
   }
+
+  // autofill event on node add for bonus
   if ($form_id == 'bonus_node_form') {
     $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();;
   }
