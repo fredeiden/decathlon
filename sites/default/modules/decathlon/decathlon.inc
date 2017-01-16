@@ -589,7 +589,9 @@ function decathlon_get_rankings_by_type($type) {
  */
 function decathlon_get_rankings_player_sums($pid) {
   $results = decathlon_get_rankings();
-  return $results['sums'][$pid];  
+  if (isset($results['sums'][$pid])) {
+    return $results['sums'][$pid];
+  }  
 }
 
 /**

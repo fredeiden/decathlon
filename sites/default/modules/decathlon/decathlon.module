@@ -30,16 +30,33 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
       $form['#submit'][] = 'decathlon_taxonomy_submit_override';
     }
 
-    // disable delete for term
-    if (isset($form['name']['#default_value'])) {
-      $count = views_get_view_result('term_delete_check', 'default', $form['name']['#default_value']);
-      if (isset($count[0]->node_taxonomy_index_title)) {
-        $num_records = $count[0]->node_taxonomy_index_title;
-        if ($num_records != 0) {
+    // disable delete for term (players, games, or honors) if there are scores or honors rows
+    if (is_array($form['#term'])) {
+      $vocab = $form['#term']['vocabulary_machine_name'];
+      if (in_array($vocab, array('players', 'games', 'bonus'))) { // honors labelled as bonus in taxonomy
+
+        $count = 0;
+        switch ($vocab) {
+          case 'players':
+            $scores = db_query("SELECT COUNT(pid) from {decathlon_scores} WHERE pid = :tid", array(':tid' => $form['#term']['tid']))->fetchField();
+            $honors = db_query("SELECT COUNT(pid) from {decathlon_honors} WHERE pid = :tid", array(':tid' => $form['#term']['tid']))->fetchField();
+            $count = $scores + $honors;
+            break;
+          case 'games':
+            $count = db_query("SELECT COUNT(gid) from {decathlon_contests} WHERE gid = :tid", array(':tid' => $form['#term']['tid']))->fetchField();
+            break;
+          case 'bonus':
+            $count = db_query("SELECT COUNT(honor) from {decathlon_honors} WHERE honor = :tid", array(':tid' => $form['#term']['tid']))->fetchField();
+            break;
+        }
+        
+        if ($count > 0) {
+          // disable delete
           $form['actions']['delete']['#disabled'] = TRUE;
+          // add a message
           $form['footnote'] = array(
             '#type' => 'item',
-            '#markup' => t('* This term has @records associated database records and cannot be deleted.', array('@records' => $num_records)),
+            '#markup' => t('* This term has @count database records and cannot be deleted.', array('@count' => $count)),
             '#weight' => 500,
           );
         }

@@ -309,7 +309,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
     $rows[] = array(
       'data' => array(
         'Decathlon',
-        decathlon_get_ordinal($ranking['decathlon']),
+        isset($ranking['decathlon']) ? decathlon_get_ordinal($ranking['decathlon']) : "-",
         $totals['points'] + $totals['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
         isset($results['log']) ? decathlon_leaderboard_easy_option($results['log'], 'decathlon') : "-",
