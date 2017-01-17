@@ -13,19 +13,7 @@ function decathlon_report_admin_info($subtype, $conf, $contexts) {
   if (!empty($conf)) {
     switch ($conf['type']) {
       case 0:
-        $title = 'Top Games';
-        break;
-      case 1:
-        $title = 'Top Besters';
-        break;
-      case 2:
-        $title = 'Top Bestees';
-        break;
-      case 3:
-        $title = 'Top Participators';
-        break;
-      case 4:
-        $title = 'Top Honors';
+        $title = 'Umps';
         break;
     }
 
@@ -41,19 +29,7 @@ function decathlon_report_render($subtype, $conf, $args, $context) {
 
   switch ($conf['type']) {
     case 0:
-      $content = decathlon_report_top_games();
-      break;
-    case 1:
-      $content = decathlon_report_top_besters();
-      break;
-    case 2:
-      $content = decathlon_report_top_bestees();
-      break;
-    case 3:
-      $content = decathlon_report_top_participators();
-      break;
-    case 4:
-      $content = decathlon_report_top_honors();
+      $content = decathlon_report_umps();
       break;
   }
 
@@ -67,11 +43,7 @@ function decathlon_report_edit_form($form, &$form_state) {
   $form['type'] = array(
     '#type' => 'radios',
     '#options' => array(
-      0 => t('Top Games'),
-      1 => t('Top Besters'),
-      2 => t('Top Bestees'),
-      3 => t('Top Participators'),
-      4 => t('Top Honors'),
+      0 => t('Umps'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Report'),
@@ -84,63 +56,44 @@ function decathlon_report_edit_form_submit($form, &$form_state) {
   $form_state['conf']['type'] = $form_state['values']['type'];
 }
 
-function decathlon_report_top_games() {
-  $results = db_query("SELECT gid, COUNT(gid) AS total FROM {decathlon_contests} WHERE event = :event GROUP BY gid ORDER BY COUNT(gid) DESC", array(':event' => decathlon_get_event()))->fetchAllKeyed();
-  
-  return decathlon_report_two_column_table($results, 'Top Games', array('Game', 'Plays'));
-}
+function decathlon_report_umps() {
 
-function decathlon_report_top_besters() {
-  $results = db_query("SELECT bester, COUNT(bester) AS total FROM {decathlon_besting} WHERE event = :event GROUP BY bester ORDER BY COUNT(bester) DESC", array(':event' => decathlon_get_event()))->fetchAllKeyed();
+  $events = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("event")->vid);
+  $content = "";
 
-  return decathlon_report_two_column_table($results, 'Top Besters', array('Player', 'Bestings'));
-}  
-  
-function decathlon_report_top_bestees() {
-  $results = db_query("SELECT bestee, COUNT(bestee) AS total FROM {decathlon_besting} WHERE event = :event GROUP BY bestee ORDER BY COUNT(bestee) DESC", array(':event' => decathlon_get_event()))->fetchAllKeyed();
+  foreach ($events as $event) {
 
-  return decathlon_report_two_column_table($results, 'Top Bestees', array('Player', 'Bested-ings'));
-}
+    $results = db_query("SELECT umpire, COUNT(umpire) AS total FROM {decathlon_contests} WHERE event = :event GROUP BY umpire", array(':event' => $event->tid))->fetchAllKeyed();
 
-function decathlon_report_top_participators() {
-  $results = db_query("SELECT ds.pid, COUNT(ds.pid) AS total FROM {decathlon_scores} ds, decathlon_contests dc WHERE ds.contest = dc.contest AND dc.event = :event GROUP BY ds.pid ORDER BY COUNT(ds.pid) DESC", array(':event' => decathlon_get_event()))->fetchAllKeyed();
+    $rows = array();
+    $total = 0;
+    $i = 1;
+    foreach ($results as $ump => $count) {
+      $user = user_load($ump);
+      $rows[] = array($i, $user->name, $count);
+      $total += $count;
+      $i++;
+    }
+    $rows[] = array(
+      'data' => array('', 'TOTAL', $total), 
+      'class' => array('table-totals'),
+    );
 
-  return decathlon_report_two_column_table($results, 'Top Participators', array('Player', 'Plays'));
-}
+    $table = theme('table', array(
+                  'sticky' => FALSE, 
+                  'header' => array('', 'Umpire', 'Records'), 
+                  'rows' => $rows,
+                ));
 
-function decathlon_report_top_honors() {
-  $results = db_query("SELECT dh.honor, SUM(dh.count) AS total FROM {decathlon_honors} dh, decathlon_contests dc WHERE dh.contest = dc.contest AND dc.event = :event GROUP BY dh.honor ORDER BY COUNT(dh.honor) DESC", array(':event' => decathlon_get_event()))->fetchAllKeyed();
-
-  return decathlon_report_two_column_table($results, 'Top Honors', array('Honor', 'Total'));
-}
-
-function decathlon_report_two_column_table($results, $caption, $header) {
-  
-  $rows = array();
-  $total = 0;
-  $i = 1;
-  foreach ($results as $id => $count) {
-    $rows[] = array($i, decathlon_get_term_name($id), $count);
-    $total += $count;
-    $i++;
+    $content .= theme(
+      'ctools_collapsible',
+      array(
+        'handle' => $event->name,
+        'content' => $table, 
+        'collapsed' => TRUE
+      )
+    );
   }
-  $rows[] = array(
-    'data' => array('', 'TOTAL', $total), 
-    'class' => array('table-totals'),
-  );
 
-  $table = theme('table', array(
-            'sticky' => TRUE, 
-            'header' => array_merge(array(''), $header), 
-            'rows' => $rows,
-          ));
-
-  return theme(
-    'ctools_collapsible',
-    array(
-      'handle' => $caption,
-      'content' => $table, 
-      'collapsed' => TRUE
-    )
-  );
+  return $content;
 }
