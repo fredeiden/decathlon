@@ -161,7 +161,7 @@ function decathlon_player_standings_participation_table($this_pid) {
     }
 
     $table_data[] = array(
-      'game' => $data->gid,
+      'game' => decathlon_get_term_name($data->gid),
       'contest' => $data->contest,
       'time' => $data->created,
       'players' => '<ul class="score-list">' . implode(" ", $chart) . '</ul',
@@ -179,7 +179,7 @@ function decathlon_player_standings_participation_table($this_pid) {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => decathlon_game_link($row['game']),
+          'data' => decathlon_game_link_from_name($row['game']),
           'style' => 'width: 12%',
         ),
         array(
