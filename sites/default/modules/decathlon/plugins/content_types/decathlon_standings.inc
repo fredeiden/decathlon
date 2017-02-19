@@ -290,6 +290,8 @@ function decathlon_standings_game_leaders() {
  */
 function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) {
 
+  module_load_include('inc', 'decathlon_dpi');
+
   // build header and columns
   $groups = array();
   $header = array();

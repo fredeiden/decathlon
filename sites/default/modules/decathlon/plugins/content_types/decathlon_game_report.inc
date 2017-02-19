@@ -224,6 +224,8 @@ function decathlon_game_report_game_leaders($gid = NULL) {
 
   if ($gid == NULL) { return '<div class="choose-value">Select a game</div>'; }
 
+  module_load_include('inc', 'decathlon_dpi');
+
   $games = decathlon_get_game_rankings($gid); 
   $types = decathlon_get_point_types();
   $results = array();
@@ -398,6 +400,8 @@ function decathlon_game_report_game_leaders($gid = NULL) {
  *
  */
 function decathlon_game_report_game_summary() {
+
+  module_load_include('inc', 'decathlon_dpi');
 
   // define a header that can be used by tablesort (data, field, sort) and add a value for local use (type)
   $header = array(

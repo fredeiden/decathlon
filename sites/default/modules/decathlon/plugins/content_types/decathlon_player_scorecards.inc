@@ -99,7 +99,7 @@ function decathlon_player_scorecards_render($subtype, $conf, $args, $context) {
       $content = decathlon_player_scorecards_suggestion_log($args[0]);
       break;
     case 7:
-      $content = decathlon_dpi_averages($args[0]);
+      $content = decathlon_player_scorecards_dpi_averages($args[0]);
       break;
   }
 
@@ -391,4 +391,39 @@ function decathlon_player_scorecards_suggestion_log($pid) {
   }
 
   return $content;
+}
+
+/**
+ *
+ */
+function decathlon_player_scorecards_dpi_averages($pid) {
+
+  module_load_include('inc', 'decathlon_dpi');
+
+  $games = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("games")->vid);
+  $rows = array();
+
+  // write array of arrays for theme table
+  foreach ($games as $g) {
+    $row = array();
+    $row[] = decathlon_game_link($g->tid);
+    for ($i = 1; $i <= 8; $i++) {
+      $multiplier = decathlon_dpi_get_player_multipliers($g->tid, $pid, $i);
+      $row[] = $multiplier['value'] . $multiplier['string']; 
+    }
+    $rows[] = $row;
+  }
+  
+  // header array for theme table
+  $header = array("Game");
+  for ($i = 1; $i <= 8; $i++) {
+    $header[] = $i;
+  }
+
+  // table array
+  return theme('table', array(
+      'header' => $header,
+      'rows' => $rows,
+      'sticky' => FALSE,
+    ));
 }

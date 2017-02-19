@@ -1,5 +1,106 @@
 <?php
 
+/**
+ * Get weights for a specific grouping: point, game, or ranking
+ */ 
+function decathlon_dpi_get_multipliers($group) {
+
+  $list = array();
+
+  // initialize list with all types
+  switch($group) {
+    case 'point':
+      $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('dpi_multiplier')->vid);
+      break;
+    case 'game':
+      $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('games')->vid);
+      break;
+    case 'ranking':
+      $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('ranking')->vid);
+      break;
+  }
+
+  foreach ($terms as $row) {
+    $term = taxonomy_term_load($row->tid);
+    $weight = db_query("SELECT multiplier FROM decathlon_dpi WHERE event = :event AND tid = :tid", array(':event' => decathlon_get_event(), ':tid' => $term->tid))->fetchField();
+    $list[$term->tid] = array(
+      'name' => $term->name,
+      'value' => $weight ? $weight : 0,
+    );
+  }
+
+  return $list;
+}
+
+/**
+ * Return weight for point type (i.e. Bonus)
+ */ 
+function decathlon_dpi_get_multiplier($option) {
+  $my_map = &drupal_static(__FUNCTION__);
+  if (!isset($my_map)) {
+    $list = decathlon_dpi_get_multipliers('point');
+    foreach ($list as $row) {
+      $my_map[$row['name']] = $row['value'];
+    }
+  }
+
+  return $my_map[$option];
+}
+
+/**
+ * Return weight for game participation
+ */ 
+function decathlon_dpi_get_participation_weighting($tid) {
+
+  $my_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($my_map)) {
+    $my_map = decathlon_dpi_get_multipliers('game');
+  }
+
+  return $my_map[$tid]['value'];
+}
+
+/**
+ * Return weight for ranking
+ */ 
+function decathlon_dpi_get_ranking($rank) {
+
+  $my_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($my_map)) {
+    $list = decathlon_dpi_get_multipliers('ranking');
+    $my_map = array_merge($list);
+  }
+
+  if ($rank >= count($my_map)) { // Rankings above n all have the same value
+    $index = count($my_map) - 1;
+  } else {
+    $index = $rank - 1;
+  }
+
+  return $my_map[$index]['value'];
+}
+
+/**
+ * Set or update value in database
+ */
+function decathlon_dpi_set_multiplier($tid, $value) {
+
+  db_merge('decathlon_dpi')
+    ->key(array(
+        'event' => decathlon_get_event(),
+        'tid' => $tid,
+      ))
+    ->fields(array(
+        'multiplier' => $value,
+      ))
+    ->execute();
+}
+
+/**
+ * an estimate of the likelihood of a player getting points 1 through n 
+ */
 function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
   $my_map = &drupal_static(__FUNCTION__);
 
@@ -62,6 +163,9 @@ function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
   return $multiplier;
 }
 
+/**
+ * when there is not enough data to calculate the likelihood for a player, build one from all players
+ */
 function decathlon_dpi_get_global_multipliers($gid) {
   $my_map = &drupal_static(__FUNCTION__);
 
@@ -110,6 +214,9 @@ function decathlon_dpi_get_global_multipliers($gid) {
   }
 }
 
+/**
+ * Helper function to load point totals from database
+ */
 function decathlon_dpi_get_points() {
 
   $data = &drupal_static(__FUNCTION__);
@@ -127,32 +234,3 @@ function decathlon_dpi_get_points() {
   return $data;
 }
 
-function decathlon_dpi_averages($pid) {
-
-  $games = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("games")->vid);
-  $rows = array();
-
-  // write array of arrays for theme table
-  foreach ($games as $g) {
-    $row = array();
-    $row[] = decathlon_game_link($g->tid);
-    for ($i = 1; $i <= 8; $i++) {
-      $multiplier = decathlon_dpi_get_player_multipliers($g->tid, $pid, $i);
-      $row[] = $multiplier['value'] . $multiplier['string']; 
-    }
-    $rows[] = $row;
-  }
-  
-  // header array for theme table
-  $header = array("Game");
-  for ($i = 1; $i <= 8; $i++) {
-    $header[] = $i;
-  }
-
-  // table array
-  return theme('table', array(
-      'header' => $header,
-      'rows' => $rows,
-      'sticky' => FALSE,
-    ));
-}
