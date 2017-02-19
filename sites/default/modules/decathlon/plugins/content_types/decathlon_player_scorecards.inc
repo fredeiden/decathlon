@@ -400,15 +400,16 @@ function decathlon_player_scorecards_dpi_averages($pid) {
 
   module_load_include('inc', 'decathlon_dpi');
 
-  $games = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load("games")->vid);
+  $games = decathlon_get_event_games();
+  asort($games);
   $rows = array();
 
   // write array of arrays for theme table
-  foreach ($games as $g) {
+  foreach ($games as $gid => $name) {
     $row = array();
-    $row[] = decathlon_game_link($g->tid);
+    $row[] = decathlon_game_link($gid);
     for ($i = 1; $i <= 8; $i++) {
-      $multiplier = decathlon_dpi_get_player_multipliers($g->tid, $pid, $i);
+      $multiplier = decathlon_dpi_get_player_multipliers($gid, $pid, $i);
       $row[] = $multiplier['value'] . $multiplier['string']; 
     }
     $rows[] = $row;
