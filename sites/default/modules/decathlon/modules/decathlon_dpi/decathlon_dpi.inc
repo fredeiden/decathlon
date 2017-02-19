@@ -184,6 +184,12 @@ function decathlon_dpi_get_global_multipliers($gid) {
       }
     }
 
+    // sort the keys of each of the subsets so they start with 1 and end with the highest number
+    foreach ($new as $gid => $set) {
+      ksort($set);
+      $new[$gid] = $set;
+    }
+
     foreach ($new as $gid => $points) {
 
       // sum the total points
