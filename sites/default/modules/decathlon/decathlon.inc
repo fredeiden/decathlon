@@ -160,8 +160,11 @@ function decathlon_game_link_from_name($name) {
  * @param $pid
  *  The taxonomy term ID for a player
  */
-function decathlon_player_link($pid) {
-  return l(decathlon_get_term_name($pid), 'players/player/' . $pid);
+function decathlon_player_link($pid, $text = NULL) {
+  if (! $text) {
+    $text = decathlon_get_term_name($pid);
+  }
+  return l($text, 'player/' . $pid . '/results');
 }
 
 /**
@@ -181,6 +184,16 @@ function decathlon_player_link_from_name($name) {
 function decathlon_high_score_wins($gid) {
   $term = taxonomy_term_load($gid);
   $items = field_get_items('taxonomy_term', $term, 'field_high_score_wins');
+  return $items[0]['value'];
+}
+
+/**
+ * Get the value of the perfect_score variable for a game using some Drupal-ly stuff.
+ * Games are stored as taxonomy terms in Drupal and have the associated overhead.
+ */
+function decathlon_perfect_score($gid) {
+  $term = taxonomy_term_load($gid);
+  $items = field_get_items('taxonomy_term', $term, 'field_perfect_score');
   return $items[0]['value'];
 }
 
@@ -574,6 +587,69 @@ function decathlon_save_suggestion(&$totals, $suggestion, $pid, $gid) {
       );
     }
   }
+}
+
+function decathlon_easy_suggestion($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      if ($levels[1]['result'] > $max) { // array indexed starting from 1
+        $max = $levels[1]['result'];
+        $option = $gid;
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
+}
+
+function decathlon_medium_suggestion($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      // sum totals for rows other than low and high
+      $start = 2; // array indexed starting from 1; start at second row
+      $end = (count($levels) - 1); // end at penultimate row
+      $total = 0;
+      $num_rows = 0;
+      for ($i = $start; $i <= $end; $i++) {
+        $total += $levels[$i]['result'];
+        $num_rows++;
+      }
+      if ($num_rows > 0) {
+        $avg = ($total / $num_rows);
+        if ($avg > $max) {
+          $max = $avg;
+          $option = $gid;
+        }
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
+}
+
+function decathlon_hard_suggestion($log, $athlon) {
+  $max = 0;
+  $option = "";
+
+  foreach ($log as $gid => $levels) {
+    if ($athlon == 'decathlon' || $athlon == $levels[1]['athlon']) {
+      $last = count($levels); // log array indexed starting from 1
+      if (isset($levels[$last]['result'])) {
+        if ($levels[$last]['result'] > $max) {
+          $max = $levels[$last]['result'];
+          $option = $gid;
+        }
+      }
+    }
+  }
+
+  return empty($option) ? "-" : decathlon_game_icon($option);
 }
 
 /**

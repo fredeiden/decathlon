@@ -890,7 +890,7 @@ tr {
   margin-top: 2em;
 }
 
-.page-players-player {
+.page-player {
   h2 {
     font-size: 1.1em;
     text-align: center;
@@ -917,7 +917,6 @@ tr {
   .pane-taxonomy-term-field-picture { 
     position: absolute;
     left: 15%;
-    top: 30px;
   }
   .panel-pane {
     margin: 1em 1em 2em;
@@ -1357,4 +1356,13 @@ ul.table-cell-set {
     display: inline;
     margin: 0 .5em 0 0;
   }
-} 
+}
+
+ul.suggestions {
+  text-align: center;
+  li {
+    margin: .5em .5em 0;
+    display: inline-block;
+    list-style-type: none;
+  }
+}

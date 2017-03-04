@@ -31,9 +31,12 @@ function decathlon_player_scorecards_admin_info($subtype, $conf, $contexts) {
         $title = t('Parlor Player Totals');
         break;
       case 6:
-        $title = t('Suggestion Algorithm Log');
+        $title = t('Leisure Suggestion Log');
         break;
       case 7:
+        $title = t('Parlor Suggestion Log');
+        break;
+      case 8:
         $title = t('Player Multipliers');
         break;
     }
@@ -57,8 +60,9 @@ function decathlon_player_scorecards_edit_form($form, &$form_state) {
       3 => t('Decathlon Player Totals'),
       4 => t('Leisure Player Totals'),
       5 => t('Parlor Player Totals'),
-      6 => t('Suggestion Algorithm Log'),
-      7 => t('Player Multipliers'),
+      6 => t('Leisure Suggestion Log'),
+      7 => t('Parlor Suggestion Log'),
+      8 => t('Player Multipliers'),
     ),
     '#default_value' => isset($conf['type']) ? $conf['type'] : 0,
     '#title' => t('Point Type'),
@@ -96,9 +100,12 @@ function decathlon_player_scorecards_render($subtype, $conf, $args, $context) {
       $content = decathlon_player_scorecards_all_totals('parlor');
       break;
     case 6:
-      $content = decathlon_player_scorecards_suggestion_log($args[0]);
+      $content = decathlon_player_scorecards_suggestion_log($args[0], 'leisure');
       break;
     case 7:
+      $content = decathlon_player_scorecards_suggestion_log($args[0], 'parlor');
+      break;
+    case 8:
       $content = decathlon_player_scorecards_dpi_averages($args[0]);
       break;
   }
@@ -287,9 +294,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
         decathlon_get_ordinal($ranking[$athlon]),
         $type['points'] + $type['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
-        isset($results['log']) ? decathlon_leaderboard_easy_option($results['log'], $athlon) : "-",
-        isset($results['log']) ? decathlon_leaderboard_medium_option($results['log'], $athlon) : "-",
-        isset($results['log']) ? decathlon_leaderboard_hard_option($results['log'], $athlon) : "-",
+        isset($results['log']) ? decathlon_easy_suggestion($results['log'], $athlon) : "-",
+        isset($results['log']) ? decathlon_medium_suggestion($results['log'], $athlon) : "-",
+        isset($results['log']) ? decathlon_hard_suggestion($results['log'], $athlon) : "-",
       );
       $rows[] = array(
         'data' => $cols,
@@ -312,9 +319,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
         isset($ranking['decathlon']) ? decathlon_get_ordinal($ranking['decathlon']) : "-",
         $totals['points'] + $totals['rank'] + $bonus,
         decathlon_get_eligible_string($eligibility, 'qualified'),
-        isset($results['log']) ? decathlon_leaderboard_easy_option($results['log'], 'decathlon') : "-",
-        isset($results['log']) ? decathlon_leaderboard_medium_option($results['log'], 'decathlon') : "-",
-        isset($results['log']) ? decathlon_leaderboard_hard_option($results['log'], 'decathlon') : "-",
+        isset($results['log']) ? decathlon_easy_suggestion($results['log'], 'decathlon') : "-",
+        isset($results['log']) ? decathlon_medium_suggestion($results['log'], 'decathlon') : "-",
+        isset($results['log']) ? decathlon_hard_suggestion($results['log'], 'decathlon') : "-",
       ),
       'class' => array(),
     );
@@ -331,7 +338,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
   );
 
   $html = theme('table', array('sticky' => FALSE, 'header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'dpi-table')));
-  $html .= '<div class="dpi-table table-footnote">' . $bonus . l(' bonus points applied to DPI totals', 'players/player/bonuses/' . $this_pid) . '</div>';
+  $html .= '<div class="dpi-table table-footnote">' . $bonus . ' ' . decathlon_player_link($this_pid, 'bonus points applied to DPI totals') . '</div>';
 
   return $html;
 }
@@ -354,18 +361,40 @@ function decathlon_player_scorecards_get_eligible_cell($num) {
 /**
  *
  */
-function decathlon_player_scorecards_suggestion_log($pid) {
+function decathlon_player_scorecards_suggestion_log($pid, $athlon) {
 
+  // calculation factors are stored in the ranking array
   $results = decathlon_get_rankings_player_sums($pid);  
   $log = $results['log'];
 
-  uksort($log, function($a, $b) {
+  // only show results for this athlon
+  $games = decathlon_get_event_games($athlon);
+
+  // trim log to athlon games and sort
+  $my_log = array();
+  foreach ($games as $gid => $name) {
+    if (isset($log[$gid])) {
+      $my_log[$gid] = $log[$gid];
+    }
+  }
+
+  uksort($my_log, function($a, $b) {
       return strcmp(decathlon_get_term_name($a), decathlon_get_term_name($b));
     });
 
-  $content = "";
-  if (isset($log)) {
-    foreach ($log as $gid => $point_list) {
+  $suggestions = array(
+    decathlon_easy_suggestion($log, $athlon),
+    decathlon_medium_suggestion($log, $athlon),
+    decathlon_hard_suggestion($log, $athlon),
+  );
+  $content = theme('item_list', array(
+               'items' => $suggestions, 
+               'type' => 'ul',
+               'attributes' => array('class' => 'suggestions'),
+             ));
+
+  if (isset($my_log)) {
+    foreach ($my_log as $gid => $point_list) {
       $rows = array();
       foreach ($point_list as $points => $factor_list) {
         $rows[] = array(
@@ -407,11 +436,17 @@ function decathlon_player_scorecards_dpi_averages($pid) {
   // write array of arrays for theme table
   foreach ($games as $gid => $name) {
     $row = array();
+
+    // first column: game name
     $row[] = decathlon_game_link($gid);
+
     for ($i = 1; $i <= 8; $i++) {
       $multiplier = decathlon_dpi_get_player_multipliers($gid, $pid, $i);
-      $row[] = $multiplier['value'] . $multiplier['string']; 
+
+      // columns 2 through 8: multiplier
+      $row[] = $multiplier['value'] . $multiplier['string'];  
     }
+
     $rows[] = $row;
   }
   

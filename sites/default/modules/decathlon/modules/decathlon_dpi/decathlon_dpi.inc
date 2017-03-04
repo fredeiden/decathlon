@@ -102,6 +102,41 @@ function decathlon_dpi_set_multiplier($tid, $value) {
  * an estimate of the likelihood of a player getting points 1 through n 
  */
 function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
+
+  // multipliers for player
+  $pm = decathlon_dpi_load_player_multipliers();
+
+  // return a multiplier array
+  $multiplier = array(
+    'value' => 0,
+    'string' => "",
+    'global' => 0,
+  );
+
+  // if the player has not played or has only played a little, use a global average
+  // playing "a little" is determined by comparing the player's aggregate scoring in the game
+  // to the perfect score for that game, which is simply an integer stored as a field in game taxonomy
+  if (!isset($pm[$gid][$pid]['total']) || $pm[$gid][$pid]['total'] < decathlon_perfect_score($gid)) {
+
+    // global multipliers: substitute these when player has none
+    $gm = decathlon_dpi_load_global_multipliers($gid); 
+
+    if (isset($gm[$p])) {
+      $multiplier['value'] = $gm[$p];
+      $multiplier['string'] = "(g)";
+      $multiplier['global'] = 1;
+    }
+
+  } elseif (isset($pm[$gid][$pid][$p])) {
+
+    // if the player has played more than a little then use the player's own data record
+    $multiplier['value'] = $pm[$gid][$pid][$p];
+  }
+
+  return $multiplier;
+}
+
+function decathlon_dpi_load_player_multipliers() {
   $my_map = &drupal_static(__FUNCTION__);
 
   if (!isset($my_map)) {
@@ -111,10 +146,10 @@ function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
     foreach ($data as $gid => $players) {
       foreach ($players as $pid => $points) {
 
-        // sum the total points earned by this player
+        // sum the total count of point levels earned by this player
         $total = 0;
-        foreach ($points as $amount) {
-          $total += $amount;
+        foreach ($points as $value => $count) {
+          $total += $count;
         }
         $my_map[$gid][$pid]['total'] = $total;
 
@@ -139,34 +174,13 @@ function decathlon_dpi_get_player_multipliers($gid, $pid, $p) {
     }
   }
 
-  // return a multiplier
-  // if the player has not played or has only played a little, use a global average
-  $multiplier = array(
-    'value' => 0,
-    'string' => "",
-    'global' => 0,
-  );
-  if (isset($my_map[$gid][$pid][$p])) {
-    $multiplier['value'] = $my_map[$gid][$pid][$p];
-  } else {
-    if ($p <= 3) { // only use globals for 3 and under
-      if (!isset($my_map[$gid][$pid]['total']) || $my_map[$gid][$pid]['total'] < 5) {
-        $gm = decathlon_dpi_get_global_multipliers($gid); // substitute these when player has none
-        if (isset($gm[$p])) {
-          $multiplier['value'] = $gm[$p];
-          $multiplier['string'] = "(g)";
-          $multiplier['global'] = 1;
-        }
-      }
-    }
-  }
-  return $multiplier;
+  return $my_map;
 }
 
 /**
  * when there is not enough data to calculate the likelihood for a player, build one from all players
  */
-function decathlon_dpi_get_global_multipliers($gid) {
+function decathlon_dpi_load_global_multipliers($gid) {
   $my_map = &drupal_static(__FUNCTION__);
 
   if (!isset($my_map)) {
@@ -194,8 +208,8 @@ function decathlon_dpi_get_global_multipliers($gid) {
 
       // sum the total points
       $total = 0;
-      foreach ($points as $amount) {
-        $total += $amount;
+      foreach ($points as $value => $count) {
+        $total += $count;
       }
 
       // get last key
@@ -210,6 +224,7 @@ function decathlon_dpi_get_global_multipliers($gid) {
         for ($j = $i; $j <= $limit; $j++) {
           $count += isset($points[$j]) ? $points[$j] : 0;
         }
+
         $my_map[$gid][$i] = $count == 0 ? 0 : round (($count/$total), 2);
       }
     }
@@ -235,6 +250,7 @@ function decathlon_dpi_get_points() {
     foreach ($query as $row) {
       $data[$row->gid][$row->pid][$row->points] = $row->count;
     }
+
   }
 
   return $data;
