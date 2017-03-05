@@ -264,7 +264,7 @@ function decathlon_standings_game_leaders() {
         // rank and name
         $rows[] =
           '<div class="rank">' . $row['rank'] . '</div>' .
-          '<div class="name">' . l(strtoupper($row['name']), 'players/player/' . $row['tid']) . '</div>';
+          '<div class="name">' . decathlon_player_link($row['tid'], strtoupper($row['name'])) . '</div>';
       }
     }
 

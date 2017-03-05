@@ -261,43 +261,24 @@ function decathlon_uninstall() {
   db_drop_table('decathlon_skunks');
   db_drop_table('decathlon_besting');
   db_drop_table('decathlon_points');
+  db_drop_table('decathlon_migration');
+  db_drop_table('decathlon_taxonomy_value');
 }
 
 /**
- * New table for taxonomy field overrides
+ * New column for decathlon_contests
  */
-function decathlon_update_7200() {
-  // kill reporting table
-  db_drop_table('decathlon_reporting');
+function decathlon_update_7201() {
 
-  // new table
-  $schema['decathlon_taxonomy_value'] = array(
-    'description' => 'Taxonomy term field overrides per event',
-    'fields' => array(
-      'event' => array(
-        'type' => 'int', //tid 
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'term' => array(
-        'type' => 'int', //tid
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'field' => array(
-        'type' => 'varchar',
-        'length' => 128,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'value' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('event', 'term', 'field'),
+  // add column to decathlon_contests
+  $spec =  array(
+    'type' => 'int', 
+    'size' => 'tiny',
+    'description' => '0 singles, 1 doubles',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
   );
-  db_create_table('decathlon_taxonomy_value', $schema['decathlon_taxonomy_value']);
+  db_add_field('decathlon_contests', 'format', $spec);
 
 }

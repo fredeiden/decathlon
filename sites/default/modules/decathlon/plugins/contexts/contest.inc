@@ -62,7 +62,7 @@ function decathlon_context_create_contest($empty, $data = NULL, $conf = FALSE) {
   }
   else {
       // $data is coming from an arg - it's just a string.
-      $record = db_query("SELECT event, gid, umpire, log FROM decathlon_contests WHERE contest = :contest", array(':contest' => $data))->fetchAssoc();
+    $record = db_query("SELECT event, gid, umpire, log, format FROM decathlon_contests WHERE contest = :contest", array(':contest' => $data))->fetchAssoc();
 
       $context->title = decathlon_get_term_name($record['gid']);
       $context->argument = $data;
@@ -73,6 +73,7 @@ function decathlon_context_create_contest($empty, $data = NULL, $conf = FALSE) {
       $context->data->game_id = $record['gid'];
       $context->data->umpire = user_load($record['umpire'])->name;
       $context->data->log = $record['log'];
+      $context->data->format = $record['format'] == 0 ? t('Singles') : t('Doubles');
 
       return $context;
   }
@@ -108,6 +109,7 @@ function contest_convert_list() {
     'game_id' => t('Game ID'),
     'umpire' => t('Umpire'),
     'log' => t('Log'),
+    'format' => t('Format'),
   );
 }
 
@@ -126,6 +128,8 @@ function contest_convert($context, $type) {
       return $context->data->umpire;
     case 'log':
       return $context->data->log;
+    case 'format':
+      return $context->data->format;
   }
 }
 

@@ -195,7 +195,7 @@ function decathlon_game_report_single_game_record($contest) {
   foreach ($scores as $pid => $score) {
     // the first two columns: player, score
     $row = array(
-      l(decathlon_get_term_name($pid), 'players/player/' . $pid),
+      decathlon_player_link($pid),
       $score,
     );
     // the next four columns: play, besting, skunk, honor

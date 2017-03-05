@@ -350,7 +350,8 @@ function decathlon_scoring_form_standard_form_validate($form, &$form_state) {
 function decathlon_scoring_form_standard_form_submit($form, &$form_state) {
 
   // new entry in contests
-  $contest = decathlon_scoring_add_contest($form_state['build_info']['args'][0][0]);  // passing game tid
+  $format = $form_state['values']['layout'] == 5 ? 1 : 0; // doubles is 5
+  $contest = decathlon_scoring_add_contest($form_state['build_info']['args'][0][0], $format);  // passing game tid
 
   // build array for point calculations
   $results = array();

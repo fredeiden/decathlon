@@ -174,7 +174,7 @@ function decathlon_scoring_score_game($event, $contest, $game, $results) {
   return $log_message;
 }
 
-function decathlon_scoring_add_contest($gid) {
+function decathlon_scoring_add_contest($gid, $format = 0) {
 
   global $user;
 
@@ -184,6 +184,7 @@ function decathlon_scoring_add_contest($gid) {
         'gid' => $gid,
         'umpire' => $user->uid,
         'created' => REQUEST_TIME,
+        'format' => $format,
        ))
     ->execute();
   
