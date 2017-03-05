@@ -130,7 +130,7 @@ function decathlon_standings_honors_leaders() {
 
   // honors table
   $records = db_query(
-    "SELECT dc.contest, dh.pid, dh.honor, dh.count FROM decathlon_honors dh, decathlon_contests dc WHERE dh.contest = dc.contest AND dc.event = :event", 
+    "SELECT dc.format, dh.pid, dh.honor, dh.count FROM decathlon_honors dh, decathlon_contests dc WHERE dh.contest = dc.contest AND dc.event = :event", 
     array(
       ':event' => decathlon_get_event(),
     )
@@ -159,10 +159,11 @@ function decathlon_standings_honors_leaders() {
     }
 
     // total
+    // when the format is 1 (doubles), only count 1/2 honor since it was a team effort
     if (isset($totals[$row->honor])) {
-      $totals[$row->honor] += $count;
+      $totals[$row->honor] += $row->format == 1 ? $count : $count;
     } else {
-      $totals[$row->honor] = $count;
+      $totals[$row->honor] = $row->format == 1 ? ($count / 2) : $count;
     }
   }
 

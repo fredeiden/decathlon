@@ -159,6 +159,8 @@ function decathlon_game_link_from_name($name) {
  *
  * @param $pid
  *  The taxonomy term ID for a player
+ * @param $text
+ *  Optional text for link; player name when null
  */
 function decathlon_player_link($pid, $text = NULL) {
   if (! $text) {
