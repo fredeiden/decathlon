@@ -149,7 +149,7 @@ function decathlon_dpi_load_player_multipliers() {
         // sum the total count of point levels earned by this player
         $total = 0;
         foreach ($points as $value => $count) {
-          $total += $count;
+          $total += $value * $count;
         }
         $my_map[$gid][$pid]['total'] = $total;
 
