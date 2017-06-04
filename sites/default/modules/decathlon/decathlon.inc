@@ -450,10 +450,12 @@ function decathlon_get_rankings() {
         // also relevant is the possibility that playing an unplayed game is the best possible point gain
         // as a player does get a base number for playing at least once
         foreach ($unplayed as $gid => $name) {
-          $game_weight = decathlon_dpi_get_participation_weighting($gid);
-          $ls = $last_suggestion[$gid];
-          $suggestion = decathlon_make_suggestion($athlon, $game_weight, $ls['rank'], FALSE, $gid, $pid, $ls['counter'], $ls['gain'], TRUE);
-          decathlon_save_suggestion($totals, $suggestion, $pid, $gid);
+          if (isset($last_suggestion[$gid])) {
+            $game_weight = decathlon_dpi_get_participation_weighting($gid);
+            $ls = $last_suggestion[$gid];
+            $suggestion = decathlon_make_suggestion($athlon, $game_weight, $ls['rank'], FALSE, $gid, $pid, $ls['counter'], $ls['gain'], TRUE);
+            decathlon_save_suggestion($totals, $suggestion, $pid, $gid);
+          }
         }
       }
     }
