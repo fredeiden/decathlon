@@ -165,24 +165,26 @@ function decathlon_player_scorecards_point_table($report, $this_pid, $athlon, $t
     array_key_exists($gid, $exhibition) ? $suffix = "*" : $suffix = "";
 
     $cols = array();
-    foreach ($report[$gid] as $index => $data) {
-      if ($data['player'] == $this_pid) {
-        $cols = array(
-          l(strtoupper(substr(decathlon_get_term_name($gid), 0, 4)) . $suffix, 'scores/games/' . $gid),
-          isset($data['Play']) ? $data['Play'] : 0,
-          isset($data['Besting']) ? $data['Besting'] : 0,
-          isset($data['Honor']) ? $data['Honor'] : 0,
-          isset($data['Skunk']) ? $data['Skunk'] : 0,
-          isset($data['Total']) ? $data['Total'] : 0,
-          isset($data['Rank']) ? $data['Rank'] : 0,
-        );
-        $rows[] = array('data' => $cols);
-        isset($data['Play']) && $sum['Play'] += $data['Play'];
-        isset($data['Besting']) && $sum['Besting'] += $data['Besting'];
-        isset($data['Honor']) && $sum['Honor'] += $data['Honor'];
-        isset($data['Skunk']) && $sum['Skunk'] += $data['Skunk'];
-        isset($data['Total']) && $sum['Total'] += $data['Total'];
-        isset($data['Rank']) && $sum['Rank'] += $data['Rank'];
+    if (isset($report[$gid])) {
+      foreach ($report[$gid] as $index => $data) {
+        if ($data['player'] == $this_pid) {
+          $cols = array(
+            l(strtoupper(substr(decathlon_get_term_name($gid), 0, 4)) . $suffix, 'scores/games/' . $gid),
+            isset($data['Play']) ? $data['Play'] : 0,
+            isset($data['Besting']) ? $data['Besting'] : 0,
+            isset($data['Honor']) ? $data['Honor'] : 0,
+            isset($data['Skunk']) ? $data['Skunk'] : 0,
+            isset($data['Total']) ? $data['Total'] : 0,
+            isset($data['Rank']) ? $data['Rank'] : 0,
+          );
+          $rows[] = array('data' => $cols);
+          isset($data['Play']) && $sum['Play'] += $data['Play'];
+          isset($data['Besting']) && $sum['Besting'] += $data['Besting'];
+          isset($data['Honor']) && $sum['Honor'] += $data['Honor'];
+          isset($data['Skunk']) && $sum['Skunk'] += $data['Skunk'];
+          isset($data['Total']) && $sum['Total'] += $data['Total'];
+          isset($data['Rank']) && $sum['Rank'] += $data['Rank'];
+        }
       }
     }
     if (count($cols) == 0) { // this game has not been played
