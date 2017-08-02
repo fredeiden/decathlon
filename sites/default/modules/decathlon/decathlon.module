@@ -208,13 +208,13 @@ function decathlon_fix_bonus() {
 
   $type_map = array(
     57 => 191,  // host whim to steiner
-    58 => 344,  // child care to community service
-    233 => 344, // food prep to community service
+    58 => 346,  // child care to community service
+    233 => 346, // food prep to community service
   );
 
   $service_map = array(
-    58 => 348,  // kid entertainment
-    233 => 345, // food prep
+    58 => 353,  // kid entertainment
+    233 => 351, // food prep
   );
 
   $result = db_query("SELECT nid from {node} WHERE type = :type",
