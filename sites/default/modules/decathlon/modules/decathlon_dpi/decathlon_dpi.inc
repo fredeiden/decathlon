@@ -12,6 +12,9 @@ function decathlon_dpi_get_multipliers($group) {
     case 'point':
       $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('dpi_multiplier')->vid);
       break;
+    case 'bonus':
+      $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('honor')->vid); // legacy naming error
+      break;
     case 'game':
       $terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('games')->vid);
       break;
@@ -33,12 +36,27 @@ function decathlon_dpi_get_multipliers($group) {
 }
 
 /**
- * Return weight for point type (i.e. Bonus)
+ * Return weight for point type (i.e. Play)
  */ 
 function decathlon_dpi_get_multiplier($option) {
   $my_map = &drupal_static(__FUNCTION__);
   if (!isset($my_map)) {
     $list = decathlon_dpi_get_multipliers('point');
+    foreach ($list as $row) {
+      $my_map[$row['name']] = $row['value'];
+    }
+  }
+
+  return $my_map[$option];
+}
+
+/**
+ * Return weight for bonus type
+ */ 
+function decathlon_dpi_get_bonus_multiplier($option) {
+  $my_map = &drupal_static(__FUNCTION__);
+  if (!isset($my_map)) {
+    $list = decathlon_dpi_get_multipliers('bonus');
     foreach ($list as $row) {
       $my_map[$row['name']] = $row['value'];
     }

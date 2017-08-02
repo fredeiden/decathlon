@@ -426,9 +426,14 @@ function decathlon_get_rankings() {
     // Bonus Results
     // view to fetch bonus points - store in array of player id => score
     //
-    $view = views_get_view_result("overall_results_raw", "panel_pane_1", decathlon_get_event());
+    $view = views_get_view_result("overall_results_raw", "panel_pane_2", decathlon_get_event());
     foreach ($view as $row) {
-      $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_multiplier('Bonus');
+      $weighted_bonus = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']);
+      if (isset($totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'])) {
+        $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] += $weighted_bonus;
+      } else {
+        $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] = $weighted_bonus;
+      }
     }
 
     // Eligibility and secondary pass on suggestion (for uncompleted games)

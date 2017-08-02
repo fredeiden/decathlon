@@ -209,7 +209,7 @@ function decathlon_standings_bonus_leaders() {
     }
   }
 
-  return decathlon_standings_table($tree, $results, $totals, TRUE);
+  return decathlon_standings_table($tree, $results, $totals);
 }
 
 /**
@@ -289,7 +289,7 @@ function decathlon_standings_game_leaders() {
 /**
  *
  */
-function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) {
+function decathlon_standings_table($tree, $results, $totals) {
 
   module_load_include('inc', 'decathlon_dpi');
 
@@ -302,9 +302,6 @@ function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) 
     $header[] = array('data' => $row->name, 'field' => $row->tid);
   }
   $header[] = array('data' => 'Total', 'field' => 'total', 'sort' => 'desc');
-  if ($weighted == TRUE) {
-    $header[] = array('data' => 'Weighted');
-  }
 
   // initialize empty results
   foreach (array_keys($results) as $pid) {
@@ -330,9 +327,6 @@ function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) 
     $sum += isset($totals[$tid]) ? $totals[$tid] : 0;
   }
   $cols[] = $sum;
-  if ($weighted == TRUE) {
-    $cols[] = '-';
-  }
   $rows[] = $cols;
 
   // data rows for table
@@ -344,9 +338,6 @@ function decathlon_standings_table($tree, $results, $totals, $weighted = FALSE) 
         $cols[] = $row[$tid];
       }
       $cols[] = $row['total'];
-      if ($weighted == TRUE) {
-        $cols[] = ($row['total'] * decathlon_dpi_get_multiplier('Bonus'));
-      }
       $rows[] = $cols;
     }
   }

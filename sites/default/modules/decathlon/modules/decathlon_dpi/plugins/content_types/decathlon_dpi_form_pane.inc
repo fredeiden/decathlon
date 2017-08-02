@@ -83,7 +83,7 @@ function decathlon_dpi_form($form, &$form_state) {
   module_load_include('inc', 'decathlon');
   $event = decathlon_get_event();
 
-  // Multipliers
+  // Point multipliers
   $form['multipliers'] = array(
     '#prefix' => '<div class="dpi-form-table dpi-form-multipliers">',
     '#suffix' => '</div>',
@@ -95,6 +95,26 @@ function decathlon_dpi_form($form, &$form_state) {
   $point_multipliers = decathlon_dpi_get_multipliers('point');
   foreach ($point_multipliers as $tid => $row) {
     $form['multipliers'][$tid] = array(
+      '#type' => 'textfield',
+      '#title' => $row['name'],
+      '#title_display' => 'invisible',
+      '#size' => 5,
+      '#default_value' => $row['value'],
+    );
+  }
+
+  // Bonus multipliers
+  $form['bonuses'] = array(
+    '#prefix' => '<div class="dpi-form-table dpi-form-multipliers">',
+    '#suffix' => '</div>',
+    '#tree' => TRUE,
+    '#title' => decathlon_get_term_name($event) . ' Bonus Multipliers',
+    '#theme' => 'decathlon_dpi_weights'
+  );
+
+  $bonus_multipliers = decathlon_dpi_get_multipliers('bonus');
+  foreach ($bonus_multipliers as $tid => $row) {
+    $form['bonuses'][$tid] = array(
       '#type' => 'textfield',
       '#title' => $row['name'],
       '#title_display' => 'invisible',
@@ -157,6 +177,13 @@ function decathlon_dpi_form_submit($form, &$form_state) {
   foreach (element_children($form['multipliers']) as $tid) {
     if ($form['multipliers'][$tid]['#default_value'] != $form_state['values']['multipliers'][$tid]) {
       decathlon_dpi_set_multiplier($tid, $form_state['values']['multipliers'][$tid]);
+    }
+  }
+
+  // Bonuses
+  foreach (element_children($form['bonuses']) as $tid) {
+    if ($form['bonuses'][$tid]['#default_value'] != $form_state['values']['bonuses'][$tid]) {
+      decathlon_dpi_set_multiplier($tid, $form_state['values']['bonuses'][$tid]);
     }
   }
 

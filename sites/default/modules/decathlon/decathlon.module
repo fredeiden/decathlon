@@ -64,9 +64,14 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  // autofill event on node add for bonus
+  // autofill event on node add for bonus and hide score
   if ($form_id == 'bonus_node_form') {
-    $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();;
+    // set the event
+    $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();
+    // hide event field
+    $form['field_decathlon']['#access'] = FALSE;
+    // hide score field
+    $form['field_score']['#access'] = FALSE;
   }
 }
 
@@ -197,6 +202,43 @@ function decathlon_change_event($event) {
 }
 
 /**
+ * Update bonuses to match 2017 spec
+ */
+function decathlon_fix_bonus() {
+
+  $type_map = array(
+    57 => 191,  // host whim to steiner
+    58 => 344,  // child care to community service
+    233 => 344, // food prep to community service
+  );
+
+  $service_map = array(
+    58 => 348,  // kid entertainment
+    233 => 345, // food prep
+  );
+
+  $result = db_query("SELECT nid from {node} WHERE type = :type",
+            array(':type' => 'bonus'))
+    ->fetchCol();
+
+  $counter = 0;
+  foreach ($result as $index => $nid) {
+    $node = node_load($nid);
+    $type = $node->field_bonus['und'][0]['tid'];
+    if (isset($type_map[$type])) {
+      $node->field_bonus['und'][0]['tid'] = $type_map[$type];
+      if (isset($service_map[$type])) {
+        $node->field_service_type['und'][0]['tid'] = $service_map[$type];
+      }
+      node_save($node);
+      $counter++;
+    }
+  }
+
+  return "Updated $counter records";
+}
+
+/**
  * Implements hook_menu()
  */
 function decathlon_menu() {
@@ -205,6 +247,13 @@ function decathlon_menu() {
   $items['decathlon/change-event/%'] = array(
     'page callback' => 'decathlon_change_event',
     'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+
+  $items['fix-bonus'] = array(
+    'page callback' => 'decathlon_fix_bonus',
+    'title' => 'Fix Bonuses',
     'type' => MENU_CALLBACK,
     'access callback' => TRUE,
   );

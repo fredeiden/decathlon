@@ -340,7 +340,9 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
   );
 
   $html = theme('table', array('sticky' => FALSE, 'header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'dpi-table')));
-  $html .= '<div class="dpi-table table-footnote">' . $bonus . ' ' . decathlon_player_link($this_pid, 'bonus points applied to DPI totals') . '</div>';
+  $html .= '<div class="dpi-table table-footnote">';
+  $html .= $bonus . ' ' . l('bonus points applied to DPI totals', 'player/' . $this_pid . '/bonuses');
+  $html .= '</div>';
 
   return $html;
 }
