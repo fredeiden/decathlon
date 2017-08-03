@@ -70,6 +70,8 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
     $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();
     // hide event field
     $form['field_decathlon']['#access'] = FALSE;
+    // set the score
+    //$form['field_score']['und'][0]['value']['#default_value'] = 1;
     // hide score field
     $form['field_score']['#access'] = FALSE;
   }

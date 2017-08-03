@@ -666,7 +666,10 @@ function decathlon_hard_suggestion($log, $athlon) {
  */
 function decathlon_get_rankings_by_type($type) {
   $results = decathlon_get_rankings();
-  return $results['games'][$type];  
+  if (isset($results['games'][$type])) {
+    return $results['games'][$type];  
+  }
+  return array();
 }
 
 /**
