@@ -34,6 +34,10 @@ body {
   display: none;
 }
 
+#header-wrapper .region-header #block-block-6 {
+  text-align: right;		
+}
+
 ul.primary li a {
   padding: 2px 5px;
 }
@@ -43,6 +47,10 @@ ul.primary li a {
 .grid-games .views-row {width: 30%}
 
 .sf-menu.sf-style-space-orange li {width: auto;}
+
+table caption {
+  text-align: left;
+}
 
 .table-page {
   #content {
@@ -115,6 +123,7 @@ ul.primary li a {
     font-size: 80%;
   }
 }
+
 .page-scores-games {
   #main-content-header {
     width: 100%;
@@ -138,17 +147,27 @@ ul.primary li a {
 .grid-8 .views-row {width: 30%;}
 
 .game-list {
-  text-align: center;
+  &.left-group, &.right-group {
+    text-align: center;
+  }	   
   .views-row {
-    width: 8%;
+    width: 10%;
   }
+}
+
+.really-wide-table {
+  font-size: 80%;
 }
 
 .leaderboard .pane-decathlon-leaderboard {
   margin-bottom: 1em;
 }
 
-.page-players-player {
+ul.score-list li {
+  white-space: nowrap;
+}
+
+.page-player {
   .panel-pane {
     margin: .5em 0;
     padding: 0;
@@ -156,12 +175,15 @@ ul.primary li a {
       width: 100%;
     }
   }
+  .pane-taxonomy-term-field-picture { 
+    img { 
+      width: 100px; 
+      height: auto;
+    }
+  }
   .pane-decathlon-player-scorecards {
     div.player-scorecard {
-      position: static;
-      margin: 0;
       .dpi-table {
-        margin: 0;
         width: 100%;
       }
     }
