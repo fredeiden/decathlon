@@ -34,11 +34,6 @@ body {
   display: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000337}}
-#header-wrapper .region-header #block-block-6 {
-  text-align: right;
-}
-
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000341}}
 ul.primary li a {
   padding: 2px 5px;
@@ -56,7 +51,7 @@ ul.primary li a {
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000351}}
 .grid-games .views-row {
-  width: 30%;
+  width: 22%;
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/responsive\.smalltouch\.portrait\.scss}line{font-family:\0000353}}

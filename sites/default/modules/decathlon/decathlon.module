@@ -208,16 +208,7 @@ function decathlon_change_event($event) {
  */
 function decathlon_fix_bonus() {
 
-  $type_map = array(
-    57 => 191,  // host whim to steiner
-    58 => 346,  // child care to community service
-    233 => 346, // food prep to community service
-  );
-
-  $service_map = array(
-    58 => 353,  // kid entertainment
-    233 => 351, // food prep
-  );
+  // set time for 353 and 351 to 358
 
   $result = db_query("SELECT nid from {node} WHERE type = :type",
             array(':type' => 'bonus'))
@@ -225,16 +216,25 @@ function decathlon_fix_bonus() {
 
   $counter = 0;
   foreach ($result as $index => $nid) {
+
     $node = node_load($nid);
-    $type = $node->field_bonus['und'][0]['tid'];
-    if (isset($type_map[$type])) {
-      $node->field_bonus['und'][0]['tid'] = $type_map[$type];
-      if (isset($service_map[$type])) {
-        $node->field_service_type['und'][0]['tid'] = $service_map[$type];
-      }
-      node_save($node);
-      $counter++;
+    $bonus = $node->field_bonus['und'][0]['tid'];
+
+    $node->field_recipient['und'][0]['target_id'] = $node->field_contestant['und'][0]['tid'];
+
+    if ($bonus == 346) {
+      //$player = taxonomy_term_load($node->field_contestant['und'][0]['tid']);
+      //$event = taxonomy_term_load($node->field_decathlon['und'][0]['tid']);
+      //dsm($player->name . ", " . $event->name);
+
+      $node->field_service_type['und'][0]['tid'] = 351;
+      $node->field_service_length['und'][0]['tid'] = 358;
+
+      //dsm($node);
     }
+
+    node_save($node);
+    $counter++;
   }
 
   return "Updated $counter records";
@@ -261,6 +261,24 @@ function decathlon_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter()
+ */
+function decathlon_menu_alter(&$items) {
+  $items['node/add/bonus']['access callback'] = 'decathlon_event_open';
+}
+
+function decathlon_event_open() {
+  $event = decathlon_get_event();
+  $term = taxonomy_term_load($event);
+  $items = field_get_items('taxonomy_term', $term, 'field_open');
+  if ($items[0]['value'] == 1) {
+    return True;
+  }
+
+  return FALSE;
 }
 
 /**
