@@ -429,10 +429,11 @@ function decathlon_get_rankings() {
     $view = views_get_view_result("overall_results_raw", "panel_pane_2", decathlon_get_event());
     foreach ($view as $row) {
       $weighted_bonus = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']);
-      if (isset($totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'])) {
-        $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] += $weighted_bonus;
+      $recipient = $row->field_field_recipient[0]['raw']['target_id'];
+      if (isset($totals['sums'][$recipient]['bonus'])) {
+        $totals['sums'][$recipient]['bonus'] += $weighted_bonus;
       } else {
-        $totals['sums'][$row->field_field_contestant[0]['raw']['tid']]['bonus'] = $weighted_bonus;
+        $totals['sums'][$recipient]['bonus'] = $weighted_bonus;
       }
     }
 
