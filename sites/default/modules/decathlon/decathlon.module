@@ -221,6 +221,9 @@ function decathlon_fix_bonus() {
     $bonus = $node->field_bonus['und'][0]['tid'];
 
     $node->field_recipient['und'][0]['target_id'] = $node->field_contestant['und'][0]['tid'];
+    if (isset($node->field_award_giver['und'][0]['tid'])) {
+      $node->field_awarder['und'][0]['target_id'] = $node->field_award_giver['und'][0]['tid'];
+    }
 
     if ($bonus == 346) {
       //$player = taxonomy_term_load($node->field_contestant['und'][0]['tid']);
