@@ -427,7 +427,7 @@ function decathlon_get_rankings() {
     // view to fetch bonus points - store in array of player id => score
     //
     $view = views_get_view_result("overall_results_raw", "panel_pane_2", decathlon_get_event());
-    dsm($view);
+
     foreach ($view as $row) {
       // to weight the bonus, multiply count by dpi multiplier by minutes
       $weighted_bonus = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']) * $row->field_field_service_length[0]['rendered']['#markup'];
