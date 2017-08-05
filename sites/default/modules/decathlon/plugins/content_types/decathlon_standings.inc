@@ -188,7 +188,7 @@ function decathlon_standings_bonus_leaders() {
   foreach ($views_result as $row) {
 
     $tid = $row->field_data_field_bonus_field_bonus_tid;           // bonus id
-    $pid = $row->field_data_field_contestant_field_contestant_tid; // player id
+    $pid = $row->field_data_field_recipient_field_recipient_target_id; // player id
     $points = $row->field_data_field_score_field_score_value;      // bonus points
 
     // player
