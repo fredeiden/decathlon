@@ -429,9 +429,19 @@ function decathlon_get_rankings() {
     $view = views_get_view_result("overall_results_raw", "panel_pane_2", decathlon_get_event());
 
     foreach ($view as $row) {
-      // to weight the bonus, multiply count by dpi multiplier by minutes
-      $weighted_bonus = $row->field_field_score[0]['raw']['value'] * decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']) * $row->field_field_service_length[0]['rendered']['#markup'];
+
       $recipient = $row->field_field_recipient[0]['raw']['target_id'];
+      $bonus_count = $row->field_field_score[0]['raw']['value'];
+      $bonus_multiplier = decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']);
+      $bonus_minutes = 1;
+      if (isset($row->field_field_service_length[0]['rendered']['#markup'])) {
+        $bonus_minutes = $row->field_field_service_length[0]['rendered']['#markup'];
+      }
+
+      // to weight the bonus, multiply count by dpi multiplier by minutes
+      $weighted_bonus = $bonus_count * $bonus_multiplier * $bonus_minutes;
+
+      // now assign the sum of weighted bonus values to the recipient
       if (isset($totals['sums'][$recipient]['bonus'])) {
         $totals['sums'][$recipient]['bonus'] += $weighted_bonus;
       } else {
