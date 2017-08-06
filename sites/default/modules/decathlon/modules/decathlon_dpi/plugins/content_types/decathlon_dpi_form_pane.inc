@@ -204,20 +204,6 @@ function decathlon_dpi_form_submit($form, &$form_state) {
   drupal_set_message("Changes saved.");
 }
 
-function decathlon_dpi_theme($existing, $type, $theme, $path) {
-  return array(
-    'decathlon_dpi_multipliers' => array(
-      'render element' => 'element'
-    ),
-    'decathlon_dpi_weights' => array(
-      'render element' => 'element'
-    ),
-    'decathlon_dpi_tiers' => array(
-      'render element' => 'element'
-    ),
-  );
-}
-
 function theme_decathlon_dpi_weights($vars) {
 
   $element = $vars['element'];

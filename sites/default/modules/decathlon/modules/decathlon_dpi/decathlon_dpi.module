@@ -20,5 +20,23 @@ function decathlon_dpi_views_api() {
   );
 } 
 
+/**
+ * Implements hook_theme()
+ */
+function decathlon_dpi_theme($existing, $type, $theme, $path) {
+  return array(
+    'decathlon_dpi_multipliers' => array(
+      'render element' => 'element'
+    ),
+    'decathlon_dpi_weights' => array(
+      'render element' => 'element'
+    ),
+    'decathlon_dpi_tiers' => array(
+      'render element' => 'element'
+    ),
+  );
+}
+
+
 
 
