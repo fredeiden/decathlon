@@ -433,19 +433,29 @@ function decathlon_get_rankings() {
       $recipient = $row->field_field_recipient[0]['raw']['target_id'];
       $bonus_count = $row->field_field_score[0]['raw']['value'];
       $bonus_multiplier = decathlon_dpi_get_bonus_multiplier($row->field_field_bonus[0]['rendered']['#markup']);
-      $bonus_minutes = 1;
-      if (isset($row->field_field_service_length[0]['rendered']['#markup'])) {
-        $bonus_minutes = $row->field_field_service_length[0]['rendered']['#markup'];
-      }
 
-      // to weight the bonus, multiply count by dpi multiplier by minutes
-      $weighted_bonus = $bonus_count * $bonus_multiplier * $bonus_minutes;
+      // to weight the bonus, multiply count by dpi multiplier by time factor
+      $weighted_bonus = $bonus_count * $bonus_multiplier;
+      if (isset($row->field_field_service_length[0]['rendered']['#markup'])) {
+        $weighted_bonus *= ($row->field_field_service_length[0]['rendered']['#markup'] / 60); // fraction of an hour
+      }
+      $weighted_bonus = round($weighted_bonus);
 
       // now assign the sum of weighted bonus values to the recipient
       if (isset($totals['sums'][$recipient]['bonus'])) {
         $totals['sums'][$recipient]['bonus'] += $weighted_bonus;
       } else {
         $totals['sums'][$recipient]['bonus'] = $weighted_bonus;
+      }
+    }
+
+    // MostP
+    $groups = array('decathlon', 'leisure', 'parlor');
+    foreach ($groups as $athlon) {
+      // player opponents
+      $all_played = decathlon_get_opponents($athlon);
+      foreach ($all_played as $pid => $unique_opponents) {
+        $totals['sums'][$pid]['mostp'][$athlon] = count($unique_opponents) * decathlon_dpi_get_multiplier('MostP');
       }
     }
 
@@ -710,6 +720,7 @@ function decathlon_get_rankings_all_sums() {
 function decathlon_get_ranking_points() {
 
   $results = decathlon_get_rankings_all_sums();
+
   if (empty($results)) { return array(); }
   $sums = array();
 
@@ -731,11 +742,19 @@ function decathlon_get_ranking_points() {
       if (!empty($data['bonus'])) {
         $sums[$group][$pid]['dpi'] += $data['bonus'];
       }
+      // mostp points for athlons
+      if (!empty($data['mostp'][$group])) {
+        $sums[$group][$pid]['dpi'] += $data['mostp'][$group];
+      }
     }
     // bonus points for decathlon
     // this would be double counted inside the previous loop
     if (!empty($data['bonus'])) {
       $sums['decathlon'][$pid]['dpi'] += $data['bonus'];
+    }
+    // mostp points for decathlon
+    if (!empty($data['mostp']['decathlon'])) {
+      $sums['decathlon'][$pid]['dpi'] += $data['mostp']['decathlon'];
     }
   }
 

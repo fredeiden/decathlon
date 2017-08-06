@@ -290,11 +290,15 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
 
       // eligibility
       $eligibility = decathlon_get_leaderboard_eligibility($results, $athlon);
-      
+
+      // mostp
+      $mostp = isset($results['mostp'][$athlon]) ? $results['mostp'][$athlon] : 0;
+
       $cols = array(
         ucfirst($athlon),
         decathlon_get_ordinal($ranking[$athlon]),
-        $type['points'] + $type['rank'] + $bonus,
+        $mostp,
+        $type['points'] + $type['rank'] + $bonus + $mostp,
         decathlon_get_eligible_string($eligibility, 'qualified'),
         isset($results['log']) ? decathlon_easy_suggestion($results['log'], $athlon) : "-",
         isset($results['log']) ? decathlon_medium_suggestion($results['log'], $athlon) : "-",
@@ -315,11 +319,15 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
     // eligibility
     $eligibility = decathlon_get_leaderboard_eligibility($results, 'decathlon');
 
+    // mostp
+    $mostp = isset($results['mostp']['decathlon']) ? $results['mostp']['decathlon'] : 0;
+
     $rows[] = array(
       'data' => array(
         'Decathlon',
         isset($ranking['decathlon']) ? decathlon_get_ordinal($ranking['decathlon']) : "-",
-        $totals['points'] + $totals['rank'] + $bonus,
+        $mostp,
+        $totals['points'] + $totals['rank'] + $bonus + $mostp,
         decathlon_get_eligible_string($eligibility, 'qualified'),
         isset($results['log']) ? decathlon_easy_suggestion($results['log'], 'decathlon') : "-",
         isset($results['log']) ? decathlon_medium_suggestion($results['log'], 'decathlon') : "-",
@@ -332,6 +340,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
   $header = array(
     'Athlon',
     'Rank',
+    'MostP',
     'DPI',
     'Eligibility',
     '',

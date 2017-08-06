@@ -66,12 +66,15 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
 
   // autofill event on node add for bonus and hide score
   if ($form_id == 'bonus_node_form') {
-    // set the event
-    $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();
+
+    // set the event if not set
+    if (empty($form['field_decathlon']['und']['#default_value'])) {
+      $form['field_decathlon']['und']['#default_value'][0] = decathlon_get_event();
+    }
+
     // hide event field
     $form['field_decathlon']['#access'] = FALSE;
-    // set the score
-    //$form['field_score']['und'][0]['value']['#default_value'] = 1;
+
     // hide score field
     $form['field_score']['#access'] = FALSE;
   }
