@@ -298,4 +298,33 @@ function decathlon_ctools_plugin_directory($owner, $plugin) {
   }
 }
 
+/**
+ * Implements hook_validate
+ *
+ * Check bonus nodes for self reporting
+ *
+ */
+function decathlon_node_validate($node, $form, &$form_state) {
 
+  if ($node->type == 'bonus') {
+
+    $term = taxonomy_term_load($node->field_bonus['und'][0]['tid']);
+    $recipient = $node->field_recipient['und'][0]['target_id'];
+
+    // Check if awarder and recipient are the same for steiner
+    if ($term->name == 'Steiner') {
+      if ($recipient == $node->field_awarder['und'][0]['target_id']) {
+        form_set_error('field_awarder', t('No self steiners! Awarder cannot be the same as recipient.'));
+      }
+    }
+
+    // Check if more than 3 doping today
+    if ($term->name == 'Doping') {
+      $view = views_get_view_result('bonus_count', 'default', $recipient, decathlon_get_event());
+      $count = $view[0]->node_title;
+      if ($count >= 3) {
+        form_set_error('field_bonus', t('Excessive doping noted and ignored!  Limit of 3 doping points per day, Wayne.'));
+      }
+    }
+  }
+}

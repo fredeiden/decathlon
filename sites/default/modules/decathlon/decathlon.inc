@@ -121,7 +121,9 @@ function decathlon_get_term_name($tid) {
   if (!isset($my_map)) {
     $my_map = db_query("SELECT tid, name FROM taxonomy_term_data")->fetchAllKeyed();
   }
-  return $my_map[$tid];
+  if (isset($tid)) {
+    return $my_map[$tid];
+  }
 }
 
 /**
@@ -450,8 +452,7 @@ function decathlon_get_rankings() {
     }
 
     // MostP
-    $groups = array('decathlon', 'leisure', 'parlor');
-    foreach ($groups as $athlon) {
+    foreach (array('decathlon', 'leisure', 'parlor') as $athlon) {
       // player opponents
       $all_played = decathlon_get_opponents($athlon);
       foreach ($all_played as $pid => $unique_opponents) {

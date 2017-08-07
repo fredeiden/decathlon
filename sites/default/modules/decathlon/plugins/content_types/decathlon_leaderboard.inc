@@ -194,11 +194,15 @@ function decathlon_leaderboard_leaders($athlon = "decathlon", $version = "full")
     '</ul>';
 
   $content = $header;
-  $content .= theme('item_list', array(
-                'items' => $rows, 
-                'type' => 'ul', 
-                'attributes' => array('class' => 'leaderboard-list'),
-              ));
+  if (empty($rows)) {
+    $content .= "<div>No qualifiers</div>";
+  } else {
+    $content .= theme('item_list', array(
+                  'items' => $rows, 
+                  'type' => 'ul', 
+                  'attributes' => array('class' => 'leaderboard-list'),
+                ));
+  }
   
   return $content;
 }

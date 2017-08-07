@@ -171,7 +171,7 @@ function decathlon_game_report_game_history($gid) {
       'sticky' => FALSE, 
       'rows' => $rows,
       'header' => $header,
-      'caption' => 'History',
+      'caption' => decathlon_get_term_name($gid) . ' History',
     ));
 }
 
@@ -391,7 +391,7 @@ function decathlon_game_report_game_leaders($gid = NULL) {
     );
   }
 
-  $html = theme('table', array('caption' => decathlon_get_term_name($gid), 'sticky' => FALSE, 'header' => $header, 'rows' => $rows));
+  $html = theme('table', array('caption' => decathlon_get_term_name($gid) . ' Results', 'sticky' => FALSE, 'header' => $header, 'rows' => $rows));
 
   return $html;
 }

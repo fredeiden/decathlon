@@ -221,6 +221,7 @@ ul.secondary {
   border-bottom: 1px solid #ccc;
   margin: 1em 0 0;
   padding: 0 .3em 1em;
+  text-align: center;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Applications\/MAMP\/decathlon\/sites\/all\/themes\/at\/sass\/global\.styles\.scss}line{font-family:\00003210}}
 ul.secondary li {
