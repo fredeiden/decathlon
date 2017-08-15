@@ -84,7 +84,10 @@ function decathlon_players_form($form, &$form_state, $arg) {
                    'style_name' => 'player_small', 
                    'path' => !empty($term->field_picture['und'][0]['uri']) ? $term->field_picture['und'][0]['uri'] : 'public://default_images/yoda.jpg',
                  )),
-      '#suffix' => '<div>' . $term->tid . '</div>',
+      '#suffix' => 
+      '<div>' . 
+      l('edit', '/taxonomy/term/' . $players[$i]->tid . '/edit', array('query' => array('destination' => 'decathlon/manage-players'))) .
+      '</div>',
     );
 
     // display active/inactive status and allow it to be reset
