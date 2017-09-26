@@ -76,7 +76,7 @@ function decathlon_form_alter(&$form, &$form_state, $form_id) {
     $form['field_decathlon']['#access'] = FALSE;
 
     // hide score field
-    $form['field_score']['#access'] = FALSE;
+    //$form['field_score']['#access'] = FALSE;
   }
 }
 
