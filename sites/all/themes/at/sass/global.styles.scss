@@ -1320,6 +1320,12 @@ ul.score-list {
   }
 }
 
+.view-event-management {
+  .active {
+    background: $green_highlight;
+  }
+}
+
 .quick-form {
   background: #eee;
   margin: 1em;

@@ -244,7 +244,7 @@ function decathlon_get_event_games($athlon = NULL) {
     foreach ($exhibition as $row) {
       if (!empty($row->field_field_exhibition_games)) {
         $game_list['exhibition'][$row->field_field_exhibition_games[0]['raw']['target_id']] = 
-          $row->field_field_exhibition_games[0]['rendered']['#markup'];
+          $row->field_field_exhibition_games[0]['raw']['entity']->name;
       }
     }
   }
