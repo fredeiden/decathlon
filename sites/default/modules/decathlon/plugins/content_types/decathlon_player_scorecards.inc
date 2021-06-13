@@ -123,7 +123,7 @@ function decathlon_player_scorecards_point_totals($this_pid, $type) {
     'leisure',
     'parlor',
   );
-  
+
   $content = "";
   foreach ($options as $athlon) {
     $content .= decathlon_player_scorecards_point_table(decathlon_get_rankings_by_type($type), $this_pid, $athlon, $type);
@@ -168,7 +168,7 @@ function decathlon_player_scorecards_point_table($report, $this_pid, $athlon, $t
     if (isset($report[$gid])) {
       foreach ($report[$gid] as $index => $data) {
         if ($data['player'] == $this_pid) {
-          $cols = array(
+            $cols = array(
             l(strtoupper(substr(decathlon_get_term_name($gid), 0, 4)) . $suffix, 'scores/games/' . $gid),
             isset($data['Play']) ? $data['Play'] : 0,
             isset($data['Besting']) ? $data['Besting'] : 0,
@@ -183,7 +183,9 @@ function decathlon_player_scorecards_point_table($report, $this_pid, $athlon, $t
           isset($data['Honor']) && $sum['Honor'] += $data['Honor'];
           isset($data['Skunk']) && $sum['Skunk'] += $data['Skunk'];
           isset($data['Total']) && $sum['Total'] += $data['Total'];
-          isset($data['Rank']) && $sum['Rank'] += $data['Rank'];
+          if (isset($data['Rank']) && is_numeric($data['Rank'])) {
+              $sum['Rank'] += $data['Rank'];
+          }
         }
       }
     }
@@ -224,11 +226,11 @@ function decathlon_player_scorecards_all_totals($athlon = NULL) {
   $results = decathlon_get_rankings_all_sums();
   if ($athlon == NULL) {
     uasort($results, function($a, $b) {
-        return (decathlon_player_decathlon_dpi($b) - decathlon_player_decathlon_dpi($a)); 
+        return (decathlon_player_decathlon_dpi($b) - decathlon_player_decathlon_dpi($a));
       });
   } else {
     uasort($results, function($a, $b) use ($athlon) {
-        return (decathlon_player_athlon_dpi($b, $athlon) - decathlon_player_athlon_dpi($a, $athlon)); 
+        return (decathlon_player_athlon_dpi($b, $athlon) - decathlon_player_athlon_dpi($a, $athlon));
       });
   }
 
@@ -272,7 +274,7 @@ function decathlon_player_scorecards_scorecard($this_pid, $athlon_only = NULL) {
     }
   }
 
-  isset($results['bonus']) ? $bonus = $results['bonus'] : $bonus = 0; 
+  isset($results['bonus']) ? $bonus = $results['bonus'] : $bonus = 0;
 
   $totals = array(
     'points' => 0,
@@ -377,7 +379,7 @@ function decathlon_player_scorecards_get_eligible_cell($num) {
 function decathlon_player_scorecards_suggestion_log($pid, $athlon) {
 
   // calculation factors are stored in the ranking array
-  $results = decathlon_get_rankings_player_sums($pid);  
+  $results = decathlon_get_rankings_player_sums($pid);
   $log = $results['log'];
 
   // only show results for this athlon
@@ -401,7 +403,7 @@ function decathlon_player_scorecards_suggestion_log($pid, $athlon) {
     decathlon_hard_suggestion($log, $athlon),
   );
   $content = theme('item_list', array(
-               'items' => $suggestions, 
+               'items' => $suggestions,
                'type' => 'ul',
                'attributes' => array('class' => 'suggestions'),
              ));
@@ -411,7 +413,7 @@ function decathlon_player_scorecards_suggestion_log($pid, $athlon) {
       $rows = array();
       foreach ($point_list as $points => $factor_list) {
         $rows[] = array(
-          $points, 
+          $points,
           $factor_list['spread'],
           $factor_list['bump'],
           $factor_list['multiplier'] . $factor_list['multiplier_suffix'],
@@ -419,7 +421,7 @@ function decathlon_player_scorecards_suggestion_log($pid, $athlon) {
           array('data' => $factor_list['result'], 'class' => array('highlight-col')),
         );
       }
-  
+
       $content .= theme('table', array(
                     'rows' => $rows,
                     'caption' => l(decathlon_get_term_name($gid), 'scores/games/' . $gid),
@@ -457,12 +459,12 @@ function decathlon_player_scorecards_dpi_averages($pid) {
       $multiplier = decathlon_dpi_get_player_multipliers($gid, $pid, $i);
 
       // columns 2 through 8: multiplier
-      $row[] = $multiplier['value'] . $multiplier['string'];  
+      $row[] = $multiplier['value'] . $multiplier['string'];
     }
 
     $rows[] = $row;
   }
-  
+
   // header array for theme table
   $header = array("Game");
   for ($i = 1; $i <= 8; $i++) {

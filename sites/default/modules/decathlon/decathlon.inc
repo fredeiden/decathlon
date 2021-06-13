@@ -13,7 +13,7 @@ function decathlon_get_ordinal($number) {
 }
 
 /**
- * Points are stored in the Drupal taxonomy structure and have taxonomy term IDs. 
+ * Points are stored in the Drupal taxonomy structure and have taxonomy term IDs.
  * Should probably clean this up and go to the database for these, but they never change.
  */
 function decathlon_get_point_types() {
@@ -58,7 +58,7 @@ function decathlon_get_all_typed_rankings() {
 
 /**
  * Query to fetch sum of points by player and point type for a specific game in the current event
- * 
+ *
  * @param $gid
  *  The taxonomy term ID for the game (backgammon is a game whereas a specific game of backgammon is a contest)
  */
@@ -102,7 +102,7 @@ function decathlon_get_contests() {
   $results = &drupal_static(__FUNCTION__);
   if (! isset($results)) {
     $results = db_query(
-      "SELECT dc.contest, dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event ORDER BY dc.contest", 
+      "SELECT dc.contest, dc.gid, ds.pid FROM {decathlon_scores} ds, {decathlon_contests} dc WHERE dc.contest = ds.contest AND dc.event = :event ORDER BY dc.contest",
       array(':event' => decathlon_get_event())
     )->fetchAll();
   }
@@ -111,7 +111,7 @@ function decathlon_get_contests() {
 
 /**
  * Helper function to return the name for a Drupal taxonomy term ID.
- * Heavily used, so cache all rows with one query. 
+ * Heavily used, so cache all rows with one query.
  *
  * @param $tid
  *  The taxonomy term ID for a player, game, etc.
@@ -215,7 +215,7 @@ function decathlon_game_type($gid) {
 /**
  * Decathlon games are separated into leisure games and parlor games.  All are decathlon. Some are exhibition.
  * This function will return a list of games for the respective grouping.
- * 
+ *
  * @param $athlon
  *  String assigned as 'decathlon', 'leisure', 'parlor', or 'exhibition'
  */
@@ -224,18 +224,18 @@ function decathlon_get_event_games($athlon = NULL) {
   $game_list = &drupal_static(__FUNCTION__);
 
   if (!isset($game_list)) {
- 
+
     //leisure
     $leisure = views_get_view_result('event_games', 'panel_pane_1');
     foreach ($leisure as $row) {
-      $game_list['leisure'][$row->field_data_field_leisure_games_field_leisure_games_target_id] = 
+      $game_list['leisure'][$row->field_data_field_leisure_games_field_leisure_games_target_id] =
         $row->field_field_leisure_games[0]['raw']['entity']->name;
     }
 
     // parlor
     $parlor = views_get_view_result('event_games', 'panel_pane_2');
     foreach ($parlor as $row) {
-      $game_list['parlor'][$row->field_data_field_parlor_games_field_parlor_games_target_id] = 
+      $game_list['parlor'][$row->field_data_field_parlor_games_field_parlor_games_target_id] =
         $row->field_field_parlor_games[0]['raw']['entity']->name;
     }
 
@@ -243,7 +243,7 @@ function decathlon_get_event_games($athlon = NULL) {
     $exhibition = views_get_view_result('event_games', 'panel_pane_3');
     foreach ($exhibition as $row) {
       if (!empty($row->field_field_exhibition_games)) {
-        $game_list['exhibition'][$row->field_field_exhibition_games[0]['raw']['target_id']] = 
+        $game_list['exhibition'][$row->field_field_exhibition_games[0]['raw']['target_id']] =
           $row->field_field_exhibition_games[0]['raw']['entity']->name;
       }
     }
@@ -355,11 +355,11 @@ function decathlon_get_rankings() {
       foreach ($scores as $index => $points) {
 
         $pid = $points['player'];
-          
+
         $current_total = $points['Total'];
         $previous_total = isset($scores[($index - 1)]['Total']) ? $scores[($index - 1)]['Total'] : 100000;
         $next_total = isset($scores[($index + 1)]['Total']) ? $scores[($index + 1)]['Total'] : 0;
-          
+
         // track ties by comparing current total to totals before and after
         $tie = FALSE;
         if ($index < (count($scores) - 1)) { // not the last row
@@ -395,7 +395,7 @@ function decathlon_get_rankings() {
         //
         // write weighted columns
         //
-        $adjusted_rank = decathlon_dpi_get_ranking($rank);          
+        $adjusted_rank = decathlon_dpi_get_ranking($rank);
         // game
         $totals['games']['weighted'][$gid][$index]['Rank'] = $adjusted_rank;
         // overall by athlon
@@ -507,9 +507,9 @@ function decathlon_get_rankings() {
  * Stored for each athlon and overall
  *
  * @param $athlon
- * 
+ *
  * @param $game_weight
- * 
+ *
  * @param $rank
  *
  * @param $tie
@@ -539,7 +539,7 @@ function decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pi
     if ($deficit > $limit) {
       break;
     }
-              
+
     // spread is the gain in dpi points for moving to a new rank
     $sp[$deficit]['rank'] = $gain[$i]['rank'];
     $sp[$deficit]['lower_rank'] = $gain[($i + 1)]['rank'];
@@ -578,7 +578,7 @@ function decathlon_make_suggestion($athlon, $game_weight, $rank, $tie, $gid, $pi
         $bump = decathlon_dpi_get_ranking(($new_rank)) - decathlon_dpi_get_ranking(($new_rank + 1));
       }
     }
-            
+
     // estimate of the likelihood of getting this number of points
     $multiplier = decathlon_dpi_get_player_multipliers($gid, $pid, $points);
 
@@ -611,11 +611,11 @@ function decathlon_save_suggestion(&$totals, $suggestion, $pid, $gid) {
     if ($row['multiplier']['value'] > 0) { // some chance of getting this
       $totals['sums'][$pid]['log'][$gid][$row['points']] = array(
         'athlon' => $row['athlon'],
-        'spread' => $row['spread'], 
-        'bump' => $row['bump'], 
+        'spread' => $row['spread'],
+        'bump' => $row['bump'],
         'multiplier' => $row['multiplier']['value'],
-        'multiplier_suffix' => $row['multiplier']['string'], 
-        'game_weight' => $row['game_weight'], 
+        'multiplier_suffix' => $row['multiplier']['string'],
+        'game_weight' => $row['game_weight'],
         'result' => round($row['result'], 2),
       );
     }
@@ -691,7 +691,7 @@ function decathlon_hard_suggestion($log, $athlon) {
 function decathlon_get_rankings_by_type($type) {
   $results = decathlon_get_rankings();
   if (isset($results['games'][$type])) {
-    return $results['games'][$type];  
+    return $results['games'][$type];
   }
   return array();
 }
@@ -703,7 +703,7 @@ function decathlon_get_rankings_player_sums($pid) {
   $results = decathlon_get_rankings();
   if (isset($results['sums'][$pid])) {
     return $results['sums'][$pid];
-  }  
+  }
 }
 
 /**
@@ -738,7 +738,7 @@ function decathlon_get_ranking_points() {
         $sums[$group][$pid]['dpi'] = $data['play'][$group]['points'] + $data['play'][$group]['rank'];
         // decathlon points
         $sums['decathlon'][$pid]['dpi'] += $data['play'][$group]['points'] + $data['play'][$group]['rank'];
-      } 
+      }
       // bonus points for athlons
       if (!empty($data['bonus'])) {
         $sums[$group][$pid]['dpi'] += $data['bonus'];
@@ -800,15 +800,15 @@ function decathlon_get_ranking_points() {
       foreach ($group as $name => $settings) {
         $keys = $settings['keys'];
         $index = $settings['index'];
-        
+
         if (isset($keys[$index])) {
           $pid = $keys[$index];
         } else {
           break;
         }
-      
+
         // find eligible player not currently on a podium
-        while (!empty($sums[$name][$pid]['podium']) || (decathlon_get_leaderboard_eligibility($results[$pid], $name) != 0)) { 
+        while (!empty($sums[$name][$pid]['podium']) || (decathlon_get_leaderboard_eligibility($results[$pid], $name) != 0)) {
           $index++;
           if (isset($keys[$index])) {
             $pid = $keys[$index];
@@ -818,10 +818,10 @@ function decathlon_get_ranking_points() {
         }
 
         // in the categories other than this, mark player as on podium
-        foreach ($settings['other'] as $other) { 
+        foreach ($settings['other'] as $other) {
           $sums[$other][$pid]['podium'] = $name;
         }
-        
+
         $index++; // increment for next pass
         $group[$name]['index'] = $index;  // save new index
       }
@@ -953,7 +953,7 @@ function decathlon_game_icon($gid) {
   if (!isset($my_map[$gid])) {
     $term = taxonomy_term_load($gid);
     $my_map[$gid] = l(theme('image_style', array(
-                        'style_name' => 'mini', 
+                        'style_name' => 'mini',
                         'path' => $term->field_picture['und'][0]['uri'],
                       )), 'scores/games/' . $gid, array('html' => TRUE));
   }
@@ -1044,7 +1044,7 @@ function decathlon_table_sort($data, $index, $sort) {
         }
       }
     });
-  
+
   return $data;
 }
 
@@ -1072,8 +1072,8 @@ function decathlon_table($header, $table_data) {
 
   // theme table
   return theme('table', array(
-      'sticky' => FALSE, 
-      'header' => $header, 
+      'sticky' => FALSE,
+      'header' => $header,
       'rows' => $rows,
     ));
 }
@@ -1094,7 +1094,7 @@ function decathlon_table_row(&$value, $key, $header) {
  *
  */
 function decathlon_count_honors($tid, $count) {
-  
+
   // get honors minimum to score (i.e. need 3 ringers to score the honor)
   $min_to_score = decathlon_taxonomy_get_override($tid, 'field_min_to_score');
 
@@ -1121,4 +1121,3 @@ function decathlon_get_honors_award($tid, $count) {
 
   return ($adjusted_for_min * $value);
 }
-
